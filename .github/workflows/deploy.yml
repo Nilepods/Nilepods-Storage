@@ -1,13 +1,17 @@
-# Builds the site and uploads it to Hostinger on every push to main.
+# Builds the site and uploads it to Hostinger over SSH on every push to main.
 #
-# Repository secrets needed (GitHub -> Settings -> Secrets and variables -> Actions):
-#   HOSTINGER_FTP_SERVER     e.g. ftp.yourdomain.com or the IP from hPanel -> Files -> FTP Accounts
-#   HOSTINGER_FTP_USERNAME   the FTP username from hPanel
-#   HOSTINGER_FTP_PASSWORD   the FTP password from hPanel
+# Repository SECRET (Settings -> Secrets and variables -> Actions -> Secrets):
+#   HOSTINGER_SSH_KEY        private half of the deploy key (public half is in hPanel -> Advanced -> SSH Access)
+#
+# Repository VARIABLES (same page -> Variables tab; these are not secret):
+#   HOSTINGER_SSH_HOST       server IP from hPanel -> Advanced -> SSH Access
+#   HOSTINGER_SSH_PORT       SSH port from the same page (65002 on Hostinger web hosting)
+#   HOSTINGER_SSH_USER       SSH username from the same page (u123456789)
+#   HOSTINGER_KNOWN_HOSTS    the server's SSH host keys, so the workflow only talks to the real server
+#   HOSTINGER_REMOTE_DIR     folder the site is served from, relative to the home folder,
+#                            e.g. domains/nilepods.com/public_html/preview
 #   VITE_SUPABASE_URL        Supabase project URL
-#   VITE_SUPABASE_ANON_KEY   Supabase publishable / anon key (never the service_role key)
-# Optional repository variable (Settings -> Secrets and variables -> Actions -> Variables):
-#   HOSTINGER_REMOTE_DIR     folder to upload into; defaults to public_html/
+#   VITE_SUPABASE_ANON_KEY   Supabase publishable key (public by design; never the secret/service_role key)
 
 name: Deploy to Hostinger
 
@@ -26,7 +30,6 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - uses: actions/checkout@v4
 
@@ -41,28 +44,45 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Check that FTP secrets are set
+      - name: Check deploy settings
         env:
-          S: ${{ secrets.HOSTINGER_FTP_SERVER }}
-          U: ${{ secrets.HOSTINGER_FTP_USERNAME }}
-          P: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          HOST: ${{ vars.HOSTINGER_SSH_HOST }}
+          USER: ${{ vars.HOSTINGER_SSH_USER }}
+          KNOWN: ${{ vars.HOSTINGER_KNOWN_HOSTS }}
+          DIR: ${{ vars.HOSTINGER_REMOTE_DIR }}
         run: |
-          if [ -z "$S" ] || [ -z "$U" ] || [ -z "$P" ]; then
-            echo "::error::Hostinger FTP secrets are not set yet. Add them in GitHub repo Settings -> Secrets and variables -> Actions."
+          missing=""
+          [ -n "$KEY" ]   || missing="$missing HOSTINGER_SSH_KEY(secret)"
+          [ -n "$HOST" ]  || missing="$missing HOSTINGER_SSH_HOST"
+          [ -n "$USER" ]  || missing="$missing HOSTINGER_SSH_USER"
+          [ -n "$KNOWN" ] || missing="$missing HOSTINGER_KNOWN_HOSTS"
+          [ -n "$DIR" ]   || missing="$missing HOSTINGER_REMOTE_DIR"
+          if [ -n "$missing" ]; then
+            echo "::error::Hostinger deploy settings missing:$missing. Add them in GitHub repo Settings -> Secrets and variables -> Actions."
             exit 1
           fi
 
       - name: Upload to Hostinger
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.HOSTINGER_FTP_SERVER }}
-          username: ${{ secrets.HOSTINGER_FTP_USERNAME }}
-          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
-          protocol: ftps
-          local-dir: ./dist/
-          server-dir: ${{ vars.HOSTINGER_REMOTE_DIR || 'public_html/' }}
-          # Only removes files this action uploaded before; never touches other files on the server.
-          dangerous-clean-slate: false
+        env:
+          KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          HOST: ${{ vars.HOSTINGER_SSH_HOST }}
+          PORT: ${{ vars.HOSTINGER_SSH_PORT || '65002' }}
+          USER: ${{ vars.HOSTINGER_SSH_USER }}
+          KNOWN: ${{ vars.HOSTINGER_KNOWN_HOSTS }}
+          DIR: ${{ vars.HOSTINGER_REMOTE_DIR }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN" > ~/.ssh/known_hosts
+          SSH="ssh -p $PORT -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes"
+          $SSH "$USER@$HOST" "mkdir -p '$DIR'"
+          # No --delete: files already on the server that are not part of this build are left alone.
+          rsync -rlvz --checksum -e "$SSH" dist/ "$USER@$HOST:$DIR/"
+
+      - name: Remove key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key

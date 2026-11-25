@@ -26,15 +26,15 @@ npm run preview         # serve the production build at http://localhost:4173
 
 ## Deployment
 
-Every push to `main` runs **Actions → Deploy to Hostinger**: it builds the site and uploads `dist/` to `public_html/` over FTPS.
-It needs these repository secrets (Settings → Secrets and variables → Actions):
-`HOSTINGER_FTP_SERVER`, `HOSTINGER_FTP_USERNAME`, `HOSTINGER_FTP_PASSWORD`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
+Every push to `main` runs **Actions → Deploy to Hostinger**: it builds the site and uploads `dist/` to Hostinger over SSH (rsync) with a deploy key.
+It needs one repository **secret**, `HOSTINGER_SSH_KEY`, and these repository **variables** (Settings → Secrets and variables → Actions):
+`HOSTINGER_SSH_HOST`, `HOSTINGER_SSH_PORT`, `HOSTINGER_SSH_USER`, `HOSTINGER_KNOWN_HOSTS`, `HOSTINGER_REMOTE_DIR`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 
 ## Secrets
 
 - `.env` files are git-ignored; only `.env.example` (no values) is committed.
 - Only the Supabase **publishable/anon** key is used in the site. The `service_role` / secret key must never be put in this repo or in any `VITE_` variable.
-- FTP credentials live only in GitHub secrets.
+- The deploy key's private half lives only in the GitHub secret; there is no hosting password anywhere.
 
 ## Before launch
 
