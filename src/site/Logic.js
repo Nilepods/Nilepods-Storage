@@ -1,6 +1,20 @@
 // State and behaviour for this page. Converted from design/Main.dc.html; safe to edit.
 import DCLogic from '../lib/DCLogic.jsx';
 import { loadBusySlots, startCheckout, getPaymentStatus, isoDate } from '../lib/booking.js';
+import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut } from '../lib/auth.js';
+import { supabase } from '../lib/supabase.js';
+
+// Date and hour of a timestamp in studio time (Cairo), whatever the visitor's own time zone.
+function cairoParts(iso) {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Cairo', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', hourCycle: 'h23' })
+    .formatToParts(new Date(iso)).reduce((o, p) => { o[p.type] = Number(p.value); return o; }, {});
+  return { y: parts.year, m: parts.month, d: parts.day, h: parts.hour };
+}
+const STATUS_LABELS = {
+  confirmed: ['Confirmed', 'pill-ok'], in_studio: ['In studio', 'pill-ok'], completed: ['Completed', 'pill-ok'],
+  no_show: ['Missed', 'pill-due'], cancelled: ['Cancelled', 'pill-due'], needs_review: ['Being reviewed', 'pill-due'],
+  active: ['Paid', 'pill-ok'],
+};
 
 // Wizard fields kept while the customer is on Paymob's page, so a failed payment can be retried.
 const WIZARD_KEYS = ['mode', 'svc', 'setup', 'people', 'ex', 'dateKey', 'start', 'bTier', 'bCount', 'info', 'monthOff'];
@@ -19,15 +33,52 @@ export default class Logic extends DCLogic {
       bookings: [], credits: [], last: null, signedIn: false, acctEmail: '', menu: false, toast: '',
       legal: 'privacy', cf: { name: '', phone: '', email: '', msg: '' }, contactSent: false,
       tf: { name: '', phone: '', note: '' }, tourSent: false, tDate: null, tOff: 0, tSlot: null,
-      busy: {}
+      busy: {}, signInBusy: false, signInNote: ''
     };
   }
   // ---------- live data (Supabase + Paymob) ----------
   componentDidMount() {
+    var self = this;
     this.loadBusy();
     this.checkPaymentReturn();
+    if (new URLSearchParams(window.location.search).get('account')) this.setState({ screen: 'account' });
+    this._unwatch = watchSession(function (session) { self.onSession(session); });
   }
-  componentWillUnmount() { clearTimeout(this._poll); clearTimeout(this._tt); }
+  componentWillUnmount() { clearTimeout(this._poll); clearTimeout(this._tt); if (this._unwatch) this._unwatch(); }
+  onSession(session) {
+    var self = this, email = session && session.user && session.user.email;
+    if (!email) { this._recorded = null; this.setState({ signedIn: false, bookings: [], credits: [] }); return; }
+    if (window.location.search.indexOf('account=') >= 0) window.history.replaceState(null, '', window.location.pathname);
+    this.setState({ signedIn: true, acctEmail: email, signInNote: '' });
+    if (this._recorded !== email) { this._recorded = email; recordSignIn().catch(function (e) { console.warn('sign-in not recorded', e); }); }
+    this.loadMyBookings();
+  }
+  loadMyBookings() {
+    var self = this;
+    if (!supabase) return;
+    supabase.rpc('my_bookings').then(function (res) {
+      if (res.error) { console.warn('Could not load bookings', res.error); return; }
+      var pk = self.pkgData(), SU = self.setupData();
+      var byId = function (id) { return pk.filter(function (p) { return p.id === id; })[0] || { name: 'Studio session', tier: '' }; };
+      var bookings = [], credits = [];
+      (res.data || []).forEach(function (r) {
+        var st = STATUS_LABELS[r.status] || ['Confirmed', 'pill-ok'];
+        if (r.kind === 'session') {
+          var a = cairoParts(r.starts_at), e = cairoParts(r.ends_at), d = new Date(a.y, a.m - 1, a.d);
+          var su = SU.filter(function (x) { return x.id === r.setup_id; })[0];
+          bookings.push({ ref: r.ref, key: a.y + '-' + a.m + '-' + a.d, setup: r.setup_id, start: a.h, end: e.h || 24,
+            pkgName: byId(r.service).name, setupLabel: su ? su.n : r.setup_id, dateLabel: self.longDate(d) + ' ' + a.y,
+            timeLabel: self.range(a.h, e.h || 24), totalLabel: self.money(r.total_egp), statusLabel: st[0], statusCls: st[1] });
+        } else {
+          var P = byId(r.service);
+          credits.push({ tier: P.tier, name: P.name, count: r.sessions, ref: r.ref,
+            status: r.status === 'active' ? 'Paid' : (STATUS_LABELS[r.status] || ['Pending'])[0], total: self.money(r.total_egp) });
+        }
+      });
+      // my_bookings returns newest first; the page shows the list reversed
+      self.setState({ bookings: bookings.reverse(), credits: credits.reverse() });
+    });
+  }
   loadBusy() {
     var self = this, from = new Date(), to = new Date();
     from.setHours(0, 0, 0, 0); to.setDate(to.getDate() + 62);
@@ -51,9 +102,9 @@ export default class Logic extends DCLogic {
         var failed = st && (st.payment_status === 'failed' || st.status === 'expired' || st.status === 'cancelled');
         if (paid) {
           sessionStorage.removeItem('np_pending'); sessionStorage.removeItem('np_wizard');
-          var s = { last: Object.assign({}, base, { payState: 'Paid', payCls: 'pill-ok' }), signedIn: !!draft, acctEmail: draft ? base.email : '' };
+          var s = { last: Object.assign({}, base, { payState: 'Paid', payCls: 'pill-ok' }) };
           if (st.status === 'needs_review') s.last.note = 'Your payment went through, but our team needs to confirm your time. We will contact you shortly.';
-          if (base.kind === 'session' && base.booking) s.bookings = self.state.bookings.concat([base.booking]);
+          if (self.state.signedIn) self.loadMyBookings();
           self.setState(s); self.loadBusy();
         } else if (failed) {
           sessionStorage.removeItem('np_pending');
@@ -471,8 +522,8 @@ export default class Logic extends DCLogic {
     var legalTitles = { privacy: 'Privacy Policy', terms: 'Terms & Conditions', refund: 'Refund & Cancelation' };
     var bookingList = S.bookings.slice().reverse().map(function (b) { return Object.assign({}, b, { cells: cellsFor(b.start, b.end) }); });
     var creditList = S.credits.slice().reverse().map(function (c) {
-      return { title: c.tier + ' · ' + c.name, left: c.left + ' of ' + c.count + ' left', expires: 'Valid until ' + c.expires,
-        canBook: c.left > 0, book: function () { self.startSession({ svc: c.svc, setup: null, w: 2 }); } };
+      return { title: c.tier + ' · ' + c.name, left: c.count + (c.count === 1 ? ' session' : ' sessions') + ' · ' + c.total + ' · ' + c.status,
+        expires: 'Order ' + c.ref + '. Our team will contact you to schedule your sessions.', canBook: false, book: function () {} };
     });
 
     return {
@@ -552,9 +603,17 @@ export default class Logic extends DCLogic {
       sendTour: function () { self.setState({ tourSent: true }); self.scrollTop(); },
       signedIn: S.signedIn, signedOut: !S.signedIn, acctEmail: S.acctEmail,
       onAcct: function (e) { self.setState({ acctEmail: e.target.value }); },
-      signinBlocked: !/.+@.+\..+/.test(S.acctEmail),
-      signIn: function () { self.setState({ signedIn: true }); },
-      signOut: function () { self.setState({ signedIn: false }); },
+      signinBlocked: S.signInBusy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.acctEmail.trim()),
+      signInLabel: S.signInBusy ? 'Sending…' : S.signInNote ? 'Send the link again' : 'Email me a sign-in link',
+      hasSignInNote: !!S.signInNote, signInNote: S.signInNote,
+      signIn: function () {
+        var em = S.acctEmail.trim();
+        self.setState({ signInBusy: true });
+        sendSignInLink(em, '/?account=1').then(function () {
+          self.setState({ signInBusy: false, signInNote: 'Check your inbox at ' + em + ' and tap the link to sign in. It can take a minute; check spam too.' });
+        }).catch(function (err) { self.setState({ signInBusy: false }); self.showToast(err.message); });
+      },
+      signOut: function () { authSignOut().then(function () { self.setState({ signedIn: false, bookings: [], credits: [], acctEmail: '' }); }); },
       bookingList: bookingList, noBookings: bookingList.length === 0 && creditList.length === 0,
       creditList: creditList, hasCredits: creditList.length > 0, hasBookings: bookingList.length > 0,
       // wizard

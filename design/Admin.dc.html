@@ -135,10 +135,9 @@ button.trow:hover{background:#17140F}
 </div>
 <div style="text-align: center"><h1 class="ttl" style="margin: 0; font-size: 26px; color: #FFFFFF">Sign in</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A89C8B">Only team members the owner has invited can sign in.</p></div>
 <div class="field"><label for="l-email">Work email</label><input id="l-email" class="inp" type="email" value="{{ email }}" onChange="{{ onEmail }}" autoComplete="username" placeholder="you@nilepods.com"></div>
-<div class="field"><label for="l-pw">Password</label><input id="l-pw" class="inp" type="password" value="{{ pw }}" onChange="{{ onPw }}" autoComplete="current-password" placeholder="••••••••"></div>
 <sc-if value="{{ hasLoginErr }}" hint-placeholder-val="{{ false }}"><p class="ferr" role="alert" style="margin: 0">{{ loginErr }}</p></sc-if>
-<button class="btn-gold" onClick="{{ signIn }}" style="min-height: 50px; font-size: 15px">Sign in</button>
-<p style="margin: 0; font-size: 12.5px; color: #7D7365; text-align: center; line-height: 1.6">Prototype: sign in as <strong style="color: #CFC5B5">owner@nilepods.com</strong> (full access) or <strong style="color: #CFC5B5">desk@nilepods.com</strong> (front desk) with any password.</p>
+<button class="btn-gold" disabled="{{ signInBusy }}" onClick="{{ signIn }}" style="min-height: 50px; font-size: 15px">{{ signInLabel }}</button>
+<p style="margin: 0; font-size: 12.5px; color: #7D7365; text-align: center; line-height: 1.6">{{ loginNote }}</p>
 </div>
 </div>
 </sc-if>
@@ -170,7 +169,7 @@ button.trow:hover{background:#17140F}
 <!-- ======== OVERVIEW ======== -->
 <sc-if value="{{ is.overview }}" hint-placeholder-val="{{ true }}">
 <div class="ph">
-<div><p class="lbl">Overview</p><h1 class="ttl" style="margin: 6px 0 0; font-size: 32px; color: #FFFFFF">Good to see you, {{ me.first }}</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A89C8B">{{ todayLong }} · sample data</p></div>
+<div><p class="lbl">Overview</p><h1 class="ttl" style="margin: 6px 0 0; font-size: 32px; color: #FFFFFF">Good to see you, {{ me.first }}</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A89C8B">{{ todayLong }} · {{ dataNote }}</p></div>
 <div class="seg" role="group" aria-label="Period"><sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3"><button class="{{ r.cls }}" onClick="{{ r.go }}">{{ r.label }}</button></sc-for></div>
 </div>
 <div class="kpis">
@@ -263,7 +262,7 @@ button.trow:hover{background:#17140F}
 <!-- ======== PAYMENTS ======== -->
 <sc-if value="{{ is.payments }}" hint-placeholder-val="{{ false }}">
 <div class="ph">
-<div><p class="lbl">Payments</p><h1 class="ttl" style="margin: 6px 0 0; font-size: 32px; color: #FFFFFF">Money in</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A89C8B">{{ rangeLabel }} · sample data</p></div>
+<div><p class="lbl">Payments</p><h1 class="ttl" style="margin: 6px 0 0; font-size: 32px; color: #FFFFFF">Money in</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A89C8B">{{ rangeLabel }} · {{ dataNote }}</p></div>
 <div style="display: flex; gap: 10px; flex-wrap: wrap"><div class="seg" role="group" aria-label="Period"><sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3"><button class="{{ r.cls }}" onClick="{{ r.go }}">{{ r.label }}</button></sc-for></div><button class="btn-ghost" onClick="{{ exportCsv }}">Export CSV</button></div>
 </div>
 <div class="kpis">
@@ -330,7 +329,7 @@ button.trow:hover{background:#17140F}
 <div class="field"><label for="i-email">Email</label><input id="i-email" class="inp" type="email" value="{{ invite.email }}" onChange="{{ onInvEmail }}" placeholder="name@nilepods.com"></div>
 <div class="field"><label for="i-role">Role</label><select id="i-role" class="inp" value="{{ invite.role }}" onChange="{{ onInvRole }}"><option value="Manager">Manager</option><option value="Front desk">Front desk</option></select></div>
 <button class="btn-gold" disabled="{{ invite.blocked }}" onClick="{{ sendInvite }}">Send invite</button>
-<p style="margin: 0; font-size: 12.5px; color: #8C8172; line-height: 1.6">They get an email to set a password. Until they do, they show as Invited.</p>
+<p style="margin: 0; font-size: 12.5px; color: #8C8172; line-height: 1.6">Then ask them to open this admin page and sign in with that email. They get a sign-in link by email, no password. Until their first sign-in they show as Invited.</p>
 </div>
 <div class="panel" style="padding: 22px">
 <p class="lbl">What each role can see</p>
@@ -338,6 +337,20 @@ button.trow:hover{background:#17140F}
 <div class="row"><span class="k">Manager</span><span class="v">Everything except team &amp; access</span></div>
 <div class="row" style="border-bottom: 0"><span class="k">Front desk</span><span class="v">Schedule, bookings and tours — no money totals</span></div>
 </div>
+<div class="panel" style="padding: 22px">
+<p class="lbl">Recent sign-ins</p>
+<sc-if value="{{ noLogins }}" hint-placeholder-val="{{ false }}"><p class="muted" style="margin: 0">No sign-ins yet.</p></sc-if>
+<sc-for list="{{ logins }}" as="lg" hint-placeholder-count="4">
+<div class="row"><span class="k">{{ lg.who }}<span class="muted"> · {{ lg.kind }}</span></span><span class="v">{{ lg.when }}</span></div>
+</sc-for>
+</div>
+<sc-if value="{{ canClearTest }}" hint-placeholder-val="{{ false }}">
+<div class="panel" style="padding: 22px; display: flex; flex-direction: column; gap: 12px">
+<p class="lbl">Test data</p>
+<p style="margin: 0; font-size: 13px; color: #A89C8B; line-height: 1.6">{{ testNote }}</p>
+<button class="btn-danger" disabled="{{ testBusy }}" onClick="{{ clearTest }}">{{ clearTestLabel }}</button>
+</div>
+</sc-if>
 </div>
 </div>
 </sc-if>

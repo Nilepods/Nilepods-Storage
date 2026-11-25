@@ -6,9 +6,11 @@ export default defineConfig({
   plugins: [react()],
   build: {
     rollupOptions: {
-      // The admin dashboard (admin/index.html) runs in `npm run dev` only.
-      // Add it here once it has a real Supabase login, so it is never public before then.
-      input: { main: resolve(import.meta.dirname, 'index.html') },
+      input: {
+        main: resolve(import.meta.dirname, 'index.html'),
+        // Studio admin: email-link sign-in; access is checked by the database (staff table).
+        admin: resolve(import.meta.dirname, 'admin/index.html'),
+      },
     },
   },
 });

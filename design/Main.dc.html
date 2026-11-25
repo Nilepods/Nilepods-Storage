@@ -628,11 +628,11 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="card mpad" style="max-width: 480px; margin: 0 auto; padding: 40px; display: flex; flex-direction: column; gap: 18px">
 <p class="eyebrow" style="margin: 0">My account</p>
 <h1 class="ttl" style="margin: 0; font-size: 34px; color: #FFFFFF">Sign in</h1>
-<p class="lead" style="font-size: 15px">See your bookings, times and receipts.</p>
+<p class="lead" style="font-size: 15px">See your bookings and times. Enter the email you booked with and we will send you a sign-in link, no password needed.</p>
 <div class="field"><label for="a-email">Email</label><input id="a-email" class="inp" type="email" value="{{ acctEmail }}" onChange="{{ onAcct }}" placeholder="you@example.com"></div>
-<div class="field"><label for="a-pass">Password</label><input id="a-pass" class="inp" type="password" placeholder="••••••••"></div>
-<button class="btn-gold btn-lg" disabled="{{ signinBlocked }}" onClick="{{ signIn }}">Sign in</button>
-<p style="margin: 0; font-size: 14px; color: #A89C8B; text-align: center">New here? Your account is created when you make your first booking. <button class="link" onClick="{{ bookNow }}">Book a session</button></p>
+<button class="btn-gold btn-lg" disabled="{{ signinBlocked }}" onClick="{{ signIn }}">{{ signInLabel }}</button>
+<sc-if value="{{ hasSignInNote }}" hint-placeholder-val="{{ false }}"><p role="status" style="margin: 0; font-size: 14px; color: #E2B872; text-align: center; line-height: 1.6">{{ signInNote }}</p></sc-if>
+<p style="margin: 0; font-size: 14px; color: #A89C8B; text-align: center">New here? Your account is created the first time you sign in. <button class="link" onClick="{{ bookNow }}">Book a session</button></p>
 </div>
 </sc-if>
 <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}">
@@ -657,7 +657,7 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="card mpad" style="padding: 28px 32px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: flex-start">
 <div><p style="margin: 0; font-size: 13px; color: #A89C8B">Booking {{ b.ref }}</p><h2 class="ttl" style="margin: 6px 0 0; font-size: 24px; color: #FFFFFF">{{ b.pkgName }}</h2><p style="margin: 8px 0 0; font-size: 15px; color: #DCD3C4">{{ b.dateLabel }} · {{ b.timeLabel }}</p><p style="margin: 4px 0 0; font-size: 13px; color: #A89C8B">{{ b.setupLabel }}</p></div>
-<div style="text-align: right"><span class="pill-ok">Confirmed</span><p class="ttl" style="margin: 14px 0 0; font-size: 22px; font-weight: 700; color: #FFFFFF">{{ b.totalLabel }}</p></div>
+<div style="text-align: right"><span class="{{ b.statusCls }}">{{ b.statusLabel }}</span><p class="ttl" style="margin: 14px 0 0; font-size: 22px; font-weight: 700; color: #FFFFFF">{{ b.totalLabel }}</p></div>
 </div>
 <div style="margin-top: 22px"><div class="tl"><sc-for list="{{ b.cells }}" as="c" hint-placeholder-count="8"><div class="{{ c }}"></div></sc-for></div><div class="tll"><span>3 PM</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10–11</span></div></div>
 </div>

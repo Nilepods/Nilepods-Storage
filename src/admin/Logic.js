@@ -1,74 +1,102 @@
-// State and behaviour for this page. Converted from design/Admin.dc.html; safe to edit.
+// State and behaviour for the studio admin. Converted from design/Admin.dc.html, now on live data:
+// sign-in by email link, roles from the `staff` table, bookings/packages/sign-ins from Supabase.
+// Every action is checked again by the database, so hiding a button is never the only protection.
 import DCLogic from '../lib/DCLogic.jsx';
+import { supabase } from '../lib/supabase.js';
+import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut } from '../lib/auth.js';
+
+const ROLE_UI = { owner: 'Owner', manager: 'Manager', front_desk: 'Front desk' };
+const ROLE_DB = { 'Owner': 'owner', 'Manager': 'manager', 'Front desk': 'front_desk' };
+const STATUS_UI = { invited: 'Invited', active: 'Active', paused: 'Paused' };
+const ERRORS = {
+  owner_only: 'Only the owner can do that.', not_allowed: 'Your role cannot do that.', not_staff: 'You are not on the team.',
+  already_on_team: 'That email is already on the team.', cannot_change_owner: 'The owner cannot be changed here.',
+};
+const errText = (e) => ERRORS[e && e.message] || 'Something went wrong. Please try again.';
+
+function cairoParts(iso) {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Cairo', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', hourCycle: 'h23' })
+    .formatToParts(new Date(iso)).reduce((o, p) => { o[p.type] = Number(p.value); return o; }, {});
+  return { y: parts.year, m: parts.month, d: parts.day, h: parts.hour };
+}
 
 export default class Logic extends DCLogic {
   constructor(props) {
     super(props);
     this.state = {
-      authed: false, email: '', pw: '', loginErr: '', tab: 'overview', range: 7,
-      team: [
-        { name: 'Studio Owner', email: 'owner@nilepods.com', role: 'Owner', status: 'Active' },
-        { name: 'Front Desk', email: 'desk@nilepods.com', role: 'Front desk', status: 'Active' },
-        { name: 'Studio Manager', email: 'manager@nilepods.com', role: 'Manager', status: 'Active' }
-      ],
-      q: '', fStatus: 'all', sel: null, schedOff: 0, tourOff: 0, tourBlocks: {}, ov: {},
+      authed: false, email: '', loginErr: '', signInBusy: false, linkSent: '', tab: 'overview', range: 7,
+      me: null, team: [], rows: [], orders: [], signIns: [], testCount: 0, testArmed: false, testBusy: false, loaded: false,
+      q: '', fStatus: 'all', sel: null, schedOff: 0, tourOff: 0, tourBlocks: {},
       invite: { email: '', role: 'Front desk' }, toast: ''
     };
-    this.D = this.build();
   }
-  // ---------- sample data ----------
+  // ---------- session & data ----------
+  componentDidMount() {
+    var self = this;
+    this._unwatch = watchSession(function (session) { self.onSession(session); });
+  }
+  componentWillUnmount() { clearTimeout(this._tt); if (this._unwatch) this._unwatch(); }
+  onSession(session) {
+    var self = this, email = session && session.user && session.user.email;
+    if (!email) { this.setState({ authed: false, me: null }); return; }
+    if (this._checked === email && this.state.authed) return;
+    this._checked = email;
+    recordSignIn().then(function (who) {
+      if (!who || !who.role) {
+        self.setState({ authed: false, email: email, loginErr: email + " isn't on the team. Ask the owner to add you, then sign in again." });
+        authSignOut();
+        return;
+      }
+      var first = ['overview', 'schedule', 'bookings', 'payments', 'tours', 'team'].filter(function (t) { return self.canSee(ROLE_UI[who.role], t); })[0];
+      self.setState({ authed: true, loginErr: '', linkSent: '', me: { name: who.name, email: who.email, role: ROLE_UI[who.role] }, tab: first });
+      self.loadAll();
+    }).catch(function () { self.setState({ loginErr: 'Could not check your access. Please try again.' }); });
+  }
+  loadAll() {
+    var self = this, from = new Date(), to = new Date();
+    from.setDate(from.getDate() - 60); to.setDate(to.getDate() + 90);
+    var role = this.state.me && this.state.me.role;
+    var money = role === 'Owner' || role === 'Manager';
+    var q = [
+      supabase.from('bookings').select('*').gte('starts_at', from.toISOString()).lte('starts_at', to.toISOString())
+        .in('status', ['confirmed', 'in_studio', 'completed', 'no_show', 'cancelled', 'needs_review']).order('starts_at'),
+      supabase.from('staff').select('*').order('created_at'),
+      money ? supabase.from('package_orders').select('*').eq('payment_status', 'paid').gte('created_at', from.toISOString()) : Promise.resolve({ data: [] }),
+      money ? supabase.from('sign_ins').select('*').order('at', { ascending: false }).limit(25) : Promise.resolve({ data: [] }),
+      role === 'Owner' ? supabase.from('bookings').select('ref', { count: 'exact', head: true }).eq('is_test', true) : Promise.resolve({ count: 0 }),
+      role === 'Owner' ? supabase.from('package_orders').select('ref', { count: 'exact', head: true }).eq('is_test', true) : Promise.resolve({ count: 0 }),
+    ];
+    return Promise.all(q).then(function (r) {
+      var err = r.filter(function (x) { return x && x.error; })[0];
+      if (err) { console.warn(err.error); self.showToast('Some data could not be loaded.'); }
+      self.setState({ rows: r[0].data || [], team: r[1].data || [], orders: r[2].data || [], signIns: r[3].data || [],
+        testCount: (r[4].count || 0) + (r[5].count || 0), loaded: true });
+    });
+  }
   services() { return { rec: { name: 'Recording Only', short: 'Recording', price: 1150 }, mix: { name: 'Recording + Live Edit', short: 'Live Edit', price: 1450 }, pro: { name: 'Recording + Pro Edit', short: 'Pro Edit', price: 1950 } }; }
   key(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  // Turns database rows into the shapes the dashboard design uses.
   build() {
-    var seed = 20261125, rnd = function () { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
-    var first = ['Mona', 'Omar', 'Youssef', 'Nour', 'Karim', 'Salma', 'Hassan', 'Laila', 'Ahmed', 'Farida', 'Tarek', 'Hana', 'Mostafa', 'Yasmin', 'Ali', 'Mariam', 'Khaled', 'Dina'];
-    var last = ['Adel', 'Fathy', 'Samir', 'Hosny', 'Mahmoud', 'Nabil', 'Saad', 'Gamal', 'Ezzat', 'Shawky', 'Ramzy', 'Lotfy'];
-    var SV = this.services(), ids = ['rec', 'mix', 'pro'];
+    var self = this, S = this.state;
     var today = new Date(); today.setHours(0, 0, 0, 0);
-    var nowH = new Date().getHours();
-    var bookings = [], packs = [], tours = [], n = 0;
-    for (var off = -14; off <= 14; off++) {
-      var d = new Date(today); d.setDate(today.getDate() + off);
-      if (d.getDay() === 5) continue;
-      for (var s = 1; s <= 7; s++) {
-        var busy = {}, count = rnd() < 0.32 ? 0 : rnd() < 0.72 ? 1 : 2;
-        for (var c = 0; c < count; c++) {
-          var dur = rnd() < 0.72 ? 1 : 2, start = 15 + Math.floor(rnd() * (9 - dur)), ok = true;
-          for (var h = start; h < start + dur; h++) if (busy[h]) ok = false;
-          if (!ok) continue;
-          for (h = start; h < start + dur; h++) busy[h] = true;
-          var svc = ids[Math.floor(rnd() * 3)], cam = rnd() < 0.18 ? 1 : 0, photo = rnd() < 0.1 ? 1 : 0;
-          var r = rnd(), method = r < 0.22 ? 'credit' : r < 0.68 ? 'online' : 'onsite';
-          var extrasAmt = cam * 90 + photo * 250;
-          var amount = method === 'credit' ? SV[svc].price * (dur - 1) + extrasAmt : SV[svc].price * dur + extrasAmt;
-          var st, rr = rnd();
-          if (off < 0) st = rr < 0.05 ? 'Cancelled' : rr < 0.1 ? 'No-show' : 'Completed';
-          else if (off === 0) st = start + dur <= nowH ? 'Completed' : start <= nowH ? 'In studio' : 'Upcoming';
-          else st = rr < 0.04 ? 'Cancelled' : 'Upcoming';
-          var paid = method !== 'onsite' || st === 'Completed' || st === 'In studio';
-          var fn = first[Math.floor(rnd() * first.length)], ln = last[Math.floor(rnd() * last.length)];
-          n++;
-          var ex = []; if (cam) ex.push('Extra camera'); if (photo) ex.push('Session photographer'); if (dur > 1) ex.push('Extra hour');
-          bookings.push({ id: 'NP-' + (40210 + n * 7), off: off, date: d, key: this.key(d), setup: s, start: start, end: start + dur, svc: svc,
-            customer: fn + ' ' + ln, phone: '+20 10' + Math.floor(10000000 + rnd() * 89999999), email: fn.toLowerCase() + '.' + ln.toLowerCase() + '@example.com',
-            people: 1 + Math.floor(rnd() * 2), extras: ex.length ? ex.join(', ') : 'None', method: method, amount: amount, status: st, paid: paid,
-            createdOff: off - 1 - Math.floor(rnd() * 6), createdH: 9 + Math.floor(rnd() * 12) });
-        }
-      }
-      if (off <= 0 && rnd() < 0.55) {
-        var tier = ids[Math.floor(rnd() * 3)], cnt = [3, 5, 10, 1][Math.floor(rnd() * 4)], disc = { 1: 0, 3: 0.05, 5: 0.1, 10: 0.15 }[cnt];
-        var pf = first[Math.floor(rnd() * first.length)] + ' ' + last[Math.floor(rnd() * last.length)];
-        packs.push({ off: off, date: d, customer: pf, svc: tier, count: cnt, amount: Math.round(SV[tier].price * cnt * (1 - disc) / 10) * 10, method: rnd() < 0.8 ? 'Card' : 'At studio', h: 10 + Math.floor(rnd() * 11) });
-      }
-      if (off >= -3 && off <= 10) {
-        var tc = rnd() < 0.4 ? 0 : rnd() < 0.7 ? 1 : 2;
-        for (var t = 0; t < tc; t++) {
-          var m = 15 * 60 + Math.floor(rnd() * 32) * 15;
-          tours.push({ key: this.key(d), off: off, min: m, name: first[Math.floor(rnd() * first.length)] + ' ' + last[Math.floor(rnd() * last.length)], phone: '+20 11' + Math.floor(10000000 + rnd() * 89999999) });
-        }
-      }
-    }
-    return { today: today, bookings: bookings, packs: packs, tours: tours };
+    var dayOff = function (d) { return Math.round((d - today) / 86400000); };
+    var created = function (iso) { var c = new Date(iso), cd = new Date(c); cd.setHours(0, 0, 0, 0); return { off: dayOff(cd), h: c.getHours() }; };
+    var bookings = S.rows.map(function (r) {
+      var a = cairoParts(r.starts_at), e = cairoParts(r.ends_at), d = new Date(a.y, a.m - 1, a.d), off = dayOff(d), c = created(r.created_at);
+      var st = { cancelled: 'Cancelled', no_show: 'No-show', completed: 'Completed', in_studio: 'In studio', needs_review: 'Needs review' }[r.status]
+        || (off < 0 ? 'Completed' : 'Upcoming');
+      var ex = []; if (r.extra_cameras) ex.push('Extra camera × ' + r.extra_cameras); if (r.extra_mics) ex.push('Extra microphone × ' + r.extra_mics);
+      if (r.photographer) ex.push('Session photographer'); if (r.extra_hours) ex.push('Extra hour × ' + r.extra_hours);
+      return { id: r.ref, off: off, date: d, key: self.key(d), setup: parseInt(String(r.setup_id).slice(1), 10) || 0, start: a.h, end: e.h || 24, svc: r.service,
+        customer: r.first_name + ' ' + r.last_name, phone: r.phone || '—', email: r.email, people: r.people, extras: ex.length ? ex.join(', ') : 'None',
+        method: 'online', amount: r.total_egp, status: st, paid: r.payment_status === 'paid', refunded: r.payment_status === 'refunded',
+        isTest: r.is_test, createdOff: c.off, createdH: c.h };
+    });
+    var packs = S.orders.map(function (o) {
+      var c = new Date(o.created_at), cd = new Date(c); cd.setHours(0, 0, 0, 0);
+      return { off: dayOff(cd), date: cd, customer: o.first_name + ' ' + o.last_name, svc: o.service, count: o.sessions, amount: o.total_egp, method: 'Card', h: c.getHours() };
+    });
+    return { today: today, bookings: bookings, packs: packs, tours: [] };
   }
   // ---------- helpers ----------
   money(v) { return v.toLocaleString('en-US') + ' EGP'; }
@@ -86,38 +114,50 @@ export default class Logic extends DCLogic {
     if (off < 0) return (-off) + ' days ago';
     return 'In ' + off + ' days';
   }
-  eff(b) { var o = this.state.ov[b.id]; return o ? Object.assign({}, b, o) : b; }
-  showToast(t) { var self = this; this.setState({ toast: t }); clearTimeout(this._tt); this._tt = setTimeout(function () { self.setState({ toast: '' }); }, 2600); }
-  setOv(id, o) { var ov = Object.assign({}, this.state.ov); ov[id] = Object.assign({}, ov[id] || {}, o); this.setState({ ov: ov }); }
+  ago(iso) {
+    var s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+    if (s < 60) return 'Just now'; if (s < 3600) return Math.floor(s / 60) + ' min ago';
+    if (s < 86400) return Math.floor(s / 3600) + ' h ago';
+    return this.dayName(new Date(iso)) + ', ' + new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  }
+  showToast(t) { var self = this; this.setState({ toast: t }); clearTimeout(this._tt); this._tt = setTimeout(function () { self.setState({ toast: '' }); }, 3200); }
   canSee(role, tab) {
     if (role === 'Owner') return true;
     if (role === 'Manager') return tab !== 'team';
     return ['schedule', 'bookings', 'tours'].indexOf(tab) >= 0;
   }
+  rpc(name, args, okMsg) {
+    var self = this;
+    return supabase.rpc(name, args).then(function (res) {
+      if (res.error) { self.showToast(errText(res.error)); return false; }
+      if (okMsg) self.showToast(okMsg);
+      return self.loadAll().then(function () { return true; });
+    });
+  }
   // ---------- render ----------
   renderVals() {
-    var self = this, S = this.state, D = this.D, SV = this.services();
-    var me = S.team.filter(function (m) { return m.email === S.email.trim().toLowerCase(); })[0] || { name: '', role: 'Front desk', email: '' };
-    var all = D.bookings.map(function (b) { return self.eff(b); });
-    var pillCls = { 'Upcoming': 'pill p-up', 'In studio': 'pill p-in', 'Completed': 'pill p-done', 'Cancelled': 'pill p-cx', 'No-show': 'pill p-ns' };
+    var self = this, S = this.state, D = this.build(), SV = this.services();
+    var me = S.me || { name: '', role: 'Front desk', email: '' };
+    var all = D.bookings;
+    var pillCls = { 'Upcoming': 'pill p-up', 'In studio': 'pill p-in', 'Completed': 'pill p-done', 'Cancelled': 'pill p-cx', 'No-show': 'pill p-ns', 'Needs review': 'pill p-ns' };
     var view = function (b) {
-      var pay = b.status === 'Cancelled' ? (b.method === 'online' ? 'Refunded' : '—') : b.method === 'credit' ? (b.amount > 0 ? (b.paid ? 'Credit + paid' : 'Credit + due') : 'Package credit') : b.paid ? 'Paid' : 'Due at studio';
-      var payCls = b.status === 'Cancelled' ? 'muted' : b.method === 'credit' && b.amount === 0 ? 'p-cred' : b.paid ? 'p-paid' : 'p-due';
-      return { id: b.id, customer: b.customer, setup: 'Setup ' + b.setup, service: SV[b.svc].name, serviceShort: SV[b.svc].short,
+      var pay = b.status === 'Cancelled' ? (b.refunded ? 'Refunded' : b.paid ? 'To refund' : '—') : b.paid ? 'Paid' : 'Not paid';
+      var payCls = b.status === 'Cancelled' ? (b.paid && !b.refunded ? 'p-due' : 'muted') : b.paid ? 'p-paid' : 'p-due';
+      var sv = SV[b.svc] || { name: b.svc, short: b.svc };
+      return { id: b.id, customer: b.customer + (b.isTest ? ' (test)' : ''), setup: 'Setup ' + b.setup, service: sv.name, serviceShort: sv.short,
         time: self.fmtH(b.start) + ' – ' + self.fmtH(b.end), dateShort: self.dayName(b.date, false), dateLong: self.dayName(b.date, true),
-        amountLabel: self.money(b.amount), payLabel: pay, payCls: payCls, status: b.status, pillCls: pillCls[b.status],
-        methodLabel: { online: 'Card online', onsite: 'At the studio', credit: 'Package credit' }[b.method],
-        people: String(b.people), extras: b.extras, phone: b.phone, email: b.email, created: self.rel(b.createdOff, b.createdH),
+        amountLabel: self.money(b.amount), payLabel: pay, payCls: payCls, status: b.status, pillCls: pillCls[b.status] || 'pill p-up',
+        methodLabel: 'Card (Paymob)', people: String(b.people), extras: b.extras, phone: b.phone, email: b.email, created: self.rel(b.createdOff, b.createdH),
         open: function () { self.setState({ sel: b.id }); } };
     };
-    // ---- auth ----
+    // ---- sign-in ----
+    var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.email.trim());
     var signIn = function () {
-      var e = S.email.trim().toLowerCase(), m = S.team.filter(function (x) { return x.email === e; })[0];
-      if (!e || !S.pw) { self.setState({ loginErr: 'Enter your email and password.' }); return; }
-      if (!m) { self.setState({ loginErr: "This email doesn't have access. Ask the owner to invite you." }); return; }
-      if (m.status !== 'Active') { self.setState({ loginErr: m.status === 'Invited' ? 'Your invite is pending — set your password from the invite email first.' : 'Your access has been paused by the owner.' }); return; }
-      var first = ['overview', 'schedule', 'bookings', 'payments', 'tours', 'team'].filter(function (t) { return self.canSee(m.role, t); })[0];
-      self.setState({ authed: true, loginErr: '', tab: first, pw: '' });
+      if (!validEmail) { self.setState({ loginErr: 'Enter your work email.' }); return; }
+      var em = S.email.trim().toLowerCase();
+      self.setState({ signInBusy: true, loginErr: '' });
+      sendSignInLink(em, '/admin/').then(function () { self.setState({ signInBusy: false, linkSent: em }); })
+        .catch(function (err) { self.setState({ signInBusy: false, loginErr: err.message }); });
     };
     // ---- tabs ----
     var tabDefs = [
@@ -132,27 +172,27 @@ export default class Logic extends DCLogic {
       return { label: t[1], icon: t[2], cur: S.tab === t[0] ? 'page' : 'false', cls: 'nav' + (S.tab === t[0] ? ' on' : ''),
         go: function () { self.setState({ tab: t[0], sel: null }); if (self.rootEl) self.rootEl.scrollTo({ top: 0 }); } };
     });
-    var tab = this.canSee(me.role, S.tab) ? S.tab : (tabs[0] ? tabDefs.filter(function (t) { return self.canSee(me.role, t[0]); })[0][0] : 'schedule');
+    var tab = this.canSee(me.role, S.tab) ? S.tab : (tabDefs.filter(function (t) { return self.canSee(me.role, t[0]); })[0] || ['schedule'])[0];
     // ---- overview ----
     var R = S.range, inR = function (off) { return off <= 0 && off > -R; };
     var live = all.filter(function (b) { return b.status !== 'Cancelled'; });
-    var sessIn = live.filter(function (b) { return inR(b.off) && b.paid; }), sessMoney = sessIn.reduce(function (a, b) { return a + b.amount; }, 0);
+    var sessIn = live.filter(function (b) { return inR(b.createdOff) && b.paid; }), sessMoney = sessIn.reduce(function (a, b) { return a + b.amount; }, 0);
     var packsIn = D.packs.filter(function (p) { return inR(p.off); }), packMoney = packsIn.reduce(function (a, p) { return a + p.amount; }, 0);
     var bookingsIn = live.filter(function (b) { return inR(b.off); });
     var hoursIn = bookingsIn.reduce(function (a, b) { return a + (b.end - b.start); }, 0);
     var openDays = 0; for (var i = 0; i < R; i++) { var dd = new Date(D.today); dd.setDate(D.today.getDate() - i); if (dd.getDay() !== 5) openDays++; }
-    var util = Math.round(hoursIn / (openDays * 7 * 8) * 100);
+    var util = openDays ? Math.round(hoursIn / (openDays * 7 * 8) * 100) : 0;
     var dueUp = live.filter(function (b) { return b.off >= 0 && !b.paid && b.status !== 'No-show'; }), dueAmt = dueUp.reduce(function (a, b) { return a + b.amount; }, 0);
     var upcoming = live.filter(function (b) { return b.off >= 0 && b.status === 'Upcoming'; }).length;
     var rangeLabel = R === 1 ? 'Today' : 'Last ' + R + ' days';
     var k = { revenue: self.money(sessMoney + packMoney), revenueSub: self.money(sessMoney) + ' sessions · ' + self.money(packMoney) + ' packages',
       bookings: String(bookingsIn.length), bookingsSub: upcoming + ' upcoming from today',
       util: util + '%', utilSub: hoursIn + ' of ' + (openDays * 56) + ' studio hours · ' + rangeLabel.toLowerCase(),
-      due: self.money(dueAmt), dueSub: dueUp.length + ' bookings to collect on the day',
-      packs: String(packsIn.length), packsSub: packsIn.reduce(function (a, p) { return a + p.count; }, 0) + ' session credits sold' };
+      due: self.money(dueAmt), dueSub: dueUp.length + ' bookings not paid',
+      packs: String(packsIn.length), packsSub: packsIn.reduce(function (a, p) { return a + p.count; }, 0) + ' sessions sold in packages' };
     var chart = [], maxV = 1, vals = [];
     for (var o = -13; o <= 0; o++) {
-      var v = live.filter(function (b) { return b.off === o && b.paid; }).reduce(function (a, b) { return a + b.amount; }, 0) + D.packs.filter(function (p) { return p.off === o; }).reduce(function (a, p) { return a + p.amount; }, 0);
+      var v = live.filter(function (b) { return b.createdOff === o && b.paid; }).reduce(function (a, b) { return a + b.amount; }, 0) + D.packs.filter(function (p) { return p.off === o; }).reduce(function (a, p) { return a + p.amount; }, 0);
       vals.push({ o: o, v: v }); if (v > maxV) maxV = v;
     }
     vals.forEach(function (x) { var d2 = new Date(D.today); d2.setDate(D.today.getDate() + x.o);
@@ -166,23 +206,24 @@ export default class Logic extends DCLogic {
     var bySvc = svcTotals.map(function (x) { return { name: x.name, amount: self.money(x.v), pct: Math.round(x.v / svMax * 100) }; });
     var ev = [];
     all.forEach(function (b) {
-      if (b.createdOff >= -3 && b.createdOff <= 0) ev.push({ off: b.createdOff, h: b.createdH, text: b.customer + ' booked Setup ' + b.setup + ' · ' + self.dayName(b.date) });
-      if (b.status === 'Cancelled' && b.off >= -2) ev.push({ off: Math.min(0, b.off), h: 12, text: b.customer + ' cancelled Setup ' + b.setup + ' · ' + self.dayName(b.date) });
-      if (b.off === 0 && b.status === 'In studio') ev.push({ off: 0, h: b.start, text: b.customer + ' checked in to Setup ' + b.setup });
+      if (b.createdOff >= -3 && b.createdOff <= 0) ev.push({ t: b.createdOff * 100 + b.createdH, when: self.rel(b.createdOff, b.createdH), text: b.customer + ' booked Setup ' + b.setup + ' · ' + self.dayName(b.date) });
     });
-    D.packs.forEach(function (p) { if (p.off >= -3) ev.push({ off: p.off, h: p.h, text: p.customer + ' bought ' + p.count + ' × ' + SV[p.svc].short + ' credits · ' + self.money(p.amount) }); });
-    D.tours.forEach(function (t, ti) { if (t.off >= 0 && t.off <= 3 && ti % 2 === 0) ev.push({ off: Math.min(0, Math.max(-2, t.off - 2)), h: 11, text: t.name + ' booked a studio tour · ' + self.fmtM(t.min) + ' PM' }); });
-    ev.sort(function (a, b) { return b.off - a.off || b.h - a.h; });
-    var activity = ev.slice(0, 8).map(function (e) { return { text: e.text, when: self.rel(e.off, e.h) }; });
+    D.packs.forEach(function (p) { if (p.off >= -3) ev.push({ t: p.off * 100 + p.h, when: self.rel(p.off, p.h), text: p.customer + ' bought ' + p.count + ' × ' + (SV[p.svc] || {}).short + ' · ' + self.money(p.amount) }); });
+    S.signIns.slice(0, 10).forEach(function (s2) {
+      var c = new Date(s2.at), cd = new Date(c); cd.setHours(0, 0, 0, 0); var off = Math.round((cd - D.today) / 86400000);
+      if (off >= -3) ev.push({ t: off * 100 + c.getHours() + c.getMinutes() / 100, when: self.ago(s2.at), text: s2.email + ' signed in' + (s2.kind === 'staff' ? ' (team)' : '') });
+    });
+    ev.sort(function (a, b) { return b.t - a.t; });
+    var activity = ev.slice(0, 8).map(function (e) { return { text: e.text, when: e.when }; });
     // ---- schedule ----
     var sd = new Date(D.today); sd.setDate(D.today.getDate() + S.schedOff);
     var sKey = this.key(sd), sClosed = sd.getDay() === 5;
     var dayB = all.filter(function (b) { return b.key === sKey && b.status !== 'Cancelled'; });
-    var blkCls = { 'Upcoming': 'blk b-up', 'In studio': 'blk b-in', 'Completed': 'blk b-done', 'No-show': 'blk b-ns' };
+    var blkCls = { 'Upcoming': 'blk b-up', 'In studio': 'blk b-in', 'Completed': 'blk b-done', 'No-show': 'blk b-ns', 'Needs review': 'blk b-ns' };
     var rows = []; for (var su = 1; su <= 7; su++) {
       (function (su) {
         rows.push({ name: 'Setup ' + su, blocks: dayB.filter(function (b) { return b.setup === su; }).map(function (b) { var x = view(b);
-          return { customer: b.customer, time: self.fmtH(b.start) + '–' + self.fmtH(b.end), gc: (b.start - 14) + ' / ' + (b.end - 14), cls: blkCls[b.status], open: x.open, aria: b.customer + ', ' + x.time + ', ' + b.status }; }) });
+          return { customer: x.customer, time: self.fmtH(b.start) + '–' + self.fmtH(b.end), gc: (b.start - 14) + ' / ' + (b.end - 14), cls: blkCls[b.status], open: x.open, aria: b.customer + ', ' + x.time + ', ' + b.status }; }) });
       })(su);
     }
     var sHours = dayB.reduce(function (a, b) { return a + (b.end - b.start); }, 0);
@@ -197,61 +238,76 @@ export default class Logic extends DCLogic {
       if (S.fStatus === 'due' && (b.paid || b.status === 'Cancelled')) return false;
       if (S.fStatus === 'completed' && b.status !== 'Completed') return false;
       if (S.fStatus === 'cancelled' && b.status !== 'Cancelled' && b.status !== 'No-show') return false;
-      if (q && (b.customer + ' ' + b.id + ' setup ' + b.setup).toLowerCase().indexOf(q) < 0) return false;
+      if (q && (b.customer + ' ' + b.email + ' ' + b.phone + ' ' + b.id + ' setup ' + b.setup).toLowerCase().indexOf(q) < 0) return false;
       return true;
     }).sort(function (a, b) { var ua = a.off >= 0 ? 0 : 1, ub = b.off >= 0 ? 0 : 1; if (ua !== ub) return ua - ub; return ua === 0 ? (a.off - b.off || a.start - b.start) : (b.off - a.off || b.start - a.start); });
-    var chipDefs = [['all', 'All'], ['today', 'Today'], ['upcoming', 'Upcoming'], ['due', 'Payment due'], ['completed', 'Completed'], ['cancelled', 'Cancelled & no-show']];
+    var chipDefs = [['all', 'All'], ['today', 'Today'], ['upcoming', 'Upcoming'], ['due', 'Not paid'], ['completed', 'Completed'], ['cancelled', 'Cancelled & no-show']];
     var statusChips = chipDefs.map(function (c) { return { label: c[1], on: S.fStatus === c[0], cls: 'chip' + (S.fStatus === c[0] ? ' on' : ''), go: function () { self.setState({ fStatus: c[0] }); } }; });
     // ---- payments ----
     var txns = [];
-    live.filter(function (b) { return inR(b.off) && b.amount > 0; }).forEach(function (b) { txns.push({ off: b.off, h: b.start, date: self.dayName(b.date), customer: b.customer, item: 'Session · Setup ' + b.setup + ' · ' + SV[b.svc].short, method: b.method === 'online' ? 'Card' : b.method === 'credit' ? 'Card (extras)' : 'At studio', amount: self.money(b.amount), status: b.paid ? 'Paid' : 'Due', stCls: b.paid ? 'p-paid' : 'p-due' }); });
-    packsIn.forEach(function (p) { txns.push({ off: p.off, h: p.h, date: self.dayName(p.date), customer: p.customer, item: 'Package · ' + p.count + ' × ' + SV[p.svc].short, method: p.method, amount: self.money(p.amount), status: 'Paid', stCls: 'p-paid' }); });
-    all.filter(function (b) { return inR(b.off) && b.status === 'Cancelled' && b.method === 'online'; }).forEach(function (b) { txns.push({ off: b.off, h: b.start, date: self.dayName(b.date), customer: b.customer, item: 'Refund · Setup ' + b.setup, method: 'Card', amount: '−' + self.money(b.amount), status: 'Refunded', stCls: 'muted' }); });
+    all.filter(function (b) { return inR(b.createdOff) && b.amount > 0 && b.paid; }).forEach(function (b) { var sv = SV[b.svc] || {}; txns.push({ off: b.createdOff, h: b.createdH, date: self.dayName(b.date), customer: view(b).customer, item: 'Session · Setup ' + b.setup + ' · ' + sv.short, method: 'Card', amount: self.money(b.amount), status: b.status === 'Cancelled' ? (b.refunded ? 'Refunded' : 'To refund') : 'Paid', stCls: b.status === 'Cancelled' ? 'p-due' : 'p-paid', ref: b.id }); });
+    packsIn.forEach(function (p) { txns.push({ off: p.off, h: p.h, date: self.dayName(p.date), customer: p.customer, item: 'Package · ' + p.count + ' × ' + (SV[p.svc] || {}).short, method: p.method, amount: self.money(p.amount), status: 'Paid', stCls: 'p-paid', ref: '' }); });
     txns.sort(function (a, b) { return b.off - a.off || b.h - a.h; });
-    var onlineAmt = sessIn.filter(function (b) { return b.method !== 'onsite'; }).reduce(function (a, b) { return a + b.amount; }, 0) + packsIn.filter(function (p) { return p.method === 'Card'; }).reduce(function (a, p) { return a + p.amount; }, 0);
-    var studioAmt = sessIn.filter(function (b) { return b.method === 'onsite'; }).reduce(function (a, b) { return a + b.amount; }, 0) + packsIn.filter(function (p) { return p.method !== 'Card'; }).reduce(function (a, p) { return a + p.amount; }, 0);
     var payTotals = [
       { label: 'Total collected', amount: self.money(sessMoney + packMoney), sub: rangeLabel },
-      { label: 'Paid online', amount: self.money(onlineAmt), sub: 'Card payments' },
-      { label: 'Paid at studio', amount: self.money(studioAmt), sub: 'Collected on the day' },
-      { label: 'Still to collect', amount: self.money(dueAmt), sub: dueUp.length + ' upcoming bookings' }
+      { label: 'Paid online', amount: self.money(sessMoney + packMoney), sub: 'Card payments via Paymob' },
+      { label: 'Paid at studio', amount: self.money(0), sub: 'Not offered' },
+      { label: 'Not paid', amount: self.money(dueAmt), sub: dueUp.length + ' upcoming bookings' }
     ];
-    // ---- tours ----
+    var exportCsv = function () {
+      var esc = function (x) { return '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"'; };
+      var csv = ['Date,Customer,Item,Method,Amount,Status,Order'].concat(txns.map(function (t) { return [t.date, t.customer, t.item, t.method, t.amount, t.status, t.ref].map(esc).join(','); })).join('\r\n');
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
+      a.download = 'nilepods-payments-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click(); URL.revokeObjectURL(a.href);
+      self.showToast('Downloaded ' + txns.length + ' transactions');
+    };
+    // ---- tours (not stored online yet: blocking here only lasts for this visit) ----
     var td = new Date(D.today); td.setDate(D.today.getDate() + S.tourOff);
     var tKey = this.key(td), tClosed = td.getDay() === 5, blocked = S.tourBlocks[tKey] || [];
-    var tb = D.tours.filter(function (t) { return t.key === tKey; });
     var tSlots = [], openN = 0;
     for (var m = 15 * 60; m < 23 * 60; m += 15) {
       (function (m) {
-        var booked = tb.some(function (t) { return t.min === m; }), bl = blocked.indexOf(m) >= 0;
-        if (!booked && !bl) openN++;
-        tSlots.push({ label: self.fmtM(m), booked: booked, state: booked ? 'Booked' : bl ? 'Blocked' : 'Open', cls: 'ts ' + (booked ? 'ts-booked' : bl ? 'ts-blocked' : 'ts-open'),
-          aria: self.fmtM(m) + ' PM, ' + (booked ? 'booked' : bl ? 'blocked — tap to open' : 'open — tap to block'),
-          toggle: function () { var arr = (self.state.tourBlocks[tKey] || []).slice(), ix = arr.indexOf(m); if (ix >= 0) arr.splice(ix, 1); else arr.push(m); var o = Object.assign({}, self.state.tourBlocks); o[tKey] = arr; self.setState({ tourBlocks: o }); } });
+        var bl = blocked.indexOf(m) >= 0;
+        if (!bl) openN++;
+        tSlots.push({ label: self.fmtM(m), booked: false, state: bl ? 'Blocked' : 'Open', cls: 'ts ' + (bl ? 'ts-blocked' : 'ts-open'),
+          aria: self.fmtM(m) + ' PM, ' + (bl ? 'blocked — tap to open' : 'open — tap to block'),
+          toggle: function () { var arr = (self.state.tourBlocks[tKey] || []).slice(), ix = arr.indexOf(m); if (ix >= 0) arr.splice(ix, 1); else arr.push(m); var o2 = Object.assign({}, self.state.tourBlocks); o2[tKey] = arr; self.setState({ tourBlocks: o2 }); } });
       })(m);
     }
     var allMins = []; for (var mm = 15 * 60; mm < 23 * 60; mm += 15) allMins.push(mm);
     var tour = { dayLabel: S.tourOff === 0 ? 'Today' : this.dayName(td), closed: tClosed, open: !tClosed, slots: tSlots,
-      summary: openN + ' open · ' + tb.length + ' booked · ' + (32 - openN - tb.length) + ' blocked. Customers only see open slots.',
-      booked: tb.sort(function (a, b) { return a.min - b.min; }).map(function (t) { return { time: self.fmtM(t.min) + ' PM', name: t.name, phone: t.phone, call: function () { self.showToast('Calling ' + t.phone); } }; }),
-      none: tb.length === 0,
+      summary: 'Tour requests from the website are not saved online yet, so this calendar is a preview and changes here are not kept.',
+      booked: [], none: true,
       prev: function () { self.setState({ tourOff: Math.max(0, S.tourOff - 1) }); }, next: function () { self.setState({ tourOff: S.tourOff + 1 }); },
-      openAll: function () { var o = Object.assign({}, S.tourBlocks); o[tKey] = []; self.setState({ tourBlocks: o }); },
-      blockAll: function () { var o = Object.assign({}, S.tourBlocks); o[tKey] = allMins.filter(function (x) { return !tb.some(function (t) { return t.min === x; }); }); self.setState({ tourBlocks: o }); } };
+      openAll: function () { var o2 = Object.assign({}, S.tourBlocks); o2[tKey] = []; self.setState({ tourBlocks: o2 }); },
+      blockAll: function () { var o2 = Object.assign({}, S.tourBlocks); o2[tKey] = allMins.slice(); self.setState({ tourBlocks: o2 }); } };
     // ---- team ----
-    var initials = function (n2) { return n2.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase(); };
-    var setTeam = function (email, patch) { self.setState({ team: S.team.map(function (x) { return x.email === email ? Object.assign({}, x, patch) : x; }) }); };
+    var initials = function (n2) { return (n2 || '?').split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase(); };
+    var isOwnerMe = me.role === 'Owner';
     var teamRows = S.team.map(function (m2) {
-      var isOwner = m2.role === 'Owner';
-      return { name: m2.name, email: m2.email, initials: initials(m2.name), role: m2.role, youTag: m2.email === me.email ? ' (you)' : '',
-        status: m2.status, stCls: m2.status === 'Active' ? 'p-paid' : m2.status === 'Invited' ? 'p-due' : 'muted',
-        editable: !isOwner, locked: isOwner, roleAria: 'Role for ' + m2.name, toggleLabel: m2.status === 'Paused' ? 'Restore access' : 'Pause access',
-        setRole: function (e) { setTeam(m2.email, { role: e.target.value }); self.showToast(m2.name + ' is now ' + e.target.value); },
-        toggle: function () { setTeam(m2.email, { status: m2.status === 'Paused' ? 'Active' : 'Paused' }); self.showToast(m2.status === 'Paused' ? 'Access restored for ' + m2.name : 'Access paused for ' + m2.name); },
-        remove: function () { self.setState({ team: S.team.filter(function (x) { return x.email !== m2.email; }) }); self.showToast(m2.name + ' can no longer sign in'); } };
+      var role = ROLE_UI[m2.role], status = STATUS_UI[m2.status] || m2.status, isOwner = m2.role === 'owner';
+      return { name: m2.name, email: m2.email, initials: initials(m2.name), role: role, youTag: m2.email === me.email ? ' (you)' : '',
+        status: status + (m2.last_sign_in_at ? ' · last sign-in ' + self.ago(m2.last_sign_in_at) : ''), stCls: m2.status === 'active' ? 'p-paid' : m2.status === 'invited' ? 'p-due' : 'muted',
+        editable: !isOwner && isOwnerMe, locked: isOwner, roleAria: 'Role for ' + m2.name, toggleLabel: m2.status === 'paused' ? 'Restore access' : 'Pause access',
+        setRole: function (e) { self.rpc('staff_change', { p_email: m2.email, p_role: ROLE_DB[e.target.value] }, m2.name + ' is now ' + e.target.value); },
+        toggle: function () { var to = m2.status === 'paused' ? 'active' : 'paused'; self.rpc('staff_change', { p_email: m2.email, p_status: to }, to === 'active' ? 'Access restored for ' + m2.name : 'Access paused for ' + m2.name); },
+        remove: function () { self.rpc('staff_change', { p_email: m2.email, p_remove: true }, m2.name + ' can no longer sign in'); } };
     });
     var invEmail = S.invite.email.trim().toLowerCase();
-    var invite = { email: S.invite.email, role: S.invite.role, blocked: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(invEmail) || S.team.some(function (x) { return x.email === invEmail; }) };
+    var invite = { email: S.invite.email, role: S.invite.role, blocked: !isOwnerMe || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(invEmail) || S.team.some(function (x) { return x.email === invEmail; }) };
+    var logins = S.signIns.map(function (s2) { return { who: s2.email, kind: s2.kind === 'staff' ? 'Team' : 'Customer', when: self.ago(s2.at) }; });
+    // ---- test data (owner only) ----
+    var clearTest = function () {
+      if (!S.testArmed) { self.setState({ testArmed: true }); return; }
+      self.setState({ testBusy: true });
+      supabase.rpc('clear_test_data').then(function (res) {
+        self.setState({ testBusy: false, testArmed: false });
+        if (res.error) { self.showToast(errText(res.error)); return; }
+        var r0 = (res.data && res.data[0]) || {};
+        self.showToast('Deleted ' + (r0.bookings_deleted || 0) + ' test bookings and ' + (r0.orders_deleted || 0) + ' test package orders');
+        self.loadAll();
+      });
+    };
     // ---- drawer ----
     var selB = S.sel ? all.filter(function (b) { return b.id === S.sel; })[0] : null;
     var selV = selB ? view(selB) : {};
@@ -260,42 +316,54 @@ export default class Logic extends DCLogic {
       selV.canCheckIn = selB.status === 'Upcoming' && selB.off === 0;
       selV.canComplete = selB.status === 'In studio';
       selV.canNoShow = selB.status === 'Upcoming' && selB.off <= 0;
-      selV.canChange = selB.status === 'Upcoming';
+      selV.canChange = selB.status === 'Upcoming' && me.role !== 'Front desk';
     }
     var act = {
-      pay: function () { self.setOv(S.sel, { paid: true }); self.showToast('Marked as paid'); },
-      checkIn: function () { self.setOv(S.sel, { status: 'In studio' }); self.showToast(selB.customer + ' checked in'); },
-      complete: function () { self.setOv(S.sel, { status: 'Completed', paid: true }); self.showToast('Session completed'); },
-      noShow: function () { self.setOv(S.sel, { status: 'No-show' }); self.showToast('Marked as no-show'); },
-      cancel: function () { self.setOv(S.sel, { status: 'Cancelled' }); self.showToast('Booking cancelled — the slot is free again'); },
-      reschedule: function () { self.showToast('Opens the calendar to move this booking'); },
-      message: function () { self.showToast('Opens WhatsApp with ' + (selB ? selB.phone : '')); }
+      pay: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_mark_paid: true }, 'Marked as paid'); },
+      checkIn: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'in_studio' }, selB.customer + ' checked in'); },
+      complete: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'completed' }, 'Session completed'); },
+      noShow: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'no_show' }, 'Marked as no-show'); },
+      cancel: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'cancelled' }, 'Booking cancelled. The slot is free again. Refund the customer in Paymob if needed.'); },
+      reschedule: function () { self.showToast('To move a booking: cancel it, then book the new time for the customer.'); },
+      message: function () { var digits = String(selB ? selB.phone : '').replace(/\D/g, '').replace(/^0/, '20'); if (digits.length > 6) window.open('https://wa.me/' + digits, '_blank', 'noopener'); else self.showToast('No phone number on this booking'); }
     };
     var ranges = [[1, 'Today'], [7, '7 days'], [14, '14 days']].map(function (r2) { return { label: r2[1], cls: S.range === r2[0] ? 'on' : '', go: function () { self.setState({ range: r2[0] }); } }; });
     var nameFirst = (me.name || '').split(' ')[0];
+    var testInData = all.some(function (b) { return b.isTest; });
     return {
       setRoot: function (el) { self.rootEl = el; },
-      loggedIn: S.authed, loggedOut: !S.authed, email: S.email, pw: S.pw,
-      onEmail: function (e) { self.setState({ email: e.target.value, loginErr: '' }); }, onPw: function (e) { self.setState({ pw: e.target.value, loginErr: '' }); },
+      loggedIn: S.authed, loggedOut: !S.authed, email: S.email,
+      onEmail: function (e) { self.setState({ email: e.target.value, loginErr: '' }); },
       hasLoginErr: !!S.loginErr, loginErr: S.loginErr, signIn: signIn,
-      signOut: function () { self.setState({ authed: false, sel: null, pw: '' }); },
+      signInBusy: S.signInBusy || !validEmail, signInLabel: S.signInBusy ? 'Sending…' : S.linkSent ? 'Send the link again' : 'Email me a sign-in link',
+      loginNote: S.linkSent ? 'Check your inbox at ' + S.linkSent + ' and open the link on this device. It can take a minute; check spam too.' : 'No password: we email you a sign-in link. Only people the owner has added can open the dashboard.',
+      signOut: function () { authSignOut().then(function () { self._checked = null; self.setState({ authed: false, sel: null, me: null, linkSent: '' }); }); },
       me: { name: me.name, role: me.role, initials: me.name ? initials(me.name) : '', first: nameFirst },
       tabs: tabs, is: { overview: tab === 'overview', schedule: tab === 'schedule', bookings: tab === 'bookings', payments: tab === 'payments', tours: tab === 'tours', team: tab === 'team' },
       todayLong: this.dayName(D.today, true), ranges: ranges, rangeLabel: rangeLabel, k: k,
+      dataNote: !S.loaded ? 'loading…' : testInData ? 'live data, includes test bookings' : 'live data',
       chart: chart, chartTotal: self.money(chartSum), chartAria: 'Money in per day for the last 14 days, ' + self.money(chartSum) + ' in total',
       todayList: todayList, noToday: todayList.length === 0, noTodayMsg: D.today.getDay() === 5 ? 'Closed today — it is Friday.' : 'No sessions booked today.',
       goSchedule: function () { self.setState({ tab: 'schedule', schedOff: 0 }); },
       bySvc: bySvc, activity: activity,
       hours: ['3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM'], sched: sched,
       q: S.q, onQ: function (e) { self.setState({ q: e.target.value }); }, statusChips: statusChips,
-      rows: list.map(view), noRows: list.length === 0, listCount: list.length + (list.length === 1 ? ' booking' : ' bookings') + ' · sample data',
+      rows: list.map(view), noRows: list.length === 0, listCount: list.length + (list.length === 1 ? ' booking' : ' bookings'),
       clearFilters: function () { self.setState({ q: '', fStatus: 'all' }); },
-      payTotals: payTotals, txns: txns, exportCsv: function () { self.showToast('Exported ' + txns.length + ' transactions to CSV'); },
+      payTotals: payTotals, txns: txns, exportCsv: exportCsv,
       tour: tour, teamRows: teamRows, invite: invite,
       onInvEmail: function (e) { self.setState({ invite: { email: e.target.value, role: S.invite.role } }); },
       onInvRole: function (e) { self.setState({ invite: { email: S.invite.email, role: e.target.value } }); },
-      sendInvite: function () { var nm = invEmail.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, function (c2) { return c2.toUpperCase(); });
-        self.setState({ team: S.team.concat([{ name: nm, email: invEmail, role: S.invite.role, status: 'Invited' }]), invite: { email: '', role: S.invite.role } }); self.showToast('Invite sent to ' + invEmail); },
+      sendInvite: function () {
+        self.rpc('staff_invite', { p_email: invEmail, p_role: ROLE_DB[S.invite.role] },
+          invEmail + ' added. Ask them to sign in at ' + window.location.origin + '/admin/ with this email.')
+          .then(function (ok) { if (ok) self.setState({ invite: { email: '', role: S.invite.role } }); });
+      },
+      logins: logins, noLogins: logins.length === 0,
+      canClearTest: isOwnerMe, testBusy: S.testBusy || S.testCount === 0,
+      testNote: S.testCount === 0 ? 'There is no test data right now.' : S.testCount + ' test bookings and package orders (made while Paymob is in test mode). Real customer bookings are never deleted.',
+      clearTestLabel: S.testBusy ? 'Deleting…' : S.testArmed ? 'Click again to delete ' + S.testCount + ' test items' : 'Delete test data',
+      clearTest: clearTest,
       hasSel: !!selB, sel: selV, closeSel: function () { self.setState({ sel: null }); }, act: act,
       hasToast: !!S.toast, toast: S.toast
     };

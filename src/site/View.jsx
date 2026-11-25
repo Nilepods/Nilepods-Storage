@@ -835,7 +835,7 @@ export default function View(v) {
                   {"Sign in"}
                 </h1>
                 <p className="lead" style={{ fontSize: "15px" }}>
-                  {"See your bookings, times and receipts."}
+                  {"See your bookings and times. Enter the email you booked with and we will send you a sign-in link, no password needed."}
                 </p>
                 <div className="field">
                   <label htmlFor="a-email">
@@ -843,17 +843,16 @@ export default function View(v) {
                   </label>
                   <input id="a-email" className="inp" type="email" value={v.acctEmail} onChange={v.onAcct} placeholder="you@example.com" />
                 </div>
-                <div className="field">
-                  <label htmlFor="a-pass">
-                    {"Password"}
-                  </label>
-                  <input id="a-pass" className="inp" type="password" placeholder="••••••••" />
-                </div>
                 <button className="btn-gold btn-lg" disabled={v.signinBlocked} onClick={v.signIn}>
-                  {"Sign in"}
+                  {v.signInLabel}
                 </button>
+                {v.hasSignInNote ? (<>
+                  <p role="status" style={{ margin: "0", fontSize: "14px", color: "#E2B872", textAlign: "center", lineHeight: "1.6" }}>
+                    {v.signInNote}
+                  </p>
+                </>) : null}
                 <p style={{ margin: "0", fontSize: "14px", color: "#A89C8B", textAlign: "center" }}>
-                  {"New here? Your account is created when you make your first booking. "}
+                  {"New here? Your account is created the first time you sign in. "}
                   <button className="link" onClick={v.bookNow}>
                     {"Book a session"}
                   </button>
@@ -941,8 +940,8 @@ export default function View(v) {
                         </p>
                       </div>
                       <div style={{ textAlign: "right" }}>
-                        <span className="pill-ok">
-                          {"Confirmed"}
+                        <span className={b.statusCls}>
+                          {b.statusLabel}
                         </span>
                         <p className="ttl" style={{ margin: "14px 0 0", fontSize: "22px", fontWeight: "700", color: "#FFFFFF" }}>
                           {b.totalLabel}

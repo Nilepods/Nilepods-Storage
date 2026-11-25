@@ -82,8 +82,11 @@ Deno.serve(async (req) => {
     return reply({ error: 'Invalid request' }, 400, origin);
   }
 
+  // While Paymob runs on test keys, everything booked is test data the owner can clear.
+  if (PAYMOB_PUBLIC_KEY.includes('_test_')) await db.rpc('mark_test', { p_ref: ref });
+
   const amount = total * 100;
-  const release = () => db.rpc('record_payment', { p_ref: ref, p_success: false, p_amount_cents: amount, p_paymob_order_id: null, p_paymob_transaction_id: null });
+  const release =() => db.rpc('record_payment', { p_ref: ref, p_success: false, p_amount_cents: amount, p_paymob_order_id: null, p_paymob_transaction_id: null });
 
   const secret = (Deno.env.get('PAYMOB_SECRET_KEY') ?? '').trim();
   if (!secret || /[^\x21-\x7e]/.test(secret)) {

@@ -32,30 +32,16 @@ export default function View(v) {
               </label>
               <input id="l-email" className="inp" type="email" value={v.email} onChange={v.onEmail} autoComplete="username" placeholder="you@nilepods.com" />
             </div>
-            <div className="field">
-              <label htmlFor="l-pw">
-                {"Password"}
-              </label>
-              <input id="l-pw" className="inp" type="password" value={v.pw} onChange={v.onPw} autoComplete="current-password" placeholder="••••••••" />
-            </div>
             {v.hasLoginErr ? (<>
               <p className="ferr" role="alert" style={{ margin: "0" }}>
                 {v.loginErr}
               </p>
             </>) : null}
-            <button className="btn-gold" onClick={v.signIn} style={{ minHeight: "50px", fontSize: "15px" }}>
-              {"Sign in"}
+            <button className="btn-gold" disabled={v.signInBusy} onClick={v.signIn} style={{ minHeight: "50px", fontSize: "15px" }}>
+              {v.signInLabel}
             </button>
             <p style={{ margin: "0", fontSize: "12.5px", color: "#7D7365", textAlign: "center", lineHeight: "1.6" }}>
-              {"Prototype: sign in as "}
-              <strong style={{ color: "#CFC5B5" }}>
-                {"owner@nilepods.com"}
-              </strong>
-              {" (full access) or "}
-              <strong style={{ color: "#CFC5B5" }}>
-                {"desk@nilepods.com"}
-              </strong>
-              {" (front desk) with any password."}
+              {v.loginNote}
             </p>
           </div>
         </div>
@@ -121,7 +107,7 @@ export default function View(v) {
                     {"Good to see you, "}{v.me.first}
                   </h1>
                   <p style={{ margin: "6px 0 0", fontSize: "14px", color: "#A89C8B" }}>
-                    {v.todayLong}{" · sample data"}
+                    {v.todayLong}{" · "}{v.dataNote}
                   </p>
                 </div>
                 <div className="seg" role="group" aria-label="Period">
@@ -476,7 +462,7 @@ export default function View(v) {
                     {"Money in"}
                   </h1>
                   <p style={{ margin: "6px 0 0", fontSize: "14px", color: "#A89C8B" }}>
-                    {v.rangeLabel}{" · sample data"}
+                    {v.rangeLabel}{" · "}{v.dataNote}
                   </p>
                 </div>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
@@ -738,7 +724,7 @@ export default function View(v) {
                       {"Send invite"}
                     </button>
                     <p style={{ margin: "0", fontSize: "12.5px", color: "#8C8172", lineHeight: "1.6" }}>
-                      {"They get an email to set a password. Until they do, they show as Invited."}
+                      {"Then ask them to open this admin page and sign in with that email. They get a sign-in link by email, no password. Until their first sign-in they show as Invited."}
                     </p>
                   </div>
                   <div className="panel" style={{ padding: "22px" }}>
@@ -770,6 +756,42 @@ export default function View(v) {
                       </span>
                     </div>
                   </div>
+                  <div className="panel" style={{ padding: "22px" }}>
+                    <p className="lbl">
+                      {"Recent sign-ins"}
+                    </p>
+                    {v.noLogins ? (<>
+                      <p className="muted" style={{ margin: "0" }}>
+                        {"No sign-ins yet."}
+                      </p>
+                    </>) : null}
+                    {(v.logins || []).map((lg, lg_i50) => (<Fragment key={lg_i50}>
+                      <div className="row">
+                        <span className="k">
+                          {lg.who}
+                          <span className="muted">
+                            {" · "}{lg.kind}
+                          </span>
+                        </span>
+                        <span className="v">
+                          {lg.when}
+                        </span>
+                      </div>
+                    </Fragment>))}
+                  </div>
+                  {v.canClearTest ? (<>
+                    <div className="panel" style={{ padding: "22px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <p className="lbl">
+                        {"Test data"}
+                      </p>
+                      <p style={{ margin: "0", fontSize: "13px", color: "#A89C8B", lineHeight: "1.6" }}>
+                        {v.testNote}
+                      </p>
+                      <button className="btn-danger" disabled={v.testBusy} onClick={v.clearTest}>
+                        {v.clearTestLabel}
+                      </button>
+                    </div>
+                  </>) : null}
                 </div>
               </div>
             </>) : null}
