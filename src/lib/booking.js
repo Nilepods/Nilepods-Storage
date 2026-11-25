@@ -18,8 +18,9 @@ export async function loadBusySlots(fromDate, toDate) {
   return map;
 }
 
-// Saves the booking (holding the slot) and returns { ref, total, url } where url is
-// Paymob's hosted checkout. Throws an Error with a customer-friendly message.
+// Saves the booking and returns { ref, total, url } where url is Paymob's hosted checkout
+// (card: the slot is held 20 minutes), or { ref, total, cash: true } for pay-at-the-studio
+// (confirmed straight away). Throws an Error with a customer-friendly message.
 export async function startCheckout(payload) {
   if (!FUNCTIONS_URL) throw new Error('Online booking is not available right now.');
   let res;
@@ -33,7 +34,7 @@ export async function startCheckout(payload) {
     throw new Error('Could not reach the booking service. Check your connection and try again.');
   }
   const body = await res.json().catch(() => ({}));
-  if (!res.ok || !body.url) {
+  if (!res.ok || !(body.url || body.cash)) {
     const err = new Error(body.error || 'Something went wrong. Please try again.');
     err.code = body.code;
     throw err;

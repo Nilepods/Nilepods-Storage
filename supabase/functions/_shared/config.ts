@@ -10,6 +10,9 @@ export const PAYMOB_CARD_INTEGRATION_ID = 6077815; // test mode, "Online Card", 
 
 export const PAYMOB_API = 'https://accept.paymob.com';
 
+// Offer "Pay at the studio" (cash). Set to false to make the site card-only.
+export const ALLOW_CASH = true;
+
 // Sites allowed to start a checkout, and where customers return after paying.
 export const ALLOWED_ORIGINS = [
   'https://preview.nilepods.com',

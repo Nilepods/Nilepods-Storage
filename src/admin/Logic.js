@@ -89,12 +89,12 @@ export default class Logic extends DCLogic {
       if (r.photographer) ex.push('Session photographer'); if (r.extra_hours) ex.push('Extra hour × ' + r.extra_hours);
       return { id: r.ref, off: off, date: d, key: self.key(d), setup: parseInt(String(r.setup_id).slice(1), 10) || 0, start: a.h, end: e.h || 24, svc: r.service,
         customer: r.first_name + ' ' + r.last_name, phone: r.phone || '—', email: r.email, people: r.people, extras: ex.length ? ex.join(', ') : 'None',
-        method: 'online', amount: r.total_egp, status: st, paid: r.payment_status === 'paid', refunded: r.payment_status === 'refunded',
+        method: r.payment_method || 'card', amount: r.total_egp, status: st, paid: r.payment_status === 'paid', refunded: r.payment_status === 'refunded',
         isTest: r.is_test, createdOff: c.off, createdH: c.h };
     });
     var packs = S.orders.map(function (o) {
       var c = new Date(o.created_at), cd = new Date(c); cd.setHours(0, 0, 0, 0);
-      return { off: dayOff(cd), date: cd, customer: o.first_name + ' ' + o.last_name, svc: o.service, count: o.sessions, amount: o.total_egp, method: 'Card', h: c.getHours() };
+      return { off: dayOff(cd), date: cd, customer: o.first_name + ' ' + o.last_name, svc: o.service, count: o.sessions, amount: o.total_egp, method: o.payment_method === 'cash' ? 'At studio' : 'Card', h: c.getHours() };
     });
     return { today: today, bookings: bookings, packs: packs, tours: [] };
   }
@@ -141,13 +141,13 @@ export default class Logic extends DCLogic {
     var all = D.bookings;
     var pillCls = { 'Upcoming': 'pill p-up', 'In studio': 'pill p-in', 'Completed': 'pill p-done', 'Cancelled': 'pill p-cx', 'No-show': 'pill p-ns', 'Needs review': 'pill p-ns' };
     var view = function (b) {
-      var pay = b.status === 'Cancelled' ? (b.refunded ? 'Refunded' : b.paid ? 'To refund' : '—') : b.paid ? 'Paid' : 'Not paid';
+      var pay = b.status === 'Cancelled' ? (b.refunded ? 'Refunded' : b.paid ? 'To refund' : '—') : b.paid ? 'Paid' : b.method === 'cash' ? 'Due at studio' : 'Not paid';
       var payCls = b.status === 'Cancelled' ? (b.paid && !b.refunded ? 'p-due' : 'muted') : b.paid ? 'p-paid' : 'p-due';
       var sv = SV[b.svc] || { name: b.svc, short: b.svc };
       return { id: b.id, customer: b.customer + (b.isTest ? ' (test)' : ''), setup: 'Setup ' + b.setup, service: sv.name, serviceShort: sv.short,
         time: self.fmtH(b.start) + ' – ' + self.fmtH(b.end), dateShort: self.dayName(b.date, false), dateLong: self.dayName(b.date, true),
         amountLabel: self.money(b.amount), payLabel: pay, payCls: payCls, status: b.status, pillCls: pillCls[b.status] || 'pill p-up',
-        methodLabel: 'Card (Paymob)', people: String(b.people), extras: b.extras, phone: b.phone, email: b.email, created: self.rel(b.createdOff, b.createdH),
+        methodLabel: b.method === 'cash' ? 'At the studio (cash)' : 'Card (Paymob)', people: String(b.people), extras: b.extras, phone: b.phone, email: b.email, created: self.rel(b.createdOff, b.createdH),
         open: function () { self.setState({ sel: b.id }); } };
     };
     // ---- sign-in ----
@@ -188,7 +188,7 @@ export default class Logic extends DCLogic {
     var k = { revenue: self.money(sessMoney + packMoney), revenueSub: self.money(sessMoney) + ' sessions · ' + self.money(packMoney) + ' packages',
       bookings: String(bookingsIn.length), bookingsSub: upcoming + ' upcoming from today',
       util: util + '%', utilSub: hoursIn + ' of ' + (openDays * 56) + ' studio hours · ' + rangeLabel.toLowerCase(),
-      due: self.money(dueAmt), dueSub: dueUp.length + ' bookings not paid',
+      due: self.money(dueAmt), dueSub: dueUp.length + ' bookings to collect at the studio',
       packs: String(packsIn.length), packsSub: packsIn.reduce(function (a, p) { return a + p.count; }, 0) + ' sessions sold in packages' };
     var chart = [], maxV = 1, vals = [];
     for (var o = -13; o <= 0; o++) {
@@ -241,17 +241,19 @@ export default class Logic extends DCLogic {
       if (q && (b.customer + ' ' + b.email + ' ' + b.phone + ' ' + b.id + ' setup ' + b.setup).toLowerCase().indexOf(q) < 0) return false;
       return true;
     }).sort(function (a, b) { var ua = a.off >= 0 ? 0 : 1, ub = b.off >= 0 ? 0 : 1; if (ua !== ub) return ua - ub; return ua === 0 ? (a.off - b.off || a.start - b.start) : (b.off - a.off || b.start - a.start); });
-    var chipDefs = [['all', 'All'], ['today', 'Today'], ['upcoming', 'Upcoming'], ['due', 'Not paid'], ['completed', 'Completed'], ['cancelled', 'Cancelled & no-show']];
+    var chipDefs = [['all', 'All'], ['today', 'Today'], ['upcoming', 'Upcoming'], ['due', 'Payment due'], ['completed', 'Completed'], ['cancelled', 'Cancelled & no-show']];
     var statusChips = chipDefs.map(function (c) { return { label: c[1], on: S.fStatus === c[0], cls: 'chip' + (S.fStatus === c[0] ? ' on' : ''), go: function () { self.setState({ fStatus: c[0] }); } }; });
     // ---- payments ----
     var txns = [];
-    all.filter(function (b) { return inR(b.createdOff) && b.amount > 0 && b.paid; }).forEach(function (b) { var sv = SV[b.svc] || {}; txns.push({ off: b.createdOff, h: b.createdH, date: self.dayName(b.date), customer: view(b).customer, item: 'Session · Setup ' + b.setup + ' · ' + sv.short, method: 'Card', amount: self.money(b.amount), status: b.status === 'Cancelled' ? (b.refunded ? 'Refunded' : 'To refund') : 'Paid', stCls: b.status === 'Cancelled' ? 'p-due' : 'p-paid', ref: b.id }); });
+    all.filter(function (b) { return inR(b.createdOff) && b.amount > 0 && b.paid; }).forEach(function (b) { var sv = SV[b.svc] || {}; txns.push({ off: b.createdOff, h: b.createdH, date: self.dayName(b.date), customer: view(b).customer, item: 'Session · Setup ' + b.setup + ' · ' + sv.short, method: b.method === 'cash' ? 'At studio' : 'Card', amount: self.money(b.amount), status: b.status === 'Cancelled' ? (b.refunded ? 'Refunded' : 'To refund') : 'Paid', stCls: b.status === 'Cancelled' ? 'p-due' : 'p-paid', ref: b.id }); });
     packsIn.forEach(function (p) { txns.push({ off: p.off, h: p.h, date: self.dayName(p.date), customer: p.customer, item: 'Package · ' + p.count + ' × ' + (SV[p.svc] || {}).short, method: p.method, amount: self.money(p.amount), status: 'Paid', stCls: 'p-paid', ref: '' }); });
     txns.sort(function (a, b) { return b.off - a.off || b.h - a.h; });
+    var onlineAmt = sessIn.filter(function (b) { return b.method !== 'cash'; }).reduce(function (a, b) { return a + b.amount; }, 0) + packsIn.filter(function (p) { return p.method === 'Card'; }).reduce(function (a, p) { return a + p.amount; }, 0);
+    var studioAmt = sessMoney + packMoney - onlineAmt;
     var payTotals = [
       { label: 'Total collected', amount: self.money(sessMoney + packMoney), sub: rangeLabel },
-      { label: 'Paid online', amount: self.money(sessMoney + packMoney), sub: 'Card payments via Paymob' },
-      { label: 'Paid at studio', amount: self.money(0), sub: 'Not offered' },
+      { label: 'Paid online', amount: self.money(onlineAmt), sub: 'Card payments via Paymob' },
+      { label: 'Paid at studio', amount: self.money(studioAmt), sub: 'Cash collected on the day' },
       { label: 'Not paid', amount: self.money(dueAmt), sub: dueUp.length + ' upcoming bookings' }
     ];
     var exportCsv = function () {

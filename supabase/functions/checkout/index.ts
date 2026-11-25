@@ -3,7 +3,7 @@
 //  2. Creates a Paymob payment intention.
 //  3. Returns the URL of Paymob's hosted checkout. Card details are entered there, never on our site.
 import { adminClient } from '../_shared/admin.ts';
-import { ALLOWED_ORIGINS, PAYMOB_API, PAYMOB_CARD_INTEGRATION_ID, PAYMOB_PUBLIC_KEY } from '../_shared/config.ts';
+import { ALLOWED_ORIGINS, ALLOW_CASH, PAYMOB_API, PAYMOB_CARD_INTEGRATION_ID, PAYMOB_PUBLIC_KEY } from '../_shared/config.ts';
 
 const SERVICE_NAMES: Record<string, string> = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit' };
 const FRIENDLY: Record<string, string> = {
@@ -49,6 +49,8 @@ Deno.serve(async (req) => {
     return reply({ error: 'Please check your name and email.' }, 400, origin);
   }
 
+  if (b.payment === 'cash' && !ALLOW_CASH) return reply({ error: 'Paying at the studio is not available.' }, 400, origin);
+
   const db = adminClient();
   let ref: string, total: number, itemName: string, table: string;
 
@@ -85,6 +87,13 @@ Deno.serve(async (req) => {
   // While Paymob runs on test keys, everything booked is test data the owner can clear.
   if (PAYMOB_PUBLIC_KEY.includes('_test_')) await db.rpc('mark_test', { p_ref: ref });
 
+  // Pay at the studio: confirmed now, payment collected on the day (staff mark it paid).
+  if (b.payment === 'cash') {
+    if (!ALLOW_CASH) return reply({ error: 'Paying at the studio is not available.' }, 400, origin);
+    await db.rpc('confirm_cash', { p_ref: ref });
+    return reply({ ref, total, cash: true }, 200, origin);
+  }
+
   const amount = total * 100;
   const release =() => db.rpc('record_payment', { p_ref: ref, p_success: false, p_amount_cents: amount, p_paymob_order_id: null, p_paymob_transaction_id: null });
 
@@ -100,6 +109,7 @@ Deno.serve(async (req) => {
   try {
     res = await fetch(`${PAYMOB_API}/v1/intention/`, {
     method: 'POST',
+    signal: AbortSignal.timeout(15000), // never keep the customer waiting on a slow Paymob
     headers: { 'Authorization': `Token ${secret}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       amount,
