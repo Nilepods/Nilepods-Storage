@@ -78,10 +78,19 @@ jobs:
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           printf '%s\n' "$KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
           printf '%s\n' "$KNOWN" > ~/.ssh/known_hosts
-          SSH="ssh -p $PORT -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes"
-          $SSH "$USER@$HOST" "mkdir -p '$DIR'"
+          SSH="ssh -p $PORT -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes -o ConnectTimeout=30"
+          # The host sometimes drops the first connection attempt, so retry a few times.
+          for i in 1 2 3 4; do
+            $SSH "$USER@$HOST" "mkdir -p '$DIR'" && break
+            [ "$i" = 4 ] && { echo "::error::Could not connect to Hostinger over SSH"; exit 1; }
+            echo "SSH attempt $i failed, retrying in 10s"; sleep 10
+          done
           # No --delete: files already on the server that are not part of this build are left alone.
-          rsync -rlvz --checksum -e "$SSH" dist/ "$USER@$HOST:$DIR/"
+          for i in 1 2 3; do
+            rsync -rlvz --checksum -e "$SSH" dist/ "$USER@$HOST:$DIR/" && exit 0
+            echo "Upload attempt $i failed, retrying in 10s"; sleep 10
+          done
+          echo "::error::Upload to Hostinger failed"; exit 1
 
       - name: Remove key
         if: always()
