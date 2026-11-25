@@ -1782,7 +1782,7 @@ export default function View(v) {
                 {v.last.headline}
               </h1>
               <p className="lead" style={{ marginTop: "12px" }}>
-                {"Confirmation sent to "}{v.last.email}{" · Order "}{v.last.ref}
+                {"Booked by "}{v.last.email}{" · Order "}{v.last.ref}
               </p>
             </div>
             <div className="wz" style={{ marginTop: "36px" }}>

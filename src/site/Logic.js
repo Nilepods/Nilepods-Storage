@@ -1,5 +1,9 @@
 // State and behaviour for this page. Converted from design/Main.dc.html; safe to edit.
 import DCLogic from '../lib/DCLogic.jsx';
+import { loadBusySlots, startCheckout, getPaymentStatus, isoDate } from '../lib/booking.js';
+
+// Wizard fields kept while the customer is on Paymob's page, so a failed payment can be retried.
+const WIZARD_KEYS = ['mode', 'svc', 'setup', 'people', 'ex', 'dateKey', 'start', 'bTier', 'bCount', 'info', 'monthOff'];
 
 export default class Logic extends DCLogic {
   constructor(props) {
@@ -14,8 +18,58 @@ export default class Logic extends DCLogic {
       method: 'online', card: { holder: '', num: '', exp: '', cvc: '' }, agreed: false, paying: false, useCredit: true,
       bookings: [], credits: [], last: null, signedIn: false, acctEmail: '', menu: false, toast: '',
       legal: 'privacy', cf: { name: '', phone: '', email: '', msg: '' }, contactSent: false,
-      tf: { name: '', phone: '', note: '' }, tourSent: false, tDate: null, tOff: 0, tSlot: null
+      tf: { name: '', phone: '', note: '' }, tourSent: false, tDate: null, tOff: 0, tSlot: null,
+      busy: {}
     };
+  }
+  // ---------- live data (Supabase + Paymob) ----------
+  componentDidMount() {
+    this.loadBusy();
+    this.checkPaymentReturn();
+  }
+  componentWillUnmount() { clearTimeout(this._poll); clearTimeout(this._tt); }
+  loadBusy() {
+    var self = this, from = new Date(), to = new Date();
+    from.setHours(0, 0, 0, 0); to.setDate(to.getDate() + 62);
+    return loadBusySlots(from, to).then(function (busy) { self.setState({ busy: busy }); })
+      .catch(function (e) { console.warn('Could not load availability', e); });
+  }
+  checkPaymentReturn() {
+    var self = this, params = new URLSearchParams(window.location.search), ref = params.get('payment');
+    if (!ref) return;
+    window.history.replaceState(null, '', window.location.pathname);
+    var draft = null, wizard = null;
+    try { draft = JSON.parse(sessionStorage.getItem('np_pending') || 'null'); wizard = JSON.parse(sessionStorage.getItem('np_wizard') || 'null'); } catch (e) { /* ignore */ }
+    if (!draft || draft.ref !== ref) { draft = null; wizard = null; }
+    var base = draft || { kind: 'order', ref: ref, email: 'you', headline: 'Payment received', kicker: 'Order', big: ref, sub: '', totalLabel: '', rows: [], note: '', start: 0, end: 0 };
+    this.setState({ screen: 'confirm', last: Object.assign({}, base, { headline: 'Confirming your payment…', payState: 'Checking', payCls: 'pill-due' }) });
+    var tries = 0;
+    var check = function () {
+      tries++;
+      getPaymentStatus(ref).then(function (st) {
+        var paid = st && st.payment_status === 'paid';
+        var failed = st && (st.payment_status === 'failed' || st.status === 'expired' || st.status === 'cancelled');
+        if (paid) {
+          sessionStorage.removeItem('np_pending'); sessionStorage.removeItem('np_wizard');
+          var s = { last: Object.assign({}, base, { payState: 'Paid', payCls: 'pill-ok' }), signedIn: !!draft, acctEmail: draft ? base.email : '' };
+          if (st.status === 'needs_review') s.last.note = 'Your payment went through, but our team needs to confirm your time. We will contact you shortly.';
+          if (base.kind === 'session' && base.booking) s.bookings = self.state.bookings.concat([base.booking]);
+          self.setState(s); self.loadBusy();
+        } else if (failed) {
+          sessionStorage.removeItem('np_pending');
+          var back = { screen: 'home', agreed: false, paying: false };
+          if (wizard) { WIZARD_KEYS.forEach(function (k) { if (k in wizard) back[k] = wizard[k]; }); back.screen = 'book'; back.start = null; back.w = wizard.mode === 'bundle' ? 3 : 5; }
+          self.setState(back); self.loadBusy();
+          self.showToast(wizard && wizard.mode !== 'bundle' ? 'Payment did not go through. Please pick your time again and retry.' : 'Payment did not go through. Please try again.');
+        } else if (tries < 12) {
+          self._poll = setTimeout(check, 2500);
+        } else {
+          self.setState({ last: Object.assign({}, base, { headline: 'Payment processing', payState: 'Processing', payCls: 'pill-due',
+            note: 'Paymob is still confirming your payment. Keep your order number ' + ref + '; we will contact you if anything is needed.' }) });
+        }
+      }).catch(function () { if (tries < 12) self._poll = setTimeout(check, 2500); });
+    };
+    check();
   }
   // ---------- data ----------
   img() { return { hero: '/images/f6b9c2ee7028884a47a15ded2f51d19c.jpg', s2: '/images/d8c0cf460707998f2db0c832d04b3efa.jpg', win: '/images/af9913323450fa5d63be56608814e9f8.jpg', mics: '/images/f581ffd019d17d8bd60d3ad415345ac9.jpg', shelves: '/images/aaf9baac82ee885ac1f32de79de265ad.jpg', frames: '/images/cb531de9b27e823b4dfd14bf775f7b49.jpg' }; }
@@ -81,11 +135,9 @@ export default class Logic extends DCLogic {
   hourStatus(d, h, setup) {
     var today = new Date(); today.setHours(0, 0, 0, 0);
     if (d.getTime() === today.getTime() && h <= new Date().getHours()) return 'passed';
-    var k = this.key(d);
-    var taken = this.state.bookings.some(function (b) { return b.key === k && b.setup === setup && h >= b.start && h < b.end; });
-    var salt = (parseInt(String(setup || 's1').slice(1), 10) || 1) * 3;
-    var mock = ((d.getDate() * 31 + d.getMonth() * 7 + h * 13 + salt) % 6) === 0;
-    return (taken || mock) ? 'booked' : 'free';
+    var ranges = this.state.busy[this.key(d) + '|' + setup] || [];
+    var taken = ranges.some(function (r) { return h >= r[0] && h < r[1]; });
+    return taken ? 'booked' : 'free';
   }
   scrollTop(id) {
     var self = this;
@@ -161,7 +213,8 @@ export default class Logic extends DCLogic {
     // credits for chosen session service
     var credit = S.credits.filter(function (c) { return c.svc === S.svc && c.left > 0; })[0] || null;
     var creditsFor = function (id) { return S.credits.filter(function (c) { return c.svc === id; }).reduce(function (a, c) { return a + c.left; }, 0); };
-    var usingCredit = !isBundle && !!credit && S.useCredit;
+    // Package credits need customer accounts, which are not built yet: never apply them online.
+    var usingCredit = false;
 
     // ----- quote -----
     var lines = [], total = 0, extrasNames = [], BP = null;
@@ -307,42 +360,43 @@ export default class Logic extends DCLogic {
     var st = {}; ['service', 'bundle', 'setup', 'people', 'extras', 'time', 'info', 'pay'].forEach(function (k) { st[k] = cur === k; });
     var progBars = steps.map(function (t, i) { return i + 1 < S.w ? 'on' : i + 1 === S.w ? 'cur' : ''; });
     var blockedMap = { service: false, bundle: false, setup: !S.setup, people: false, extras: false, time: !(date && S.start != null), info: false,
-      pay: !S.agreed || S.paying || (needsPay && S.method === 'online' && !cardOk) };
-    var payLabel = S.paying ? 'Processing…' : !needsPay ? 'Confirm booking' : S.method === 'online' ? 'Pay ' + self.money(total) + (isBundle ? ' & buy credits' : ' & book') : 'Confirm — pay at the studio';
+      pay: !S.agreed || S.paying };
+    var payLabel = S.paying ? 'Processing…' : !needsPay ? 'Confirm booking' : S.method === 'online' ? 'Pay ' + self.money(total) + (isBundle ? ' & buy package' : ' & book') : 'Confirm — pay at the studio';
     var nextLabel = cur === 'pay' ? payLabel : cur === 'info' ? 'Continue to payment' : 'Continue';
     var nextShort = cur === 'pay' ? (S.paying ? 'Processing…' : !needsPay ? 'Confirm' : S.method === 'online' ? (isBundle ? 'Pay & buy' : 'Pay & book') : 'Confirm') : 'Continue';
 
     var pay = function () {
       self.setState({ paying: true });
-      setTimeout(function () {
-        var online = S.method === 'online' && needsPay;
-        var ref = 'NP-' + Math.floor(10000 + Math.random() * 89999);
-        var payState = !needsPay ? 'Credit used' : online ? 'Paid' : 'Due at studio';
-        var payCls = online || !needsPay ? 'pill-ok' : 'pill-due';
-        var method = !needsPay ? 'Package credit' : online ? 'Card •••• ' + C.num.replace(/\D/g, '').slice(-4) : 'Pay at the studio';
-        var name = I.first.trim() + ' ' + I.last.trim(), email = I.email.trim();
-        var base = { paying: false, start: null, agreed: false, signedIn: true, acctEmail: email, screen: 'confirm', w: 1, card: { holder: '', num: '', exp: '', cvc: '' } };
-        if (isBundle) {
-          var exp = new Date(today); exp.setDate(today.getDate() + validDays);
-          var cr = { id: ref, svc: P.id, tier: P.tier, name: P.name, count: S.bCount, left: S.bCount, expires: self.shortDate(exp) };
-          var lb = { kind: 'bundle', ref: ref, email: email, headline: 'Credits added to your account', kicker: 'Package', big: P.tier + ' · ' + S.bCount + (S.bCount === 1 ? ' session' : ' sessions'),
-            sub: 'Valid until ' + cr.expires, totalLabel: self.money(total), payState: payState, payCls: payCls, svc: P.id,
-            rows: [{ k: 'Service', v: P.name }, { k: 'Per session', v: self.money(BP.per) }, { k: 'Name', v: name }, { k: 'Payment', v: method }],
-            note: S.bCount + (S.bCount === 1 ? ' credit has' : ' credits have') + ' been added to your account. Sign in any time to book a session — choose the setup, extras, date and time then.' };
-          self.setState(Object.assign(base, { credits: S.credits.concat([cr]), last: lb }));
-        } else {
-          var b = { kind: 'session', ref: ref, key: S.dateKey, setup: S.setup, start: S.start, end: S.start + dur, pkgName: P.name,
-            setupLabel: SET.n, dateLabel: self.longDate(date), timeLabel: self.range(S.start, S.start + dur), totalLabel: self.money(total) };
-          var credits = S.credits;
-          if (usingCredit) credits = S.credits.map(function (c) { return c.id === credit.id ? Object.assign({}, c, { left: c.left - 1 }) : c; });
-          var ls = { kind: 'session', ref: ref, email: email, headline: "You're booked!", kicker: 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
-            totalLabel: self.money(total), payState: payState, payCls: payCls, start: b.start, end: b.end,
-            rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: method }],
-            note: 'Your hours are now locked in ' + SET.n + ' — book the same day again and you will see them taken.' };
-          self.setState(Object.assign(base, { bookings: S.bookings.concat([b]), credits: credits, last: ls }));
-        }
-        self.scrollTop();
-      }, 1300);
+      var name = I.first.trim() + ' ' + I.last.trim(), email = I.email.trim();
+      var info = { first: I.first.trim(), last: I.last.trim(), email: email, phone: (I.phone || '').trim(), wa: !!I.wa };
+      var payload, draft;
+      if (isBundle) {
+        payload = { kind: 'package', service: P.id, sessions: S.bCount, info: info };
+        draft = { kind: 'bundle', email: email, headline: 'Package confirmed', kicker: 'Package', big: P.tier + ' · ' + S.bCount + (S.bCount === 1 ? ' session' : ' sessions'),
+          sub: 'Valid for ' + validDays + ' days', totalLabel: self.money(total), svc: P.id,
+          rows: [{ k: 'Service', v: P.name }, { k: 'Per session', v: self.money(BP.per) }, { k: 'Name', v: name }, { k: 'Payment', v: 'Card (Paymob)' }],
+          note: 'Our team will contact you to schedule your ' + (S.bCount === 1 ? 'session' : S.bCount + ' sessions') + '.' };
+      } else {
+        payload = { kind: 'session', service: S.svc, setup: S.setup, date: isoDate(date), start: S.start, people: S.people, extras: S.ex, info: info };
+        var b = { kind: 'session', key: S.dateKey, setup: S.setup, start: S.start, end: S.start + dur, pkgName: P.name,
+          setupLabel: SET.n, dateLabel: self.longDate(date), timeLabel: self.range(S.start, S.start + dur), totalLabel: self.money(total) };
+        draft = { kind: 'session', email: email, headline: "You're booked!", kicker: 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
+          totalLabel: self.money(total), start: b.start, end: b.end, booking: b,
+          rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: 'Card (Paymob)' }],
+          note: 'Your hours are locked in ' + SET.n + '. Please arrive 10 minutes early.' };
+      }
+      startCheckout(payload).then(function (r) {
+        draft.ref = r.ref; if (draft.booking) draft.booking.ref = r.ref;
+        var wizard = {}; WIZARD_KEYS.forEach(function (k) { wizard[k] = S[k]; });
+        try { sessionStorage.setItem('np_pending', JSON.stringify(draft)); sessionStorage.setItem('np_wizard', JSON.stringify(wizard)); } catch (e) { /* ignore */ }
+        window.location.assign(r.url);
+      }).catch(function (err) {
+        var s = { paying: false };
+        if (err.code === 'slot_taken' || err.code === 'in_the_past') { s.start = null; s.w = 5; }
+        self.setState(s);
+        self.showToast(err.message);
+        if (err.code === 'slot_taken') self.loadBusy();
+      });
     };
     var wzNext = function () {
       if (cur === 'info') {
@@ -363,7 +417,7 @@ export default class Logic extends DCLogic {
     var q;
     if (isBundle) {
       q = { img: catImg[P.id], label: 'Your package', title: P.tier + ' · ' + P.name, meta: S.bCount + (S.bCount === 1 ? ' session' : ' sessions') + ' · ' + self.money(BP.per) + ' each',
-        whenK: 'How it works', when: 'Credits go to your account. Book each session — setup, extras, date and time — whenever you like.', lines: lines, total: self.money(total), onsite: S.method === 'onsite' && cur === 'pay',
+        whenK: 'How it works', when: 'After you pay, our team contacts you to schedule each session — setup, extras, date and time.', lines: lines, total: self.money(total), onsite: S.method === 'onsite' && cur === 'pay',
         foot: 'Valid ' + validDays + ' days. Book each session whenever you like — extras are added per session.' };
     } else {
       q = { img: SET ? SET.img : IM.hero, label: 'Your session', title: P.name,
@@ -524,10 +578,10 @@ export default class Logic extends DCLogic {
       canCredit: !isBundle && !!credit, useCredit: S.useCredit, toggleCredit: function () { self.setState({ useCredit: !S.useCredit }); },
       creditNote: credit ? credit.tier + ' package · ' + credit.left + ' left · covers the first hour' : '',
       needsPay: needsPay, noPay: !needsPay,
-      payMethods: [{ id: 'online', label: 'Online', sub: 'Card · pay now' }, { id: 'onsite', label: 'On-site', sub: 'Pay at the studio' }].map(function (m) {
-        return { label: m.label, sub: m.sub, on: S.method === m.id, cls: 'opt' + (S.method === m.id ? ' on' : ''), pick: function () { self.setState({ method: m.id }); } }; }),
-      payOnline: S.method === 'online',
-      payHelp: S.method === 'online' ? 'You pay ' + self.money(total) + ' now by card.' : (isBundle ? 'Your package is reserved now. You pay ' : 'Your slot is confirmed now. You pay ') + self.money(total) + ' at the studio.',
+      // Card only, on Paymob's hosted checkout. Card details are never entered on this site.
+      payMethods: [{ label: 'Card', sub: 'Visa · Mastercard · Meeza', on: true, cls: 'opt on', pick: function () {} }],
+      payOnline: false,
+      payHelp: 'You will pay ' + self.money(total) + " on Paymob's secure checkout page, then come straight back here." + (isBundle ? '' : ' Your time is held for 20 minutes while you pay.'),
       card: C,
       onP: { holder: function (e) { self.setF('card', 'holder', e.target.value); }, num: function (e) { self.setF('card', 'num', fmtNum(e.target.value)); },
         exp: function (e) { self.setF('card', 'exp', fmtExp(e.target.value)); }, cvc: function (e) { self.setF('card', 'cvc', e.target.value.replace(/\D/g, '').slice(0, 4)); } },

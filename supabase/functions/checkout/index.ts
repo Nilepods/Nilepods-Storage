@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     // Never log the key itself.
     console.error(`PAYMOB_SECRET_KEY is missing or contains invalid characters (length ${secret.length}). Re-enter it in Supabase -> Edge Functions -> Secrets.`);
     await release();
-    return reply({ error: 'The payment service is not available right now. Please try again in a few minutes.' }, 502, origin);
+    return reply({ error: 'The payment service is not available right now. Please try again in a few minutes.', code: 'paymob_key_invalid' }, 502, origin);
   }
 
   let res: Response;
@@ -115,14 +115,14 @@ Deno.serve(async (req) => {
   } catch (e) {
     console.error('Paymob request failed', String(e));
     await release();
-    return reply({ error: 'The payment service is not available right now. Please try again in a few minutes.' }, 502, origin);
+    return reply({ error: 'The payment service is not available right now. Please try again in a few minutes.', code: 'paymob_unreachable' }, 502, origin);
   }
   const pj = await res.json().catch(() => ({}));
   if (!res.ok || !pj.client_secret) {
     console.error('Paymob intention failed', res.status, JSON.stringify(pj).slice(0, 500));
     // Release the hold so the slot is not blocked by a checkout that never started.
     await release();
-    return reply({ error: 'The payment service is not available right now. Please try again in a few minutes.' }, 502, origin);
+    return reply({ error: 'The payment service is not available right now. Please try again in a few minutes.', code: `paymob_rejected_${res.status}` }, 502, origin);
   }
   console.log('Paymob intention created', ref, 'fields:', Object.keys(pj).join(','));
 
