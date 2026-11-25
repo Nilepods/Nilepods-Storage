@@ -1,0 +1,1541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nilepods — Website</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&amp;family=Poppins:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0E0C0A}
+a{color:#E2B872;text-decoration:none}a:hover{color:#F4D9A6}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid #E2B872;outline-offset:3px}
+.np-root{height:100vh;overflow-y:auto;overflow-x:hidden;font-family:Poppins,system-ui,sans-serif;color:#F1EADF;background:#0E0C0A}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px;box-sizing:border-box;width:100%}
+.ttl{font-family:'Titillium Web',sans-serif}
+.eyebrow{margin:0 0 14px;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#E2B872}
+.h2{margin:0;font-family:'Titillium Web',sans-serif;font-size:clamp(32px,4vw,52px);line-height:1.08;font-weight:700;color:#fff}
+.lead{margin:0;font-size:16px;line-height:1.7;color:#BDB2A2}
+.sec{padding:110px 0}
+.btn-gold{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#E2B872;color:#17120B;font-weight:600;font-size:15px;padding:14px 26px;border-radius:999px;min-height:48px;box-sizing:border-box;transition:background .2s}
+.btn-gold:hover{background:#EAC283;color:#17120B}
+.btn-gold:disabled{background:#4A4236;color:#9A8E7D}
+.btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:10px;color:#fff;font-weight:500;font-size:15px;padding:13px 26px;border-radius:999px;border:1px solid rgba(255,255,255,.35);min-height:48px;box-sizing:border-box;transition:all .2s}
+.btn-ghost:hover{border-color:#E2B872;color:#E2B872}
+.btn-lg{font-size:16px;padding:16px 30px}
+.link{color:#E2B872;font-size:14px;font-weight:500}.link:hover{color:#F4D9A6}
+.card{background:#17140F;border:1px solid rgba(241,234,223,.1);border-radius:20px;transition:all .3s ease}
+.card:hover{border-color:rgba(226,184,114,.5)}
+.lift:hover{transform:translateY(-4px)}
+.chk{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:11px;font-size:14px;color:#DCD3C4}
+.chk li{display:flex;gap:10px;line-height:1.45}
+.chk li::before{content:"";flex-shrink:0;width:6px;height:11px;border:solid #E2B872;border-width:0 2px 2px 0;transform:rotate(45deg);margin:2px 6px 0 4px}
+.lbl{margin:0 0 14px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#E2B872}
+.pkg{display:grid;grid-template-rows:subgrid;grid-row:span 7;row-gap:0;padding:36px 32px}
+.pkg.featured{background:linear-gradient(180deg,#231B10 0%,#17140F 60%);border-color:rgba(226,184,114,.5);box-shadow:0 30px 80px -30px rgba(226,184,114,.25)}
+.badge{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;color:#17120B;background:#E2B872;padding:6px 10px;border-radius:999px;white-space:nowrap}
+.zoom{overflow:hidden}.zoom img{transition:transform .6s ease}.zoom:hover img{transform:scale(1.05)}
+.hero{background-image:linear-gradient(90deg,rgba(10,8,6,.94) 0%,rgba(10,8,6,.78) 38%,rgba(10,8,6,.15) 72%,rgba(10,8,6,.35) 100%),linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,0) 28%),url(/_blob/f6b9c2ee7028884a47a15ded2f51d19c);background-size:cover;background-position:62% 40%;min-height:760px;display:flex;align-items:flex-end}
+.hero-in{padding:160px 24px 72px}
+.page-hero{background-size:cover;background-position:center;padding:150px 0 70px}
+.ph-studios{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.55) 60%,rgba(14,12,10,.75) 100%),url(/_blob/f6b9c2ee7028884a47a15ded2f51d19c)}
+.ph-window{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.55) 60%,rgba(14,12,10,.75) 100%),url(/_blob/af9913323450fa5d63be56608814e9f8)}
+.ph-mics{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.55) 60%,rgba(14,12,10,.75) 100%),url(/_blob/f581ffd019d17d8bd60d3ad415345ac9)}
+.ph-shelves{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.6) 60%,rgba(14,12,10,.8) 100%),url(/_blob/aaf9baac82ee885ac1f32de79de265ad)}
+.ph-frames{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.6) 60%,rgba(14,12,10,.8) 100%),url(/_blob/cb531de9b27e823b4dfd14bf775f7b49)}
+.pitch{background-image:linear-gradient(90deg,rgba(10,8,6,.92) 0%,rgba(10,8,6,.7) 50%,rgba(10,8,6,.3) 100%),url(/_blob/af9913323450fa5d63be56608814e9f8);background-size:cover;background-position:center;border-radius:28px;padding:96px 64px;border:1px solid rgba(241,234,223,.08)}
+.hdr{position:sticky;top:0;z-index:30;background:rgba(14,12,10,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(241,234,223,.08)}
+.navlink{font-size:15px;color:#E9E1D4;padding:8px 2px;border-bottom:1px solid transparent}
+.navlink:hover{color:#E2B872}
+.navlink.active{color:#E2B872;border-bottom-color:#E2B872}
+.iconbtn{display:flex;width:44px;height:44px;align-items:center;justify-content:center;border-radius:50%;border:1px solid rgba(241,234,223,.18);color:#F1EADF}
+.iconbtn:hover{border-color:#E2B872;color:#E2B872}
+.mob{display:none}
+.mmenu{position:fixed;inset:0;z-index:50;background:#0E0C0A;display:flex;flex-direction:column;padding:16px 24px 32px;box-sizing:border-box;overflow-y:auto}
+.mlink{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;font-family:'Titillium Web',sans-serif;font-size:28px;font-weight:600;color:#fff;padding:16px 0;border-bottom:1px solid rgba(241,234,223,.08)}
+.mlink.active{color:#E2B872}
+.field{display:flex;flex-direction:column;gap:8px}
+.field label{font-size:13px;color:#CFC5B5;font-weight:500}
+.inp{background:#0E0C0A;border:1px solid rgba(241,234,223,.18);border-radius:12px;padding:14px 16px;color:#F1EADF;font:inherit;font-size:15px;min-height:50px;box-sizing:border-box;width:100%}
+.inp:focus{outline:none;border-color:#E2B872}
+.inp::placeholder{color:#7D7365}
+textarea.inp{min-height:130px;resize:vertical}
+.steps{display:flex;gap:8px;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:10px;font-size:14px;color:#8C8172;padding:8px 14px 8px 8px;border-radius:999px;border:1px solid rgba(241,234,223,.1)}
+.step .n{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:#211C16;color:#8C8172}
+.step.on{color:#fff;border-color:rgba(226,184,114,.6)}.step.on .n{background:#E2B872;color:#17120B}
+.step.done{color:#CFC5B5}.step.done .n{background:#3A3125;color:#E2B872}
+.opt{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;width:100%;padding:22px 22px;border-radius:16px;border:1px solid rgba(241,234,223,.12);background:#17140F;box-sizing:border-box;transition:all .2s}
+.opt:hover{border-color:rgba(226,184,114,.5)}
+.opt.on{border-color:#E2B872;background:#231B10;box-shadow:0 0 0 1px #E2B872 inset}
+.days{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
+.day{flex:0 0 auto;width:78px;padding:12px 0;border-radius:14px;border:1px solid rgba(241,234,223,.12);background:#17140F;display:flex;flex-direction:column;align-items:center;gap:2px;color:#F1EADF;transition:all .2s}
+.day:hover{border-color:rgba(226,184,114,.6)}
+.day .dw{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#A89C8B}
+.day .dn{font-family:'Titillium Web',sans-serif;font-size:26px;font-weight:700;line-height:1.1}
+.day .dm{font-size:12px;color:#A89C8B}
+.day.on{background:#E2B872;border-color:#E2B872;color:#17120B}.day.on .dw,.day.on .dm{color:#3A2E1A}
+.day.closed{opacity:.45;background:repeating-linear-gradient(135deg,#17140F 0 6px,#1D1913 6px 12px)}
+.day.closed:hover{border-color:rgba(241,234,223,.12)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.slot{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px 16px;border-radius:14px;border:1px solid rgba(241,234,223,.14);background:#17140F;text-align:left;min-height:64px;box-sizing:border-box;transition:all .2s}
+.slot .t{font-size:15px;font-weight:500;color:#fff}
+.slot .s{font-size:12px;color:#8FCB9B}
+.slot-available:hover{border-color:#E2B872}
+.slot-selected{background:#E2B872;border-color:#E2B872}.slot-selected .t{color:#17120B}.slot-selected .s{color:#3A2E1A}
+.slot-booked{background:repeating-linear-gradient(135deg,#15120E 0 6px,#1B1712 6px 12px);border-style:dashed}.slot-booked .t{color:#6F6659;text-decoration:line-through}.slot-booked .s{color:#C98A7A}
+.slot-passed{opacity:.4}.slot-passed .s{color:#8C8172}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:#A89C8B}
+.legend span{display:flex;align-items:center;gap:8px}
+.sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+.sum{position:sticky;top:96px;padding:28px}
+.row{display:flex;justify-content:space-between;gap:16px;font-size:14px;padding:10px 0;border-bottom:1px solid rgba(241,234,223,.07)}
+.row .k{color:#A89C8B}.row .v{color:#F1EADF;text-align:right}
+.tl{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.tlc{height:44px;border-radius:8px;background:#1F1A14;border:1px solid rgba(241,234,223,.06)}
+.tlc.on{background:#E2B872;border-color:#E2B872}
+.tll{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;font-size:11px;color:#8C8172;margin-top:8px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;background:#F1EADF;color:#17120B;font-size:14px;font-weight:500;padding:14px 22px;border-radius:999px;box-shadow:0 20px 50px rgba(0,0,0,.5);max-width:calc(100% - 48px);text-align:center}
+.ph{border:1px dashed rgba(226,184,114,.45);border-radius:16px;padding:28px;color:#CFC5B5;font-size:15px;line-height:1.7;background:rgba(226,184,114,.04)}
+.foot a,.foot button{color:#A89C8B;font-size:14px}.foot a:hover,.foot button:hover{color:#E2B872}
+details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
+details[open] .plus{transform:rotate(45deg)}
+.bk{padding:56px 0 110px}
+.wz{background:#14110D;border:1px solid rgba(241,234,223,.09);border-radius:24px;overflow:hidden;box-shadow:0 40px 90px -50px rgba(0,0,0,.9)}
+.wz-h{display:flex;align-items:center;gap:16px;padding:22px 28px 18px}
+.back-c{width:44px;height:44px;flex-shrink:0;border-radius:50%;border:1px solid rgba(241,234,223,.18);display:flex;align-items:center;justify-content:center;color:#F1EADF;transition:all .2s}
+.back-c:hover{border-color:#E2B872;color:#E2B872}
+.back-c:disabled{opacity:.3;border-color:rgba(241,234,223,.18);color:#F1EADF}
+.prog{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;padding:0 28px}
+.prog i{height:3px;border-radius:3px;background:#2A241C;transition:background .3s}
+.prog i.on{background:#E2B872}
+.prog i.cur{background:linear-gradient(90deg,#E2B872,#8A6E40)}
+.wz-b{padding:30px 28px 32px}
+.wz-f{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 28px;border-top:1px solid rgba(241,234,223,.07);background:#110F0B}
+.radio{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(241,234,223,.35);box-sizing:border-box;flex-shrink:0}
+.radio.on{border:7px solid #E2B872}
+.stage{position:relative;border-radius:20px;overflow:hidden;min-height:420px;border:1px solid rgba(241,234,223,.08)}
+.stage-in{position:absolute;left:0;right:0;bottom:0;padding:32px}
+.btn-sel{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:rgba(14,12,10,.55);color:#fff;font-weight:600;font-size:15px;padding:13px 26px;border-radius:999px;border:1px solid rgba(255,255,255,.55);min-height:48px;backdrop-filter:blur(6px)}
+.btn-sel:hover{border-color:#E2B872;color:#E2B872}
+.btn-sel.on{background:#E2B872;border-color:#E2B872;color:#17120B}
+.xrow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;border-radius:16px;border:1px solid rgba(241,234,223,.1);background:#17140F;transition:all .2s}
+.xrow.on{border-color:rgba(226,184,114,.55);background:#1E1810}
+.qty{display:inline-flex;align-items:center;border:1px solid rgba(241,234,223,.16);border-radius:999px;background:#0E0C0A;flex-shrink:0}
+.qb{width:44px;height:44px;font-size:20px;line-height:1;color:#F1EADF;border-radius:50%}
+.qb:hover{color:#E2B872}
+.qb:disabled{color:#4A4236}
+.qv{min-width:28px;text-align:center;font-weight:600;font-size:16px;color:#fff}
+.cal-h{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px}
+.cal-h span{text-align:center;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8C8172;padding:6px 0}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cd{height:52px;border-radius:12px;border:1px solid rgba(241,234,223,.12);background:#17140F;font-size:15px;font-weight:500;color:#F1EADF;transition:all .15s}
+.cd:hover{border-color:#E2B872}
+.cd.empty{visibility:hidden}
+.cd:disabled{background:transparent;border-color:rgba(241,234,223,.04);color:#4A4236}
+.cd.fri:disabled{background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(241,234,223,.035) 5px 10px)}
+.cd.today{box-shadow:inset 0 -2px 0 #E2B872}
+.cd.on{background:#E2B872;border-color:#E2B872;color:#17120B;box-shadow:none}
+.inp.bad{border-color:#D98B78}
+.ferr{font-size:13px;color:#E7A492}
+.chkbox{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:#CFC5B5;line-height:1.5;cursor:pointer}
+.chkbox input{width:20px;height:20px;margin:0;accent-color:#E2B872;flex-shrink:0}
+.quote{position:sticky;top:96px;background:#14110D;border:1px solid rgba(241,234,223,.09);border-radius:20px}
+.pill-ok{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#8FCB9B;border:1px solid rgba(143,203,155,.4);padding:6px 12px;border-radius:999px}
+.pill-due{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#E2B872;border:1px solid rgba(226,184,114,.45);padding:6px 12px;border-radius:999px}
+.mbar{display:none}
+@media (max-width:860px){
+.bk{padding:32px 0 130px}
+.wz{border-radius:20px}
+.wz-h{padding:18px 18px 14px}
+.prog{padding:0 18px}
+.wz-b{padding:24px 18px 26px}
+.stage{min-height:340px}
+.stage-in{padding:22px}
+.cd{height:44px;border-radius:10px;font-size:14px}
+.cal,.cal-h{gap:4px}
+.quote{position:static}
+.xrow{padding:16px}
+.mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;align-items:center;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(14,12,10,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(241,234,223,.1)}
+}
+.prog.p3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.savechip{display:inline-flex;align-items:center;font-size:13px;font-weight:500;color:#E2B872;padding:8px 14px;border-radius:999px;border:1px solid rgba(226,184,114,.4);background:rgba(226,184,114,.06);white-space:nowrap}
+.creditchip{display:inline-flex;font-size:12px;font-weight:600;color:#17120B;background:#8FCB9B;padding:4px 10px;border-radius:999px}
+.frail{flex:1 1 200px;position:sticky;top:100px;display:flex;flex-direction:column;gap:28px}
+.fhead{margin:0 0 12px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#8C8172}
+.fopts{display:flex;flex-direction:column;gap:6px}
+.fchk{display:flex;align-items:center;gap:12px;min-height:40px;padding:0 14px;border-radius:12px;border:1px solid rgba(241,234,223,.1);font-size:15px;color:#DCD3C4;cursor:pointer;transition:all .2s}
+.fchk:hover{border-color:rgba(226,184,114,.5)}
+.fchk.on{border-color:#E2B872;color:#fff;background:rgba(226,184,114,.08)}
+.fchk input{width:18px;height:18px;margin:0;accent-color:#E2B872}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.pcard{display:flex;flex-direction:column;background:#14110D;border:1px solid rgba(241,234,223,.1);border-radius:20px;overflow:hidden;transition:all .3s ease}
+.pcard:hover{border-color:rgba(226,184,114,.5);transform:translateY(-4px)}
+.pimg{height:190px;position:relative;overflow:hidden}
+.pimg img{transition:transform .6s ease}.pcard:hover .pimg img{transform:scale(1.05)}
+.savetag{position:absolute;top:14px;left:14px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#17120B;background:#E2B872;padding:6px 10px;border-radius:999px}
+.pprice{margin:18px 24px 0;padding:16px 0;border-top:1px solid rgba(241,234,223,.08);border-bottom:1px solid rgba(241,234,223,.08)}
+.pfoot{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(241,234,223,.1)}
+.pfoot button{min-height:56px;font-size:15px;font-weight:600;color:#fff;transition:all .2s}
+.pfoot button:hover{background:#1E1810;color:#E2B872}
+.pfoot .buy{background:#E2B872;color:#17120B}.pfoot .buy:hover{background:#EAC283;color:#17120B}
+.segs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.seg{min-height:48px;border-radius:12px;border:1px solid rgba(241,234,223,.14);background:#17140F;font-weight:600;font-size:15px;color:#F1EADF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all .2s}
+.seg small{font-size:11px;font-weight:500;color:#8FCB9B}
+.seg:hover{border-color:#E2B872}
+.seg.on{background:#E2B872;border-color:#E2B872;color:#17120B}.seg.on small{color:#3A2E1A}
+.num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#2A241C;color:#E2B872;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.car-wrap{position:relative}
+.car{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;-webkit-overflow-scrolling:touch;border-radius:20px}
+.car::-webkit-scrollbar{display:none}
+.slide{flex:0 0 88%;scroll-snap-align:start}
+.slide-card{position:relative;height:440px;border-radius:20px;overflow:hidden;border:1px solid rgba(241,234,223,.1);transition:border-color .2s}
+.slide-card.on{border:2px solid #E2B872}
+.slide-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,8,6,.94) 0%,rgba(10,8,6,.25) 55%,rgba(10,8,6,.2) 100%)}
+.slide-card .slide-in{position:absolute;left:0;right:0;bottom:0;padding:30px}
+.ph-slide{display:flex;align-items:center;justify-content:center;border-style:dashed;border-color:rgba(226,184,114,.45);background:rgba(226,184,114,.04);padding:24px}
+.selmark{position:absolute;top:18px;right:18px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#17120B;background:#E2B872;padding:7px 12px;border-radius:999px}
+.car-arrow{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:rgba(14,12,10,.72);border:1px solid rgba(241,234,223,.25);color:#fff;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:all .2s}
+.car-arrow:hover{border-color:#E2B872;color:#E2B872}
+.car-arrow.l{left:12px}.car-arrow.r{right:12px}
+.dots{display:flex;justify-content:center;gap:4px;margin-top:14px}
+.dot{width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+.dot::after{content:"";width:8px;height:8px;border-radius:999px;background:#4A4236;transition:all .25s}
+.dot.on::after{width:24px;background:#E2B872}
+@media (max-width:860px){
+.frail{position:static;flex:1 1 100%;gap:16px}
+.fopts{flex-direction:row;flex-wrap:wrap}
+.fchk{min-height:44px}
+.slide{flex-basis:90%}
+.slide-card{height:380px}
+.slide-card .slide-in{padding:22px}
+.car-arrow{display:none}
+}
+.fs{position:relative;height:calc(100vh - 69px);min-height:560px;overflow:hidden;background:#0E0C0A}
+.fs-car{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.fs-car::-webkit-scrollbar{display:none}
+.fs-slide{flex:0 0 100%;height:100%;position:relative;scroll-snap-align:start;overflow:hidden}
+.fs-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fs-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,6,.72) 0%,rgba(10,8,6,.15) 32%,rgba(10,8,6,.1) 60%,rgba(10,8,6,.85) 100%)}
+.fs-top{position:absolute;left:0;right:0;top:72px;text-align:center;padding:0 24px}
+.fs-n{margin:0;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:clamp(64px,11vw,140px);line-height:.95;letter-spacing:-2px;color:rgba(255,255,255,.9)}
+.fs-name{margin:8px 0 0;font-family:'Titillium Web',sans-serif;font-weight:600;font-size:clamp(20px,2.4vw,28px);color:#E2B872}
+.fs-cap{margin:8px 0 0;font-size:16px;color:#F1EADF}
+.fs-bot{position:absolute;left:0;right:0;bottom:64px;display:flex;flex-direction:column;align-items:center;gap:18px;padding:0 24px}
+.fs-desc{margin:0;max-width:520px;text-align:center;font-size:15px;line-height:1.6;color:#DCD3C4}
+.fs-choose{width:min(380px,100%);min-height:52px;border-radius:999px;border:1.5px solid rgba(255,255,255,.85);color:#fff;font-size:17px;font-weight:500;background:rgba(14,12,10,.25);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:all .2s}
+.fs-choose:hover{background:#E2B872;border-color:#E2B872;color:#17120B}
+.fs-more{display:flex;align-items:center;justify-content:center;border:1px dashed rgba(226,184,114,.45);background:rgba(226,184,114,.04);box-sizing:border-box}
+.fs-head{position:absolute;top:16px;left:20px;right:20px;display:flex;align-items:center;gap:12px;pointer-events:none}
+.fs-head .fs-back{pointer-events:auto;background:rgba(14,12,10,.55);backdrop-filter:blur(6px)}
+.fs-step{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#DCD3C4}
+.fs-arrow{position:absolute;top:50%;transform:translateY(-50%);width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);border-radius:50%;transition:all .2s}
+.fs-arrow:hover{color:#E2B872;background:rgba(14,12,10,.4)}
+.fs-arrow.l{left:12px}.fs-arrow.r{right:12px}
+.fs-dots{position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:center;gap:4px}
+@media (max-width:860px){
+.fs{height:calc(100vh - 69px)}
+.fs-top{top:76px}
+.fs-bot{bottom:56px}
+.fs-arrow{width:48px;height:48px}
+.fs-arrow.l{left:4px}.fs-arrow.r{right:4px}
+}
+.backbar{position:sticky;top:69px;z-index:25;height:0}
+.backbar .wrap{padding-top:16px}
+.backpill{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px 0 12px;border-radius:999px;background:rgba(14,12,10,.62);border:1px solid rgba(241,234,223,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:#F1EADF;font-size:14px;font-weight:500;letter-spacing:.2px;box-shadow:0 10px 30px -12px rgba(0,0,0,.7);transition:all .2s}
+.backpill:hover{border-color:#E2B872;color:#E2B872}
+.svc-inc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 22px;width:100%;box-sizing:border-box;margin-top:10px;padding:14px 0 0 36px;border-top:1px solid rgba(241,234,223,.07)}
+.svc-li{position:relative;padding-left:18px;font-size:13.5px;line-height:1.45;color:#CFC5B5}
+.svc-li::before{content:"";position:absolute;left:2px;top:4px;width:4px;height:8px;border:solid #E2B872;border-width:0 1.6px 1.6px 0;transform:rotate(45deg)}
+.opt.on .svc-li{color:#F1EADF}
+.tslots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.ts{min-height:44px;border-radius:12px;border:1px solid rgba(241,234,223,.14);background:#17140F;font-size:14px;font-weight:500;color:#F1EADF;transition:all .15s}
+.ts:hover{border-color:#E2B872}
+.ts.on{background:#E2B872;border-color:#E2B872;color:#17120B}
+.ts:disabled{background:transparent;border-style:dashed;border-color:rgba(241,234,223,.1);color:#5A5246;text-decoration:line-through}
+.sets{padding:20px 0 110px}
+.sets-rule{height:1px;background:rgba(241,234,223,.1);margin:40px auto 24px;max-width:900px}
+.sets-tabs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;scrollbar-width:none}
+.sets-tabs::-webkit-scrollbar{display:none}
+.stab{min-height:40px;padding:0 18px;border-radius:10px;border:1px solid rgba(241,234,223,.16);font-size:14px;font-weight:500;color:#DCD3C4;transition:all .2s}
+.stab:hover{border-color:#E2B872;color:#E2B872}
+.stab.on{background:#F1EADF;border-color:#F1EADF;color:#17120B}
+.hs-wrap{position:relative;margin-top:32px}
+.hs-track{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding:0 14%;-webkit-overflow-scrolling:touch}
+.hs-track::-webkit-scrollbar{display:none}
+.hs-track,.fs-car{user-select:none;-webkit-user-select:none}
+.hs-track.dragging,.fs-car.dragging{scroll-snap-type:none;scroll-behavior:auto}
+.fs-img{user-select:none;-webkit-user-drag:none;pointer-events:none}
+.hs-card{flex:0 0 72%;height:min(640px,62vw);min-height:420px;position:relative;border-radius:22px;overflow:hidden;scroll-snap-align:center;border:1px solid rgba(241,234,223,.1);will-change:transform,opacity}
+.hs-card.on{border-color:rgba(226,184,114,.35)}
+.hs-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.18);will-change:transform;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.hs-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,8,6,.9) 0%,rgba(10,8,6,.15) 45%,rgba(10,8,6,0) 70%)}
+.hs-info{position:absolute;left:0;right:0;bottom:0;padding:0 40px 36px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
+.hs-name{margin:0;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:clamp(40px,6vw,92px);line-height:.95;letter-spacing:-1.5px;color:#fff}
+.hs-meta{margin:12px 0 0;font-size:15px;color:#DCD3C4}
+.hs-book{min-width:170px;padding:14px 30px;flex-shrink:0}
+.hs-arrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:#F1EADF;color:#17120B;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);transition:all .2s;z-index:2}
+.hs-arrow:hover{background:#E2B872}
+.hs-arrow.l{left:calc(14% + 22px)}.hs-arrow.r{right:calc(14% + 22px)}
+.hs-bg,.fs-bg{display:none}
+@media (max-width:860px){
+.fs-bg{display:block;position:absolute;inset:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;filter:blur(26px) brightness(.45);transform:none;pointer-events:none}
+.hs-img{position:relative;inset:auto;display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;transform:none !important}
+.hs-shade{display:none}
+.fs-img{object-fit:contain;top:150px;height:calc(100% - 330px)}
+.hs-track{padding:0 6%;gap:12px}
+.hs-card{flex-basis:88%;height:auto;min-height:0;background:#14110D;border-radius:18px}
+.hs-info{position:static;padding:16px 18px 18px;flex-direction:column;align-items:stretch;gap:14px}
+.hs-name{font-size:30px;letter-spacing:-.5px}
+.hs-meta{margin-top:6px;font-size:14px}
+.hs-book{width:100%}
+.hs-arrow{display:none}
+.sets-tabs{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:0 2px 4px}
+.svc-inc{grid-template-columns:1fr;padding-left:0}
+.desk{display:none !important}
+.mob{display:flex}
+.hero{min-height:640px;background-position:70% 40%}
+.hero-in{padding:120px 20px 40px}
+.sec{padding:72px 0}
+.pitch{padding:56px 24px;border-radius:20px}
+.page-hero{padding:110px 0 40px}
+.wrap{padding:0 20px}
+.pkg{padding:28px 24px}
+.sum{position:static}
+.mpad{padding:28px 20px !important}
+}
+</style>
+</helmet>
+<div class="np-root" ref="{{ setRoot }}">
+
+<header class="hdr">
+<div class="wrap" style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 12px; padding-bottom: 12px">
+<button aria-label="Nilepods home" onClick="{{ nav.home }}" class="ttl" style="display: flex; align-items: center; font-size: 30px; font-weight: 600; letter-spacing: -0.5px; line-height: 1; color: #FFFFFF; min-height: 44px">nile<span style="background: #FFFFFF; color: #0E0C0A; padding: 2px 6px 4px; margin-left: 1px; border-radius: 3px">pods</span></button>
+<nav aria-label="Main" class="desk" style="display: flex; flex-wrap: wrap; gap: 6px 26px">
+<sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
+<button class="{{ n.cls }}" onClick="{{ n.go }}">{{ n.label }}</button>
+</sc-for>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px">
+<button class="desk navlink" onClick="{{ toastArabic }}" style="padding: 8px 4px">عربي</button>
+<button class="iconbtn desk" aria-label="My account" onClick="{{ nav.account }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></button>
+<button class="btn-gold desk" onClick="{{ bookNow }}" style="padding: 11px 22px; min-height: 44px; font-size: 14px">Book Session</button>
+<button class="iconbtn mob" aria-label="My account" onClick="{{ nav.account }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></button>
+<button class="iconbtn mob" aria-label="Open menu" onClick="{{ openMenu }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+</div>
+</div>
+</header>
+<sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+<div class="backbar"><div class="wrap"><button class="backpill" onClick="{{ goBack }}" aria-label="Go back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Back</button></div></div>
+</sc-if>
+
+<sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+<div class="mmenu" role="dialog" aria-label="Menu">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px">
+<button onClick="{{ nav.home }}" class="ttl" style="display: flex; align-items: center; font-size: 28px; font-weight: 600; color: #FFFFFF; min-height: 44px">nile<span style="background: #FFFFFF; color: #0E0C0A; padding: 2px 6px 4px; margin-left: 1px; border-radius: 3px">pods</span></button>
+<button class="iconbtn" aria-label="Close menu" onClick="{{ closeMenu }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
+<button class="{{ n.mcls }}" onClick="{{ n.go }}">{{ n.label }}<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+</sc-for>
+<button class="mlink" onClick="{{ nav.account }}">My Account<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+<button class="mlink" onClick="{{ toastArabic }}">عربي<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+<div style="flex-grow: 1; min-height: 32px"></div>
+<button class="btn-gold btn-lg" onClick="{{ bookNow }}" style="width: 100%">Book Session</button>
+</div>
+</sc-if>
+
+<!-- ============ HOME ============ -->
+<sc-if value="{{ is.home }}" hint-placeholder-val="{{ true }}">
+<section class="hero">
+<div class="wrap hero-in">
+<div style="max-width: 640px">
+<p class="eyebrow" style="display: inline-flex; align-items: center; gap: 10px"><span style="width: 32px; height: 1px; background: #E2B872"></span>Podcast &amp; video studios</p>
+<h1 class="ttl" style="margin: 0; font-weight: 700; font-size: clamp(42px, 6vw, 80px); line-height: 1.02; letter-spacing: -1.5px; color: #FFFFFF">Every voice deserves the right tools</h1>
+<p style="margin: 24px 0 0; font-size: 19px; line-height: 1.6; font-weight: 300; color: #E3DACB; max-width: 520px">Book your room, pick your setup, start recording — no calls, no waiting, no hassle.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 40px">
+<button class="btn-gold btn-lg" onClick="{{ bookNow }}">Book Session<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+<button class="btn-ghost btn-lg" onClick="{{ nav.packages }}">View Packages</button>
+</div>
+</div>
+<div style="margin-top: 64px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: rgba(241,234,223,0.12); border: 1px solid rgba(241,234,223,0.12); border-radius: 16px; overflow: hidden">
+<div style="background: rgba(14,12,10,0.78); padding: 22px 24px"><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #E2B872">3</p><p style="margin: 4px 0 0; font-size: 14px; color: #CFC5B5">Cinema cameras per session</p></div>
+<div style="background: rgba(14,12,10,0.78); padding: 22px 24px"><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #E2B872">4</p><p style="margin: 4px 0 0; font-size: 14px; color: #CFC5B5">Shure microphones</p></div>
+<div style="background: rgba(14,12,10,0.78); padding: 22px 24px"><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #E2B872">3–11 PM</p><p style="margin: 4px 0 0; font-size: 14px; color: #CFC5B5">Open daily, except Friday</p></div>
+<div style="background: rgba(14,12,10,0.78); padding: 22px 24px"><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #E2B872">14 days</p><p style="margin: 4px 0 0; font-size: 14px; color: #CFC5B5">Raw footage backup</p></div>
+</div>
+</div>
+</section>
+
+<section id="packages" class="sec">
+<div class="wrap">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 48px">
+<div><p class="eyebrow">Book by the hour</p><h2 class="h2">Want to book a studio?</h2></div>
+<button class="btn-ghost" onClick="{{ nav.packages }}">Save with 3, 5 or 10 sessions →</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px">
+<sc-for list="{{ pkgs }}" as="p" hint-placeholder-count="3">
+<article class="{{ p.cardCls }}">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px"><h3 class="ttl" style="margin: 0; font-size: 24px; font-weight: 600; color: #FFFFFF">{{ p.name }}</h3><sc-if value="{{ p.featured }}" hint-placeholder-val="{{ false }}"><span class="badge">{{ p.badge }}</span></sc-if></div>
+<p style="margin: 18px 0 0; display: flex; align-items: baseline; gap: 8px"><span class="ttl" style="font-size: 52px; font-weight: 700; color: #FFFFFF; line-height: 1">{{ p.priceLabel }}</span><span style="font-size: 15px; color: #BDB2A2">EGP / episode</span></p>
+<p style="margin: 14px 0 0; font-size: 14px; line-height: 1.6; color: #A89C8B">{{ p.blurb }}</p>
+<div style="height: 1px; background: rgba(241,234,223,0.1); margin: 28px 0"></div>
+<p class="lbl">What's included</p>
+<ul class="chk"><sc-for list="{{ p.items }}" as="li" hint-placeholder-count="4"><li>{{ li }}</li></sc-for></ul>
+<button class="{{ p.btnCls }}" onClick="{{ p.choose }}" style="margin-top: 32px; align-self: end; width: 100%">Select &amp; Continue</button>
+</article>
+</sc-for>
+</div>
+<p style="margin: 28px 0 0; font-size: 13px; color: #9A8E7D; text-align: center">Prices are per single episode with up to 60 minutes of raw material.</p>
+</div>
+</section>
+
+<section class="sets">
+<div class="wrap" style="text-align: center">
+<p class="eyebrow">Set designs</p>
+<h2 class="h2">Choose the room that tells your story</h2>
+<p class="lead" style="margin: 16px auto 0; max-width: 620px">Ready-made sets you can book by the hour — walk in, sit down and record. Swipe through to see each one in full.</p>
+</div>
+<div class="hs-wrap">
+<div class="hs-track" ref="{{ setCar }}" onScroll="{{ onCarScroll }}" onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" onPointerLeave="{{ dragEnd }}" onPointerCancel="{{ dragEnd }}" data-gap="24">
+<sc-for list="{{ setupList }}" as="su" hint-placeholder-count="2">
+<div class="{{ su.hcls }}">
+<img src="{{ su.img }}" alt="" class="hs-bg" draggable="false" aria-hidden="true"><img src="{{ su.img }}" alt="{{ su.alt }}" class="hs-img" draggable="false">
+<div class="hs-shade"></div>
+<div class="hs-info">
+<div style="min-width: 0"><p class="hs-name">{{ su.name }}</p><p class="hs-meta">Capacity {{ su.cap }}</p></div>
+<button class="btn-gold hs-book" onClick="{{ su.book }}">Book Now</button>
+</div>
+</div>
+</sc-for>
+</div>
+<button class="hs-arrow l" aria-label="Previous setup" onClick="{{ carPrev }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg></button>
+<button class="hs-arrow r" aria-label="Next setup" onClick="{{ carNext }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+</div>
+<div class="wrap" style="text-align: center; margin-top: 28px"><button class="btn-ghost" onClick="{{ nav.studios }}">Explore all studios</button></div>
+</section>
+
+<section class="sec" style="background: #15120E; border-top: 1px solid rgba(241,234,223,0.06); border-bottom: 1px solid rgba(241,234,223,0.06)">
+<div class="wrap">
+<p class="eyebrow" style="text-align: center">How it works</p>
+<h2 class="h2" style="max-width: 720px; margin: 0 auto; text-align: center">From booking to recording in four steps</h2>
+<div style="margin-top: 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px">
+<sc-for list="{{ howSteps }}" as="h" hint-placeholder-count="4">
+<button class="card lift" onClick="{{ bookNow }}" style="text-align: left; padding: 32px 28px; background: #1C1813"><p class="ttl" style="margin: 0; font-size: 44px; font-weight: 700; color: #E2B872; line-height: 1">{{ h.n }}</p><h3 class="ttl" style="margin: 26px 0 10px; font-size: 22px; font-weight: 600; color: #FFFFFF">{{ h.t }}</h3><p style="margin: 0; font-size: 14px; line-height: 1.65; color: #B0A595">{{ h.d }}</p></button>
+</sc-for>
+</div>
+</div>
+</section>
+
+
+<section style="padding-bottom: 110px">
+<div class="wrap"><div class="pitch">
+<div style="max-width: 560px">
+<p class="eyebrow">Have a show in mind?</p>
+<h2 class="ttl" style="margin: 0; font-size: clamp(38px, 5vw, 64px); line-height: 1.02; font-weight: 700; color: #FFFFFF">Pitch us your ideas!</h2>
+<p style="margin: 20px 0 0; font-size: 17px; line-height: 1.7; color: #DCD3C4">Only have an idea? That's enough to start. Tell us about it and we'll help shape it into a show.</p>
+<button class="btn-gold btn-lg" onClick="{{ nav.contact }}" style="margin-top: 36px">Contact us<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+</div>
+</div></div>
+</section>
+
+<section style="padding-bottom: 110px">
+<div class="wrap" style="display: flex; flex-wrap: wrap; gap: 48px">
+<div style="flex: 1 1 300px">
+<p class="eyebrow">FAQ</p>
+<h2 class="h2">Questions, answered</h2>
+<p class="lead" style="margin-top: 20px">Can't find what you're looking for? <button class="link" onClick="{{ nav.contact }}" style="font-size: 16px">Talk to our team</button>.</p>
+</div>
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{ faqs }}" as="f" hint-placeholder-count="4">
+<details class="card" style="padding: 0 24px"><summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 0; font-size: 17px; font-weight: 500; color: #FFFFFF">{{ f.q }}<svg class="plus" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E2B872" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0; transition: transform .25s ease"><path d="M12 5v14M5 12h14"></path></svg></summary><p style="margin: 0 0 22px; font-size: 15px; line-height: 1.7; color: #BDB2A2">{{ f.a }}</p></details>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="padding-bottom: 100px">
+<div class="wrap">
+<div style="text-align: center; padding: 80px 24px; border-radius: 28px; background: radial-gradient(ellipse at 50% 0%, rgba(226,184,114,0.18) 0%, rgba(226,184,114,0) 60%), #15120E; border: 1px solid rgba(241,234,223,0.08)">
+<p class="ttl" style="margin: 0; display: inline-flex; align-items: center; font-size: 44px; font-weight: 600; letter-spacing: -0.5px; line-height: 1; color: #FFFFFF">nile<span style="background: #FFFFFF; color: #0E0C0A; padding: 3px 8px 6px; margin-left: 2px; border-radius: 4px">pods</span></p>
+<p style="margin: 14px 0 0; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: #A89C8B">Powered by NileStudios</p>
+<h2 class="ttl" style="margin: 36px auto 0; max-width: 620px; font-size: clamp(30px, 4vw, 48px); line-height: 1.1; font-weight: 700; color: #FFFFFF">See the studios before you book</h2>
+<div style="margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px">
+<button class="btn-gold btn-lg" onClick="{{ nav.tour }}">Book a Tour</button>
+<button class="btn-ghost btn-lg" onClick="{{ bookNow }}">Book Session</button>
+</div>
+</div>
+</div>
+</section>
+</sc-if>
+
+<!-- ============ STUDIOS ============ -->
+<sc-if value="{{ is.studios }}" hint-placeholder-val="{{ false }}">
+<section class="fs" aria-label="Our studios">
+<div class="fs-car" ref="{{ setCar }}" onScroll="{{ onCarScroll }}" onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" onPointerLeave="{{ dragEnd }}" onPointerCancel="{{ dragEnd }}" data-gap="0">
+<sc-for list="{{ setupList }}" as="su" hint-placeholder-count="2">
+<div class="fs-slide">
+<img src="{{ su.img }}" alt="" class="fs-bg" draggable="false" aria-hidden="true"><img src="{{ su.img }}" alt="{{ su.alt }}" class="fs-img" draggable="false">
+<div class="fs-shade"></div>
+<div class="fs-top">
+<p class="fs-n">{{ su.n }}</p>
+<p class="fs-cap">Capacity | {{ su.cap }}</p>
+</div>
+<div class="fs-bot">
+<p class="fs-desc">{{ su.desc }}</p>
+<button class="fs-choose" onClick="{{ su.book }}">Book {{ su.n }}</button>
+</div>
+</div>
+</sc-for>
+</div>
+<div class="fs-head" style="justify-content: flex-end"><span class="fs-step">Swipe to explore</span></div>
+<button class="fs-arrow l" aria-label="Previous studio" onClick="{{ carPrev }}"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<button class="fs-arrow r" aria-label="Next studio" onClick="{{ carNext }}"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+<div class="fs-dots"><sc-for list="{{ carDots }}" as="d" hint-placeholder-count="3"><button class="{{ d.cls }}" aria-label="{{ d.label }}" onClick="{{ d.go }}"></button></sc-for></div>
+</section>
+</sc-if>
+
+<!-- ============ CYCLORAMA ============ -->
+<sc-if value="{{ is.cyclorama }}" hint-placeholder-val="{{ false }}">
+<section class="page-hero ph-frames"><div class="wrap"><p class="eyebrow">Cyclorama</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Cyclorama studio</h1><p class="lead" style="margin-top: 18px; max-width: 560px; color: #DCD3C4">A seamless backdrop for video shoots, product content and interviews.</p></div></section>
+<section class="sec" style="padding-top: 40px"><div class="wrap" style="display: flex; flex-direction: column; gap: 24px">
+<div class="ph">[CYCLORAMA DETAILS — size, colours, lighting kit, photos and hourly price go here.]</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px"><button class="btn-gold" onClick="{{ bookNow }}">Book Session</button><button class="btn-ghost" onClick="{{ nav.contact }}">Ask a question</button></div>
+</div></section>
+</sc-if>
+
+<!-- ============ AUDIO ============ -->
+<sc-if value="{{ is.audio }}" hint-placeholder-val="{{ false }}">
+<section class="page-hero ph-mics"><div class="wrap"><p class="eyebrow">Audio</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Audio recording</h1><p class="lead" style="margin-top: 18px; max-width: 560px; color: #DCD3C4">Shure microphones and a professional mixer, for audio-first shows.</p></div></section>
+<section class="sec" style="padding-top: 40px"><div class="wrap" style="display: flex; flex-direction: column; gap: 24px">
+<div class="ph">[AUDIO-ONLY PACKAGES — what's included and the price go here.]</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px"><button class="btn-gold" onClick="{{ bookNow }}">Book Session</button><button class="btn-ghost" onClick="{{ nav.contact }}">Ask a question</button></div>
+</div></section>
+</sc-if>
+
+<!-- ============ SERVICES ============ -->
+<sc-if value="{{ is.services }}" hint-placeholder-val="{{ false }}">
+<section class="page-hero ph-shelves"><div class="wrap"><p class="eyebrow">Services</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Three-stage production</h1><p class="lead" style="margin-top: 18px; max-width: 600px; color: #DCD3C4">Consulting, studios and post-production — every stage of your show, or just the one you need.</p></div></section>
+<section class="sec" style="padding-top: 40px"><div class="wrap" style="display: flex; flex-direction: column; gap: 20px">
+<sc-for list="{{ stages }}" as="s" hint-placeholder-count="3">
+<div class="card" style="display: flex; flex-wrap: wrap; overflow: hidden">
+<div style="flex: 1 1 280px; min-height: 220px; position: relative"><img src="{{ s.img }}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></div>
+<div class="mpad" style="flex: 999 1 420px; padding: 36px; display: flex; flex-direction: column; gap: 12px; justify-content: center">
+<p class="lbl" style="margin: 0">{{ s.stage }}</p>
+<h2 class="ttl" style="margin: 0; font-size: 30px; color: #FFFFFF">{{ s.t }}</h2>
+<p class="lead">{{ s.d }}</p>
+</div>
+</div>
+</sc-for>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px">
+<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">Video content</span>
+<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">Podcasts</span>
+<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">Masterclasses</span>
+<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">Viral videos</span>
+<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">YouTube videos</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 16px"><button class="btn-gold" onClick="{{ nav.contact }}">Pitch us your idea</button><button class="btn-ghost" onClick="{{ bookNow }}">Book Session</button></div>
+</div></section>
+</sc-if>
+
+<!-- ============ CONTACT ============ -->
+<sc-if value="{{ is.contact }}" hint-placeholder-val="{{ false }}">
+<section class="page-hero ph-window"><div class="wrap"><p class="eyebrow">Contact us</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Let's talk about your show</h1><p class="lead" style="margin-top: 18px; max-width: 560px; color: #DCD3C4">Pitch an idea, ask about a package or plan a custom set.</p></div></section>
+<section class="sec" style="padding-top: 40px"><div class="wrap" style="display: flex; flex-wrap: wrap; gap: 24px">
+<div class="card mpad" style="flex: 999 1 520px; min-width: 0; padding: 36px">
+<sc-if value="{{ contactSent }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 14px; align-items: flex-start"><div style="width: 56px; height: 56px; border-radius: 50%; background: #E2B872; display: flex; align-items: center; justify-content: center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#17120B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></div><h2 class="ttl" style="margin: 0; font-size: 30px; color: #FFFFFF">Message sent</h2><p class="lead">Thanks, {{ cf.name }}. The team will get back to you soon.</p><button class="btn-ghost" onClick="{{ nav.home }}">Back to home</button></div>
+</sc-if>
+<sc-if value="{{ contactForm }}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px">
+<div class="field"><label for="c-name">Full name</label><input id="c-name" class="inp" value="{{ cf.name }}" onChange="{{ onC.name }}" placeholder="Your name"></div>
+<div class="field"><label for="c-phone">Phone</label><input id="c-phone" class="inp" type="tel" value="{{ cf.phone }}" onChange="{{ onC.phone }}" placeholder="01x xxxx xxxx"></div>
+</div>
+<div class="field"><label for="c-email">Email</label><input id="c-email" class="inp" type="email" value="{{ cf.email }}" onChange="{{ onC.email }}" placeholder="you@example.com"></div>
+<div class="field"><label for="c-msg">Message</label><textarea id="c-msg" class="inp" value="{{ cf.msg }}" onChange="{{ onC.msg }}" placeholder="Tell us about your idea or question"></textarea></div>
+<button class="btn-gold btn-lg" disabled="{{ contactBlocked }}" onClick="{{ sendContact }}" style="align-self: flex-start">Send message</button>
+</div>
+</sc-if>
+</div>
+<div class="card" style="flex: 1 1 280px; padding: 32px; display: flex; flex-direction: column; gap: 18px">
+<p class="lbl" style="margin: 0">Reach us</p>
+<div><p style="margin: 0; font-size: 13px; color: #A89C8B">Phone</p><p style="margin: 4px 0 0; font-size: 16px; color: #FFFFFF">[PHONE NUMBER]</p></div>
+<div><p style="margin: 0; font-size: 13px; color: #A89C8B">Email</p><p style="margin: 4px 0 0; font-size: 16px; color: #FFFFFF">[EMAIL]</p></div>
+<div><p style="margin: 0; font-size: 13px; color: #A89C8B">Address</p><p style="margin: 4px 0 0; font-size: 16px; color: #FFFFFF">[STUDIO ADDRESS]</p></div>
+<div><p style="margin: 0; font-size: 13px; color: #A89C8B">Opening hours</p><p style="margin: 4px 0 0; font-size: 16px; color: #FFFFFF">Saturday–Thursday, 3 PM – 11 PM</p><p style="margin: 2px 0 0; font-size: 14px; color: #C98A7A">Closed on Fridays</p></div>
+<button class="btn-ghost" onClick="{{ nav.tour }}" style="margin-top: auto">Book a Tour</button>
+</div>
+</div></section>
+</sc-if>
+
+<!-- ============ TOUR ============ -->
+<sc-if value="{{ is.tour }}" hint-placeholder-val="{{ false }}">
+<section class="page-hero ph-studios"><div class="wrap"><p class="eyebrow">Book a tour</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">See the studios in person</h1><p class="lead" style="margin-top: 18px; max-width: 560px; color: #DCD3C4">Pick a day and a 15-minute slot. Come by, sit at the table, try the mics — free of charge.</p></div></section>
+<section class="sec" style="padding-top: 40px"><div class="wrap" style="max-width: 920px">
+<sc-if value="{{ tourSent }}" hint-placeholder-val="{{ false }}">
+<div class="wz mpad" style="padding: 40px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px">
+<div style="width: 64px; height: 64px; border-radius: 50%; background: #E2B872; display: flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#17120B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></div>
+<h2 class="ttl" style="margin: 6px 0 0; font-size: 32px; color: #FFFFFF">Your tour is booked</h2>
+<p class="ttl" style="margin: 0; font-size: 22px; font-weight: 600; color: #E2B872">{{ tour.when }}</p>
+<p class="lead" style="font-size: 15px">See you then, {{ tf.name }}. We've sent the details to {{ tf.phone }}.</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px"><button class="btn-gold" onClick="{{ addCal }}">Add to calendar</button><button class="btn-ghost" onClick="{{ nav.home }}">Back to home</button></div>
+</div>
+</sc-if>
+<sc-if value="{{ tourForm }}" hint-placeholder-val="{{ true }}">
+<div class="wz">
+<div class="wz-b" style="display: flex; flex-direction: column; gap: 28px">
+<div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px">
+<p class="ttl" style="margin: 0; font-size: 22px; font-weight: 600; color: #FFFFFF">{{ tcal.title }}</p>
+<div style="display: flex; gap: 8px"><button class="back-c" aria-label="Previous month" onClick="{{ tcal.prev }}" disabled="{{ tcal.noPrev }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button><button class="back-c" aria-label="Next month" onClick="{{ tcal.next }}" disabled="{{ tcal.noNext }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button></div>
+</div>
+<div class="cal-h"><span>Sat</span><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span></div>
+<div class="cal"><sc-for list="{{ tcal.cells }}" as="c" hint-placeholder-count="35"><button class="{{ c.cls }}" onClick="{{ c.pick }}" disabled="{{ c.dis }}" aria-label="{{ c.aria }}">{{ c.label }}</button></sc-for></div>
+<p style="margin: 12px 0 0; font-size: 12px; color: #8C8172">Tours run Saturday–Thursday, 3 PM – 11 PM. Closed on Fridays.</p>
+</div>
+<sc-if value="{{ tour.hasDate }}" hint-placeholder-val="{{ false }}">
+<div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 14px"><div><p style="margin: 0; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #E2B872">{{ tour.dateLong }}</p><p style="margin: 6px 0 0; font-size: 15px; color: #DCD3C4">Choose a 15-minute slot</p></div><p style="margin: 0; font-size: 13px; color: #8C8172">{{ tour.freeLabel }}</p></div>
+<div class="tslots" role="list"><sc-for list="{{ tour.slots }}" as="t" hint-placeholder-count="32"><button class="{{ t.cls }}" onClick="{{ t.pick }}" disabled="{{ t.disabled }}" aria-pressed="{{ t.on }}" aria-label="{{ t.aria }}">{{ t.label }}</button></sc-for></div>
+</div>
+</sc-if>
+<sc-if value="{{ tour.noDate }}" hint-placeholder-val="{{ true }}"><div class="ph" style="padding: 20px 24px">Pick a day to see the free 15-minute slots.</div></sc-if>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px">
+<div class="field"><label for="t-name">Full name</label><input id="t-name" class="inp" value="{{ tf.name }}" onChange="{{ onT.name }}" autoComplete="name" placeholder="Your name"></div>
+<div class="field"><label for="t-phone">Phone</label><input id="t-phone" class="inp" type="tel" inputMode="tel" value="{{ tf.phone }}" onChange="{{ onT.phone }}" autoComplete="tel" placeholder="+20 1x xxxx xxxx"></div>
+</div>
+</div>
+<div class="wz-f">
+<p style="margin: 0; font-size: 14px; color: #DCD3C4">{{ tour.summary }}</p>
+<button class="btn-gold" disabled="{{ tourBlocked }}" onClick="{{ sendTour }}" style="min-width: 180px">Book tour</button>
+</div>
+</div>
+</sc-if>
+</div></section>
+</sc-if>
+
+<!-- ============ ACCOUNT ============ -->
+<sc-if value="{{ is.account }}" hint-placeholder-val="{{ false }}">
+<section class="sec" style="padding-top: 72px"><div class="wrap" style="max-width: 900px">
+<sc-if value="{{ signedOut }}" hint-placeholder-val="{{ true }}">
+<div class="card mpad" style="max-width: 480px; margin: 0 auto; padding: 40px; display: flex; flex-direction: column; gap: 18px">
+<p class="eyebrow" style="margin: 0">My account</p>
+<h1 class="ttl" style="margin: 0; font-size: 34px; color: #FFFFFF">Sign in</h1>
+<p class="lead" style="font-size: 15px">See your bookings, times and receipts.</p>
+<div class="field"><label for="a-email">Email</label><input id="a-email" class="inp" type="email" value="{{ acctEmail }}" onChange="{{ onAcct }}" placeholder="you@example.com"></div>
+<div class="field"><label for="a-pass">Password</label><input id="a-pass" class="inp" type="password" placeholder="••••••••"></div>
+<button class="btn-gold btn-lg" disabled="{{ signinBlocked }}" onClick="{{ signIn }}">Sign in</button>
+<p style="margin: 0; font-size: 14px; color: #A89C8B; text-align: center">New here? Your account is created when you make your first booking. <button class="link" onClick="{{ bookNow }}">Book a session</button></p>
+</div>
+</sc-if>
+<sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 32px">
+<div><p class="eyebrow">My account</p><h1 class="h2">My bookings</h1><p style="margin: 10px 0 0; font-size: 14px; color: #A89C8B">Signed in as {{ acctEmail }}</p></div>
+<div style="display: flex; gap: 12px"><button class="btn-gold" onClick="{{ bookNow }}">New booking</button><button class="btn-ghost" onClick="{{ signOut }}">Sign out</button></div>
+</div>
+<sc-if value="{{ hasCredits }}" hint-placeholder-val="{{ false }}">
+<p class="lbl">My packages</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 36px">
+<sc-for list="{{ creditList }}" as="c" hint-placeholder-count="1">
+<div class="wz" style="padding: 24px; display: flex; flex-direction: column; gap: 10px"><p class="ttl" style="margin: 0; font-size: 22px; font-weight: 600; color: #FFFFFF">{{ c.title }}</p><p style="margin: 0; font-size: 15px; color: #E2B872">{{ c.left }}</p><p style="margin: 0; font-size: 13px; color: #A89C8B">{{ c.expires }}</p><sc-if value="{{ c.canBook }}" hint-placeholder-val="{{ true }}"><button class="btn-gold" onClick="{{ c.book }}" style="margin-top: 6px; align-self: flex-start">Book a session</button></sc-if></div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ hasBookings }}" hint-placeholder-val="{{ false }}"><p class="lbl">My sessions</p></sc-if>
+<sc-if value="{{ noBookings }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding: 40px; text-align: center"><p class="lead">You have no bookings yet.</p><button class="btn-gold" onClick="{{ bookNow }}" style="margin-top: 18px">Book your first session</button></div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 16px">
+<sc-for list="{{ bookingList }}" as="b" hint-placeholder-count="1">
+<div class="card mpad" style="padding: 28px 32px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: flex-start">
+<div><p style="margin: 0; font-size: 13px; color: #A89C8B">Booking {{ b.ref }}</p><h2 class="ttl" style="margin: 6px 0 0; font-size: 24px; color: #FFFFFF">{{ b.pkgName }}</h2><p style="margin: 8px 0 0; font-size: 15px; color: #DCD3C4">{{ b.dateLabel }} · {{ b.timeLabel }}</p><p style="margin: 4px 0 0; font-size: 13px; color: #A89C8B">{{ b.setupLabel }}</p></div>
+<div style="text-align: right"><span class="pill-ok">Confirmed</span><p class="ttl" style="margin: 14px 0 0; font-size: 22px; font-weight: 700; color: #FFFFFF">{{ b.totalLabel }}</p></div>
+</div>
+<div style="margin-top: 22px"><div class="tl"><sc-for list="{{ b.cells }}" as="c" hint-placeholder-count="8"><div class="{{ c }}"></div></sc-for></div><div class="tll"><span>3 PM</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10–11</span></div></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div></section>
+</sc-if>
+
+<!-- ============ LEGAL ============ -->
+<sc-if value="{{ is.legal }}" hint-placeholder-val="{{ false }}">
+<section class="sec" style="padding-top: 72px"><div class="wrap" style="max-width: 860px; display: flex; flex-direction: column; gap: 20px">
+<p class="eyebrow" style="margin: 0">Legal</p>
+<h1 class="h2">{{ legalTitle }}</h1>
+<div class="ph">[{{ legalTitle }} — paste your final text here.]</div>
+<button class="btn-ghost" onClick="{{ legalBack }}" style="align-self: flex-start">{{ legalBackLabel }}</button>
+</div></section>
+</sc-if>
+
+<!-- ============ PACKAGES CATALOG ============ -->
+<sc-if value="{{ is.packages }}" hint-placeholder-val="{{ false }}">
+<section style="border-bottom: 1px solid rgba(241,234,223,0.08)"><div class="wrap" style="padding-top: 72px; padding-bottom: 48px">
+<p class="eyebrow">Packages</p>
+<h1 class="h2" style="font-size: clamp(40px, 5vw, 64px)">Book more, pay less per session</h1>
+<p class="lead" style="margin-top: 16px; max-width: 620px">Buy a pack of sessions now and book each one whenever it suits you. The more sessions you take, the more you save.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px">
+<span class="savechip">3 sessions · save {{ discLabel.d3 }}</span><span class="savechip">5 sessions · save {{ discLabel.d5 }}</span><span class="savechip">10 sessions · save {{ discLabel.d10 }}</span>
+</div>
+</div></section>
+<section style="padding: 48px 0 110px"><div class="wrap" style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
+<aside class="frail" aria-label="Filters">
+<div class="fgroup">
+<p class="fhead">Number of sessions</p>
+<div class="fopts">
+<sc-for list="{{ fCount }}" as="o" hint-placeholder-count="4"><label class="{{ o.cls }}"><input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}"><span>{{ o.label }}</span></label></sc-for>
+</div>
+</div>
+<sc-if value="{{ anyFilter }}" hint-placeholder-val="{{ false }}"><button class="link" onClick="{{ clearFilters }}" style="min-height: 44px">Clear all filters</button></sc-if>
+</aside>
+<div style="flex: 999 1 600px; min-width: 0">
+<p style="margin: 0 0 20px; font-size: 14px; color: #A89C8B" aria-live="polite">{{ resultLabel }}</p>
+<div class="pgrid">
+<sc-for list="{{ catalog }}" as="c" hint-placeholder-count="6">
+<article class="pcard">
+<div class="pimg"><img src="{{ c.img }}" alt="" style="width: 100%; height: 100%; object-fit: cover"><sc-if value="{{ c.hasSave }}" hint-placeholder-val="{{ false }}"><span class="savetag">Save {{ c.savePct }}</span></sc-if></div>
+<div style="padding: 24px 24px 0">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><h2 class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #FFFFFF">{{ c.tier }}</h2><span style="font-size: 13px; color: #A89C8B">{{ c.svc }}</span></div>
+</div>
+<div class="pprice">
+<p style="margin: 0; font-size: 13px; color: #A89C8B">{{ c.countLabel }}</p>
+<p style="margin: 6px 0 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px"><sc-if value="{{ c.hasSave }}" hint-placeholder-val="{{ false }}"><s style="font-size: 16px; color: #7D7365">{{ c.full }}</s></sc-if><span class="ttl" style="font-size: 30px; font-weight: 700; color: #FFFFFF">{{ c.total }}</span></p>
+<p style="margin: 4px 0 0; font-size: 13px; color: #E2B872">{{ c.per }}</p>
+</div>
+<div style="padding: 20px 24px 24px; flex-grow: 1">
+<p style="margin: 0 0 12px; font-size: 13px; font-weight: 600; color: #DCD3C4">Included for each session:</p>
+<ul class="chk"><sc-for list="{{ c.inc }}" as="li" hint-placeholder-count="2"><li>{{ li }}</li></sc-for></ul>
+</div>
+<div class="pfoot"><button onClick="{{ c.details }}">More Details</button><button class="buy" onClick="{{ c.buy }}">{{ c.buyLabel }}</button></div>
+</article>
+</sc-for>
+</div>
+<sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}"><div class="ph" style="text-align: center">No packages match these filters. <button class="link" onClick="{{ clearFilters }}" style="font-size: 15px">Clear filters</button></div></sc-if>
+<p style="margin: 28px 0 0; font-size: 13px; color: #8C8172">Each session is one hour of recording with up to 60 minutes of raw material. Sessions are valid for {{ validDays }} days from purchase. Extras are added when you book each session.</p>
+</div>
+</div></section>
+</sc-if>
+
+<!-- ============ PACKAGE DETAILS ============ -->
+<sc-if value="{{ is.pkgDetail }}" hint-placeholder-val="{{ false }}">
+<section style="padding: 40px 0 110px"><div class="wrap">
+<div style="display: flex; flex-wrap: wrap; gap: 32px; margin-top: 40px; align-items: stretch">
+<div class="zoom" style="flex: 999 1 520px; min-height: 380px; position: relative; border-radius: 24px; border: 1px solid rgba(241,234,223,0.08)"><img src="{{ pd.img }}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></div>
+<div class="wz mpad" style="flex: 1 1 380px; padding: 36px; display: flex; flex-direction: column; gap: 18px">
+<div><p class="lbl" style="margin: 0 0 6px">{{ pd.svc }}</p><h1 class="ttl" style="margin: 0; font-size: 44px; font-weight: 700; color: #FFFFFF; line-height: 1">{{ pd.tier }}</h1></div>
+<div><p style="margin: 0 0 10px; font-size: 13px; color: #A89C8B">Number of sessions</p>
+<div class="segs" role="radiogroup" aria-label="Number of sessions"><sc-for list="{{ pd.counts }}" as="k" hint-placeholder-count="4"><button class="{{ k.cls }}" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}">{{ k.label }}<sc-if value="{{ k.hasSave }}" hint-placeholder-val="{{ false }}"><small>save {{ k.save }}</small></sc-if></button></sc-for></div>
+</div>
+<div style="padding: 20px; border-radius: 16px; background: #0E0C0A; border: 1px solid rgba(241,234,223,0.07)">
+<p style="margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px"><sc-if value="{{ pd.hasSave }}" hint-placeholder-val="{{ false }}"><s style="font-size: 17px; color: #7D7365">{{ pd.full }}</s></sc-if><span class="ttl" style="font-size: 38px; font-weight: 700; color: #FFFFFF">{{ pd.total }}</span></p>
+<p style="margin: 6px 0 0; font-size: 14px; color: #E2B872">{{ pd.per }}<sc-if value="{{ pd.hasSave }}" hint-placeholder-val="{{ false }}"> · you save {{ pd.saved }}</sc-if></p>
+</div>
+<button class="btn-gold btn-lg" onClick="{{ pd.buy }}">Purchase Now</button>
+<p style="margin: 0; font-size: 13px; color: #8C8172; text-align: center">Valid {{ validDays }} days · book each session whenever you like</p>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 32px">
+<div class="wz" style="padding: 28px"><p class="lbl">What's included in each session</p><ul class="chk"><sc-for list="{{ pd.items }}" as="li" hint-placeholder-count="4"><li>{{ li }}</li></sc-for></ul></div>
+<div class="wz" style="padding: 28px"><p class="lbl">How it works</p>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: #DCD3C4; line-height: 1.5">
+<li style="display: flex; gap: 12px"><span class="num">1</span>Buy the package — your sessions are added to your account.</li>
+<li style="display: flex; gap: 12px"><span class="num">2</span>Sign in and book each session when you're ready.</li>
+<li style="display: flex; gap: 12px"><span class="num">3</span>Reschedule free up to 24 hours before. [CONFIRM POLICY]</li>
+</ol></div>
+</div>
+</div></section>
+</sc-if>
+
+<!-- ============ BOOKING WIZARD ============ -->
+<sc-if value="{{ is.book }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ st.setup }}" hint-placeholder-val="{{ false }}">
+<section class="fs" aria-label="Choose your setup">
+<div class="fs-car" ref="{{ setCar }}" onScroll="{{ onCarScroll }}" onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" onPointerLeave="{{ dragEnd }}" onPointerCancel="{{ dragEnd }}" data-gap="0">
+<sc-for list="{{ setupList }}" as="su" hint-placeholder-count="2">
+<div class="fs-slide">
+<img src="{{ su.img }}" alt="" class="fs-bg" draggable="false" aria-hidden="true"><img src="{{ su.img }}" alt="{{ su.alt }}" class="fs-img" draggable="false">
+<div class="fs-shade"></div>
+<div class="fs-top">
+<p class="fs-n">{{ su.n }}</p>
+<p class="fs-cap">Capacity | {{ su.cap }}</p>
+</div>
+<div class="fs-bot">
+<p class="fs-desc">{{ su.desc }}</p>
+<button class="fs-choose" onClick="{{ su.choose }}">Choose</button>
+</div>
+</div>
+</sc-for>
+</div>
+<div class="fs-head">
+<button class="back-c fs-back" aria-label="{{ wz.backLabel }}" onClick="{{ wzBack }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button>
+<span class="fs-step">Step {{ wz.n }} of {{ wz.of }} · Choose your setup</span>
+</div>
+<button class="fs-arrow l" aria-label="Previous setup" onClick="{{ carPrev }}"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<button class="fs-arrow r" aria-label="Next setup" onClick="{{ carNext }}"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+<div class="fs-dots"><sc-for list="{{ carDots }}" as="d" hint-placeholder-count="3"><button class="{{ d.cls }}" aria-label="{{ d.label }}" onClick="{{ d.go }}"></button></sc-for></div>
+</section>
+</sc-if>
+<sc-if value="{{ notSetup }}" hint-placeholder-val="{{ true }}">
+<section class="bk">
+<div class="wrap" style="max-width: 920px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 28px">
+<div><p class="eyebrow" style="margin-bottom: 10px">{{ wz.kind }}</p><h1 class="ttl" style="margin: 0; font-size: clamp(30px, 3.4vw, 44px); line-height: 1.1; font-weight: 700; color: #FFFFFF">{{ wz.title }}</h1></div>
+<p style="margin: 0; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #8C8172">Step {{ wz.n }} of {{ wz.of }}</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+
+<div class="wz" style="flex: 1 1 100%; min-width: 0">
+<div class="wz-h">
+<button class="back-c" aria-label="{{ wz.backLabel }}" onClick="{{ wzBack }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button>
+<div style="flex: 1; min-width: 0"><p style="margin: 0; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #8C8172">{{ wz.backLabel }}</p><p style="margin: 2px 0 0; font-size: 17px; font-weight: 500; color: #FFFFFF">{{ wz.title }}</p></div>
+</div>
+<div class="{{ wz.progCls }}" aria-hidden="true"><sc-for list="{{ progBars }}" as="pb" hint-placeholder-count="7"><i class="{{ pb }}"></i></sc-for></div>
+
+<div class="wz-b">
+
+<!-- SERVICE -->
+<sc-if value="{{ st.service }}" hint-placeholder-val="{{ true }}">
+<p class="lead" style="font-size: 15px; margin-bottom: 22px">Every service includes the setup, an operator, 3 cameras and 4 mics. Prices are per hour.</p>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{ pkgs }}" as="p" hint-placeholder-count="3">
+<button class="{{ p.optCls }}" onClick="{{ p.pick }}" aria-pressed="{{ p.on }}">
+<span style="display: flex; align-items: center; gap: 14px; width: 100%"><span class="{{ p.radio }}"></span><span class="ttl" style="font-size: 21px; font-weight: 600; color: #FFFFFF; white-space: nowrap">{{ p.name }}</span></span>
+<span style="padding-left: 36px; white-space: nowrap"><span class="ttl" style="font-size: 22px; font-weight: 700; color: #E2B872">{{ p.priceLabel }}</span><span style="font-size: 13px; color: #A89C8B"> EGP / hour</span></span>
+<span class="svc-inc"><sc-for list="{{ p.items }}" as="li" hint-placeholder-count="4"><span class="svc-li">{{ li }}</span></sc-for></span>
+<sc-if value="{{ p.hasCredit }}" hint-placeholder-val="{{ false }}"><span class="creditchip" style="margin-left: 36px">{{ p.creditLabel }}</span></sc-if>
+</button>
+</sc-for>
+</div>
+</sc-if>
+
+<!-- BUNDLE SUMMARY -->
+<sc-if value="{{ st.bundle }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 18px; align-items: center; flex-wrap: wrap">
+<div style="width: 140px; height: 96px; border-radius: 14px; overflow: hidden; flex-shrink: 0"><img src="{{ bq.img }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></div>
+<div><p class="lbl" style="margin: 0 0 4px">{{ bq.svc }}</p><p class="ttl" style="margin: 0; font-size: 30px; font-weight: 700; color: #FFFFFF">{{ bq.tier }}</p></div>
+</div>
+<p style="margin: 26px 0 10px; font-size: 13px; color: #A89C8B">Number of sessions</p>
+<div class="segs"><sc-for list="{{ bq.counts }}" as="k" hint-placeholder-count="4"><button class="{{ k.cls }}" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}">{{ k.label }}<sc-if value="{{ k.hasSave }}" hint-placeholder-val="{{ false }}"><small>save {{ k.save }}</small></sc-if></button></sc-for></div>
+<div class="xrow" style="margin-top: 22px; flex-wrap: wrap"><div><p style="margin: 0; font-size: 15px; color: #FFFFFF">{{ bq.countLabel }} · {{ bq.per }}</p><p style="margin: 4px 0 0; font-size: 13px; color: #A89C8B">Valid {{ validDays }} days · one hour of recording each</p></div><sc-if value="{{ bq.hasSave }}" hint-placeholder-val="{{ false }}"><span class="savechip">You save {{ bq.saved }}</span></sc-if></div>
+<div class="xrow" style="margin-top: 14px"><p style="margin: 0; font-size: 14px; line-height: 1.6; color: #DCD3C4">Your sessions are added to your account as credits. When you book each one, you choose the setup, any extras, and the date and time.</p></div>
+<p class="lbl" style="margin-top: 26px">Included in each session</p>
+<ul class="chk"><sc-for list="{{ bq.inc }}" as="li" hint-placeholder-count="2"><li>{{ li }}</li></sc-for></ul>
+</sc-if>
+
+<!-- PEOPLE -->
+<sc-if value="{{ st.people }}" hint-placeholder-val="{{ false }}">
+<div class="xrow" style="padding: 28px">
+<div><p style="margin: 0; font-size: 17px; font-weight: 500; color: #FFFFFF">People on camera</p><p style="margin: 6px 0 0; font-size: 13px; color: #A89C8B">{{ setupName }} seats up to {{ setupCap }}.</p></div>
+<div class="qty"><button class="qb" aria-label="Fewer people" onClick="{{ peopleDown }}" disabled="{{ peopleMin }}">−</button><span class="qv" aria-live="polite">{{ people }}</span><button class="qb" aria-label="More people" onClick="{{ peopleUp }}" disabled="{{ peopleMax }}">+</button></div>
+</div>
+</sc-if>
+
+<!-- EXTRAS -->
+<sc-if value="{{ st.extras }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px"><p style="margin: 0; font-size: 15px; color: #DCD3C4">Booked: <strong style="color: #FFFFFF">{{ durLabel }}</strong></p><p style="margin: 0; font-size: 13px; color: #8C8172">All optional</p></div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{ extraList }}" as="x" hint-placeholder-count="4">
+<div class="{{ x.cls }}">
+<div style="min-width: 0"><p style="margin: 0; font-size: 16px; font-weight: 500; color: #FFFFFF">{{ x.name }}</p><p style="margin: 4px 0 0; font-size: 13px; color: #A89C8B">{{ x.priceLabel }} · {{ x.basis }}</p></div>
+<div class="qty"><button class="qb" aria-label="{{ x.minusLabel }}" onClick="{{ x.down }}" disabled="{{ x.atMin }}">−</button><span class="qv">{{ x.qty }}</span><button class="qb" aria-label="{{ x.plusLabel }}" onClick="{{ x.up }}" disabled="{{ x.atMax }}">+</button></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<!-- DATE & TIME -->
+<sc-if value="{{ st.time }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px">
+<p class="ttl" style="margin: 0; font-size: 22px; font-weight: 600; color: #FFFFFF">{{ cal.title }}</p>
+<div style="display: flex; gap: 8px"><button class="back-c" aria-label="Previous month" onClick="{{ cal.prev }}" disabled="{{ cal.noPrev }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button><button class="back-c" aria-label="Next month" onClick="{{ cal.next }}" disabled="{{ cal.noNext }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button></div>
+</div>
+<div class="cal-h"><span>Sat</span><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span></div>
+<div class="cal">
+<sc-for list="{{ cal.cells }}" as="c" hint-placeholder-count="35">
+<button class="{{ c.cls }}" onClick="{{ c.pick }}" disabled="{{ c.dis }}" aria-label="{{ c.aria }}">{{ c.label }}</button>
+</sc-for>
+</div>
+<p style="margin: 12px 0 0; font-size: 12px; color: #8C8172">Open Saturday–Thursday, 3 PM – 11 PM (Cairo time). Closed on Fridays.</p>
+<sc-if value="{{ hasDate }}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; margin: 30px 0 14px">
+<div><p style="margin: 0; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #E2B872">{{ dateLong }} · {{ setupName }}</p><p style="margin: 6px 0 0; font-size: 15px; color: #DCD3C4">Start times for a {{ durLabel }} session</p></div>
+<div class="legend"><span><i class="sw" style="background: #17140F; border: 1px solid rgba(241,234,223,0.3)"></i>Free</span><span><i class="sw" style="background: #E2B872"></i>Yours</span><span><i class="sw" style="background: #2A241C; border: 1px dashed #6F6659"></i>Taken</span></div>
+</div>
+<div class="slots" role="list" aria-live="polite">
+<sc-for list="{{ slotList }}" as="s" hint-placeholder-count="8">
+<button class="{{ s.cls }}" onClick="{{ s.pick }}" disabled="{{ s.disabled }}" aria-pressed="{{ s.on }}"><span class="t">{{ s.label }}</span><span class="s">{{ s.status }}</span></button>
+</sc-for>
+</div>
+<sc-if value="{{ noSlots }}" hint-placeholder-val="{{ false }}"><div class="ph" style="margin-top: 12px">No {{ durLabel }} window is free in this setup on this day. Try another date or setup, or remove the extra hour.</div></sc-if>
+</sc-if>
+<sc-if value="{{ noDate }}" hint-placeholder-val="{{ false }}"><div class="ph" style="margin-top: 22px">Pick a date to see the free start times.</div></sc-if>
+</sc-if>
+
+<!-- YOUR INFORMATION -->
+<sc-if value="{{ st.info }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px">
+<div class="field"><label for="i-first">First name</label><input id="i-first" class="{{ err.firstCls }}" value="{{ info.first }}" onChange="{{ onI.first }}" autoComplete="given-name" aria-invalid="{{ err.firstBad }}"><sc-if value="{{ err.firstBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Please enter your first name.</span></sc-if></div>
+<div class="field"><label for="i-last">Last name</label><input id="i-last" class="{{ err.lastCls }}" value="{{ info.last }}" onChange="{{ onI.last }}" autoComplete="family-name" aria-invalid="{{ err.lastBad }}"><sc-if value="{{ err.lastBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Please enter your last name.</span></sc-if></div>
+</div>
+<div class="field"><label for="i-email">Email</label><input id="i-email" class="{{ err.emailCls }}" type="email" value="{{ info.email }}" onChange="{{ onI.email }}" autoComplete="email" placeholder="you@example.com" aria-invalid="{{ err.emailBad }}"><sc-if value="{{ err.emailBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Enter a valid email — your confirmation goes here.</span></sc-if></div>
+<div class="field"><label for="i-phone">Phone (optional)</label><input id="i-phone" class="inp" type="tel" inputMode="tel" value="{{ info.phone }}" onChange="{{ onI.phone }}" autoComplete="tel" placeholder="+20 1x xxxx xxxx"></div>
+<label class="chkbox"><input type="checkbox" checked="{{ info.wa }}" onChange="{{ toggleWa }}"><span>Send my booking updates on WhatsApp</span></label>
+</div>
+</sc-if>
+
+<!-- PAYMENT -->
+<sc-if value="{{ st.pay }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ canCredit }}" hint-placeholder-val="{{ false }}">
+<label class="xrow" style="cursor: pointer; margin-bottom: 22px"><span style="display: flex; gap: 14px; align-items: center"><input type="checkbox" checked="{{ useCredit }}" onChange="{{ toggleCredit }}" style="width: 20px; height: 20px; accent-color: #E2B872; margin: 0"><span><span style="display: block; font-size: 15px; font-weight: 500; color: #FFFFFF">Use 1 package credit</span><span style="display: block; margin-top: 3px; font-size: 13px; color: #A89C8B">{{ creditNote }}</span></span></span></label>
+</sc-if>
+<sc-if value="{{ needsPay }}" hint-placeholder-val="{{ true }}">
+<p class="lbl">Payment method</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{ payMethods }}" as="m" hint-placeholder-count="2">
+<button class="{{ m.cls }}" onClick="{{ m.pick }}" aria-pressed="{{ m.on }}" style="align-items: center; text-align: center; padding: 20px 14px"><span style="font-size: 16px; font-weight: 600; color: #FFFFFF">{{ m.label }}</span><span style="font-size: 12px; color: #A89C8B">{{ m.sub }}</span></button>
+</sc-for>
+</div>
+<p style="margin: 12px 0 0; font-size: 13px; color: #A89C8B; text-align: center">{{ payHelp }}</p>
+<sc-if value="{{ payOnline }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top: 22px; display: flex; flex-direction: column; gap: 18px">
+<div class="field"><label for="p-holder">Name on card</label><input id="p-holder" class="inp" value="{{ card.holder }}" onChange="{{ onP.holder }}" autoComplete="cc-name"></div>
+<div class="field"><label for="p-num">Card number</label><input id="p-num" class="inp" inputMode="numeric" value="{{ card.num }}" onChange="{{ onP.num }}" autoComplete="cc-number" placeholder="1234 5678 9012 3456"></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px">
+<div class="field"><label for="p-exp">Expiry</label><input id="p-exp" class="inp" inputMode="numeric" value="{{ card.exp }}" onChange="{{ onP.exp }}" autoComplete="cc-exp" placeholder="MM/YY"></div>
+<div class="field"><label for="p-cvc">CVC</label><input id="p-cvc" class="inp" inputMode="numeric" value="{{ card.cvc }}" onChange="{{ onP.cvc }}" autoComplete="cc-csc" placeholder="123"></div>
+</div>
+<p style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8C8172"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Prototype — no real payment is taken.</p>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ noPay }}" hint-placeholder-val="{{ false }}"><div class="xrow on"><p style="margin: 0; font-size: 15px; color: #FFFFFF">Nothing to pay — your package credit covers this session.</p></div></sc-if>
+<label class="chkbox" style="margin-top: 22px"><input type="checkbox" checked="{{ agreed }}" onChange="{{ toggleAgree }}"><span>I agree to the <button class="link" onClick="{{ legal.terms }}">Terms</button> and <button class="link" onClick="{{ legal.refund }}">Refund &amp; Cancelation</button> policy.</span></label>
+</sc-if>
+
+</div>
+
+<div class="wz-f desk">
+<button class="btn-ghost" onClick="{{ wzBack }}">Back</button>
+<button class="btn-gold" onClick="{{ wzNext }}" disabled="{{ nextBlocked }}" style="min-width: 200px">{{ nextLabel }}</button>
+</div>
+</div>
+
+
+</div>
+</div>
+</section>
+<div class="mbar">
+<button class="back-c" aria-label="{{ wz.backLabel }}" onClick="{{ wzBack }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button>
+<div style="flex: 1; min-width: 0"><p style="margin: 0; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8C8172">Total</p><p class="ttl" style="margin: 0; font-size: 22px; font-weight: 700; color: #FFFFFF">{{ q.total }}</p></div>
+<button class="btn-gold" onClick="{{ wzNext }}" disabled="{{ nextBlocked }}">{{ nextShort }}</button>
+</div>
+</sc-if>
+</sc-if>
+
+<!-- ============ CONFIRMATION ============ -->
+<sc-if value="{{ is.confirm }}" hint-placeholder-val="{{ false }}">
+<section style="padding: 64px 0 110px"><div class="wrap" style="max-width: 820px">
+<div style="text-align: center">
+<div style="width: 72px; height: 72px; border-radius: 50%; background: #E2B872; display: flex; align-items: center; justify-content: center; margin: 0 auto"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#17120B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></div>
+<h1 class="h2" style="margin-top: 24px">{{ last.headline }}</h1>
+<p class="lead" style="margin-top: 12px">Confirmation sent to {{ last.email }} · Order {{ last.ref }}</p>
+</div>
+<div class="wz" style="margin-top: 36px">
+<div class="mpad" style="padding: 36px">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+<div style="min-width: 0"><p class="lbl" style="margin-bottom: 8px">{{ last.kicker }}</p><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #FFFFFF">{{ last.big }}</p><p style="margin: 6px 0 0; font-size: 18px; color: #E2B872">{{ last.sub }}</p></div>
+<span class="{{ last.payCls }}" style="flex-shrink: 0; white-space: nowrap">{{ last.payState }}</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(241,234,223,0.08)"><span style="font-size: 15px; color: #A89C8B">Total</span><span class="ttl" style="font-size: 28px; font-weight: 700; color: #FFFFFF">{{ last.totalLabel }}</span></div>
+<sc-if value="{{ last.isSession }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top: 28px"><p style="margin: 0 0 10px; font-size: 13px; color: #A89C8B">Your slot in the studio day (3 PM – 11 PM)</p><div class="tl"><sc-for list="{{ last.cells }}" as="c" hint-placeholder-count="8"><div class="{{ c }}"></div></sc-for></div><div class="tll"><span>3 PM</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10–11</span></div></div>
+</sc-if>
+<div style="margin-top: 28px">
+<sc-for list="{{ last.rows }}" as="r" hint-placeholder-count="5"><div class="row"><span class="k">{{ r.k }}</span><span class="v">{{ r.v }}</span></div></sc-for>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px">
+<sc-if value="{{ last.isSession }}" hint-placeholder-val="{{ true }}"><button class="btn-gold" onClick="{{ addCal }}">Add to calendar</button></sc-if>
+<button class="{{ last.acctCls }}" onClick="{{ nav.account }}">Go to my account</button>
+<button class="btn-ghost" onClick="{{ nav.home }}">Back to home</button>
+</div>
+<p style="margin: 28px 0 0; text-align: center; font-size: 14px; color: #A89C8B">{{ last.note }}</p>
+</div></section>
+</sc-if>
+
+<!-- ============ FOOTER ============ -->
+<footer class="foot" style="border-top: 1px solid rgba(241,234,223,0.08)">
+<div class="wrap" style="padding-top: 40px; padding-bottom: 40px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; font-size: 14px; color: #A89C8B">
+<div style="display: flex; align-items: center; gap: 10px">
+<button class="iconbtn" aria-label="Facebook" onClick="{{ social.fb }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H6.5v3.5H9V21h3.5v-8.5H15l.5-3.5h-3V7a1 1 0 0 1 1-1H15z"></path></svg></button>
+<button class="iconbtn" aria-label="Instagram" onClick="{{ social.ig }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.6"></circle></svg></button>
+<button class="iconbtn" aria-label="Location" onClick="{{ nav.contact }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></button>
+</div>
+<nav aria-label="Legal" style="display: flex; flex-wrap: wrap; gap: 8px 24px">
+<button onClick="{{ legal.privacy }}">Privacy Policy</button>
+<button onClick="{{ legal.terms }}">Terms &amp; Conditions</button>
+<button onClick="{{ legal.refund }}">Refund &amp; Cancelation</button>
+<button onClick="{{ nav.account }}">My Account</button>
+</nav>
+<p style="margin: 0">© Nilepods · Powered by Capital Studios</p>
+</div>
+</footer>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div class="toast" role="status">{{ toast }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      screen: 'home', prevScreen: 'home', hist: [],
+      mode: 'session', w: 1, svc: 'mix', setup: null, people: 1,
+      ex: { hour: 0, cam: 0, mic: 0, photo: 0 }, monthOff: 0, dateKey: null, start: null,
+      bTier: 'mix', bCount: 3,
+      fSvc: [], fCount: [], detail: { tier: 'mix', count: 3 }, carIdx: 0,
+      info: { first: '', last: '', email: '', phone: '', wa: false }, showErr: false,
+      method: 'online', card: { holder: '', num: '', exp: '', cvc: '' }, agreed: false, paying: false, useCredit: true,
+      bookings: [], credits: [], last: null, signedIn: false, acctEmail: '', menu: false, toast: '',
+      legal: 'privacy', cf: { name: '', phone: '', email: '', msg: '' }, contactSent: false,
+      tf: { name: '', phone: '', note: '' }, tourSent: false, tDate: null, tOff: 0, tSlot: null
+    };
+  }
+  // ---------- data ----------
+  img() { return { hero: '/_blob/f6b9c2ee7028884a47a15ded2f51d19c', s2: '/_blob/d8c0cf460707998f2db0c832d04b3efa', win: '/_blob/af9913323450fa5d63be56608814e9f8', mics: '/_blob/f581ffd019d17d8bd60d3ad415345ac9', shelves: '/_blob/aaf9baac82ee885ac1f32de79de265ad', frames: '/_blob/cb531de9b27e823b4dfd14bf775f7b49' }; }
+  pkgData() {
+    return [
+      { id: 'rec', tier: 'Basic', name: 'Recording Only', price: 1150, blurb: 'Record in a fully equipped setup and take your raw files home.',
+        inc: ['1 hour of recording', 'Raw audio and video files delivered'],
+        items: ['Fully equipped studio setup', 'Professional operator, 3 cameras & 4 microphones', 'Professional audio recording', 'Raw audio and video files delivered'] },
+      { id: 'mix', tier: 'Plus', name: 'Recording + Live Edit', price: 1450, badge: 'Live-mixed', blurb: 'Leave the studio with a live-mixed episode, switched and edited as you record.',
+        inc: ['1 hour of recording', 'Live-mixed episode delivered'],
+        items: ['Everything in Recording Only', 'Live video switching and editing', 'Synced cameras and audio', 'Live-mixed episode delivered'] },
+      { id: 'pro', tier: 'Pro', name: 'Recording + Pro Edit', price: 1950, blurb: 'A dedicated podcast editor takes your episode through full post-production.',
+        inc: ['1 hour of recording', 'Full post-production editing'],
+        items: ['Everything in Recording Only', 'Dedicated podcast editor', 'Full post-production editing', '2 revision rounds', '14-day raw footage backup'] }
+    ];
+  }
+  setupData() {
+    var im = this.img(), B = '/_blob/';
+    return [
+      { id: 's1', n: 'Setup 1', name: 'Setup 1', cap: 1, img: B + '208c4f23dfdfe4243df4a86635203f37', alt: 'Setup 1: a beige armchair beside a wooden shelf with a rope lamp, a palm and an alarm clock',
+        desc: 'A soft armchair, a warm rope lamp and a tall palm against a dark wall — made for one voice.' },
+      { id: 's2', n: 'Setup 2', name: 'Setup 2', cap: 1, img: B + '038dec353b5bd702311097efb1b9228d', alt: 'Setup 2: an armchair in front of a deep green velvet curtain between a table lamp and a floor lamp',
+        desc: 'Deep green velvet, two warm lamps and a single armchair — made for one-person content.' },
+      { id: 's3', n: 'Setup 3', name: 'Setup 3', cap: 2, img: B + '113ecd6e6a3d2de8944e3757f1945c32', alt: 'Setup 3: a round wooden table with two mesh chairs in front of lit shelves and a green-lit plant',
+        desc: 'A round wooden table, two studio chairs and glowing shelves behind — built for conversations.' },
+      { id: 's4', n: 'Setup 4', name: 'Setup 4', cap: 1, img: B + '2ac233ffaa36829ee7a6988f671bcf5f', alt: 'Setup 4: a single mesh chair across a wooden table, with a bookshelf, a small guitar and a plant',
+        desc: 'One chair across the table, framed by dark curtains and a lit shelf — for interviews and solo takes.' },
+      { id: 's5', n: 'Setup 5', name: 'Setup 5', cap: 2, img: B + 'dd85524628dcc9ee4b96e61cac0a9b34', alt: 'Setup 5: two beige armchairs facing a side table with a lamp, in front of a blue velvet curtain',
+        desc: 'Two armchairs, a lamp-lit side table and a rich blue velvet backdrop.' },
+      { id: 's6', n: 'Setup 6', name: 'Setup 6', cap: 2, img: B + 'b898d02d75c253e89b08c320c1cad962', alt: 'Setup 6: two beige armchairs in front of lit bookshelves with a tall plant',
+        desc: 'Two armchairs in front of softly lit bookshelves, with greenery on the side.' },
+      { id: 's7', n: 'Setup 7', name: 'Setup 7', cap: 1, img: B + 'fdcfcc88f60a0534d61a1283ace3c717', alt: 'Setup 7: an armchair with a green cushion against brown velvet and lace curtains, beside a lamp and a small guitar',
+        desc: 'Brown velvet and lace curtains, a warm lamp and a single armchair — cosy and intimate.' }
+    ];
+  }
+  disc() { return { 1: 0, 3: 0.05, 5: 0.10, 10: 0.15 }; }
+  validDays() { return 90; }
+  extraData(rate) {
+    return [
+      { id: 'hour', name: 'Extra hour', price: rate, basis: 'per hour', max: 3 },
+      { id: 'cam', name: 'Extra camera', price: 90, basis: 'each', max: 2 },
+      { id: 'mic', name: 'Extra microphone', price: 100, basis: 'each', max: 2 },
+      { id: 'photo', name: 'Session photographer', price: 250, basis: 'per session', max: 1 }
+    ];
+  }
+  bundlePrice(p, n) {
+    var full = p.price * n, d = this.disc()[n] || 0;
+    var total = Math.round(full * (1 - d) / 10) * 10;
+    return { full: full, total: total, per: Math.round(total / n), saved: full - total, pct: Math.round(d * 100) };
+  }
+  // ---------- helpers ----------
+  money(n) { return n.toLocaleString('en-US') + ' EGP'; }
+  fmtH(h) { var x = h > 12 ? h - 12 : h; return x + ':00 ' + (h >= 12 ? 'PM' : 'AM'); }
+  range(s, e) { return this.fmtH(s) + ' – ' + this.fmtH(e); }
+  key(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  fromKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  longDate(d) {
+    var wl = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var mo = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return wl[d.getDay()] + ', ' + d.getDate() + ' ' + mo[d.getMonth()];
+  }
+  shortDate(d) { var mo = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; return d.getDate() + ' ' + mo[d.getMonth()] + ' ' + d.getFullYear(); }
+  hourStatus(d, h, setup) {
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    if (d.getTime() === today.getTime() && h <= new Date().getHours()) return 'passed';
+    var k = this.key(d);
+    var taken = this.state.bookings.some(function (b) { return b.key === k && b.setup === setup && h >= b.start && h < b.end; });
+    var salt = (parseInt(String(setup || 's1').slice(1), 10) || 1) * 3;
+    var mock = ((d.getDate() * 31 + d.getMonth() * 7 + h * 13 + salt) % 6) === 0;
+    return (taken || mock) ? 'booked' : 'free';
+  }
+  scrollTop(id) {
+    var self = this;
+    setTimeout(function () {
+      if (!self.rootEl) return;
+      if (id) { var el = self.rootEl.querySelector('#' + id); if (el) { self.rootEl.scrollTo({ top: el.offsetTop - 70, behavior: 'smooth' }); return; } }
+      self.rootEl.scrollTo({ top: 0, behavior: 'auto' });
+    }, 30);
+  }
+  go(screen, extra, anchor) {
+    var cur = this.state.screen, hist = this.state.hist || [];
+    if (screen === 'home') hist = [];
+    else if (cur !== screen && cur !== 'book' && cur !== 'confirm') hist = hist.concat([{ screen: cur, detail: this.state.detail }]);
+    var s = Object.assign({ screen: screen, menu: false, prevScreen: cur, carIdx: 0, hist: hist }, extra || {});
+    if (screen === 'contact') { s.contactSent = false; }
+    if (screen === 'tour') { s.tourSent = false; s.tSlot = null; }
+    this.setState(s);
+    this.scrollTop(anchor);
+  }
+  startSession(extra) { this.go('book', Object.assign({ mode: 'session', w: 1, showErr: false, agreed: false, useCredit: true }, extra || {})); }
+  startBundle(tier, count) { this.go('book', { mode: 'bundle', w: 1, bTier: tier, bCount: count, showErr: false, agreed: false }); }
+  goBack() {
+    var h = (this.state.hist || []).slice(), p = h.pop();
+    var s = { screen: p ? p.screen : 'home', hist: h, menu: false, carIdx: 0 };
+    if (p && p.detail) s.detail = p.detail;
+    this.setState(s); this.scrollTop();
+  }
+  showToast(t) {
+    var self = this; this.setState({ toast: t });
+    clearTimeout(this._tt); this._tt = setTimeout(function () { self.setState({ toast: '' }); }, 2600);
+  }
+  setF(group, field, v) { var o = Object.assign({}, this.state[group]); o[field] = v; var s = {}; s[group] = o; this.setState(s); }
+  setW(n) { this.setState({ w: n, showErr: false, carIdx: 0 }); this.scrollTop(); }
+  fx(el) {
+    if (!el || !el.classList || !el.classList.contains('hs-track')) return;
+    var mid = el.scrollLeft + el.clientWidth / 2;
+    for (var k = 0; k < el.children.length; k++) {
+      var c = el.children[k], cw = c.offsetWidth || 1;
+      var d = (c.offsetLeft + cw / 2 - mid) / cw, a = Math.min(Math.abs(d), 1);
+      c.style.transform = 'scale(' + (1 - 0.06 * a).toFixed(4) + ')';
+      c.style.opacity = (1 - 0.55 * a).toFixed(3);
+      var img = c.querySelector('.hs-img');
+      if (img) img.style.transform = 'translateX(' + (Math.max(-1.2, Math.min(1.2, d)) * -9).toFixed(2) + '%) scale(1.18)';
+    }
+  }
+  carTo(i) {
+    var el = this.carEl; if (!el || !el.children.length) return;
+    var w = el.children[0].offsetWidth + Number(el.getAttribute('data-gap') || 0);
+    var n = el.children.length;
+    i = Math.max(0, Math.min(n - 1, i));
+    el.scrollTo({ left: i * w, behavior: 'smooth' });
+    this.setState({ carIdx: i });
+  }
+  // ---------- render ----------
+  renderVals() {
+    var self = this, S = this.state, IM = this.img();
+    var pk = this.pkgData(), SU = this.setupData();
+    var byId = function (id) { return pk.filter(function (p) { return p.id === id; })[0]; };
+    var isBundle = S.mode === 'bundle';
+    var P = byId(isBundle ? S.bTier : S.svc);
+    var SET = SU.filter(function (s) { return s.id === S.setup; })[0] || null;
+    var cap = SET ? SET.cap : 2;
+    var dur = 1 + S.ex.hour;
+    var hoursText = dur === 1 ? '1 hour' : dur + ' hours';
+    var X = this.extraData(P.price);
+    var date = S.dateKey ? this.fromKey(S.dateKey) : null;
+    var I = S.info, C = S.card;
+    var errs = { first: !I.first.trim(), last: !I.last.trim(), email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(I.email.trim()) };
+    var infoOk = !errs.first && !errs.last && !errs.email;
+    var cardOk = C.holder.trim().length > 1 && C.num.replace(/\D/g, '').length === 16 && /^\d\d\/\d\d$/.test(C.exp) && C.cvc.length >= 3;
+    var validDays = this.validDays();
+
+    // credits for chosen session service
+    var credit = S.credits.filter(function (c) { return c.svc === S.svc && c.left > 0; })[0] || null;
+    var creditsFor = function (id) { return S.credits.filter(function (c) { return c.svc === id; }).reduce(function (a, c) { return a + c.left; }, 0); };
+    var usingCredit = !isBundle && !!credit && S.useCredit;
+
+    // ----- quote -----
+    var lines = [], total = 0, extrasNames = [], BP = null;
+    if (isBundle) {
+      BP = this.bundlePrice(P, S.bCount);
+      lines.push({ k: P.tier + ' · ' + S.bCount + (S.bCount === 1 ? ' session' : ' sessions'), v: self.money(BP.full) });
+      if (BP.saved) lines.push({ k: 'Package saving (' + BP.pct + '%)', v: '−' + self.money(BP.saved) });
+      total = BP.total;
+    } else {
+      if (usingCredit) {
+        lines.push({ k: P.name + ' · 1 hour', v: 'Package credit' });
+        if (dur > 1) { lines.push({ k: 'Extra hours × ' + (dur - 1), v: self.money(P.price * (dur - 1)) }); total += P.price * (dur - 1); }
+      } else {
+        lines.push({ k: P.name + ' · ' + hoursText, v: self.money(P.price * dur) }); total += P.price * dur;
+      }
+      X.forEach(function (x) { if (x.id !== 'hour' && S.ex[x.id] > 0) { var a = x.price * S.ex[x.id]; total += a; lines.push({ k: x.name + ' × ' + S.ex[x.id], v: self.money(a) }); extrasNames.push(x.name + ' × ' + S.ex[x.id]); } });
+    }
+    var needsPay = total > 0;
+
+    // ----- navigation -----
+    var goTo = function (sc, anchor) { return function (e) { if (e && e.preventDefault) e.preventDefault(); self.go(sc, null, anchor); }; };
+    var bookNow = function () { self.startSession(); };
+    var navDefs = [['Packages', 'packages'], ['Studios', 'studios'], ['Cyclorama', 'cyclorama'], ['Services', 'services'], ['Contact Us', 'contact']];
+    var navItems = navDefs.map(function (n) {
+      var active = S.screen === n[1] || (n[1] === 'packages' && S.screen === 'pkgDetail');
+      return { label: n[0], go: goTo(n[1]), cls: 'navlink' + (active ? ' active' : ''), mcls: 'mlink' + (active ? ' active' : '') };
+    });
+
+    var pkgs = pk.map(function (p) {
+      var on = S.svc === p.id, cr = creditsFor(p.id);
+      return { name: p.name, priceLabel: p.price.toLocaleString('en-US'), blurb: p.blurb, items: p.items,
+        featured: !!p.badge, badge: p.badge || '', on: on,
+        cardCls: 'card pkg lift' + (p.badge ? ' featured' : ''), btnCls: p.badge ? 'btn-gold' : 'btn-ghost',
+        optCls: 'opt' + (on ? ' on' : ''), radio: 'radio' + (on ? ' on' : ''),
+        hasCredit: cr > 0, creditLabel: cr + (cr === 1 ? ' package credit left' : ' package credits left'),
+        choose: function () { self.startSession({ svc: p.id, w: 2 }); },
+        pick: function () { self.setState({ svc: p.id }); } };
+    });
+
+    // ----- catalog -----
+    var counts = [1, 3, 5, 10];
+    var all = [];
+    pk.forEach(function (p) { counts.forEach(function (n) { all.push({ p: p, n: n, kind: 'Video' }); }); });
+    all.push({ p: { id: 'audio', tier: 'Sound Studio', name: 'Audio only', price: 1000, inc: ['1 hour in the soundproof audio room'] }, n: 1, kind: 'Audio', audio: true });
+    var filtered = all.filter(function (c) {
+      return (S.fSvc.length === 0 || S.fSvc.indexOf(c.kind) >= 0) && (S.fCount.length === 0 || S.fCount.indexOf(c.n) >= 0);
+    });
+    var catImg = { rec: '/_blob/dd85524628dcc9ee4b96e61cac0a9b34', mix: IM.hero, pro: '/_blob/113ecd6e6a3d2de8944e3757f1945c32', audio: IM.mics };
+    var catalog = filtered.map(function (c) {
+      var bp = self.bundlePrice(c.p, c.n);
+      return { tier: c.p.tier, svc: c.p.name, img: catImg[c.p.id], inc: c.p.inc,
+        countLabel: c.n === 1 ? '1 session' : c.n + ' sessions',
+        hasSave: bp.saved > 0, savePct: bp.pct + '%', full: self.money(bp.full), total: self.money(bp.total),
+        per: c.n === 1 ? (c.audio ? '[CONFIRM PRICE]' : 'Single session') : self.money(bp.per) + ' per session',
+        buyLabel: c.audio ? 'Ask us' : 'Purchase Now',
+        details: c.audio ? function () { self.go('audio'); } : function () { self.go('pkgDetail', { detail: { tier: c.p.id, count: c.n } }); },
+        buy: c.audio ? function () { self.go('contact'); } : function () { self.startBundle(c.p.id, c.n); } };
+    });
+    var toggleIn = function (arr, v) { return arr.indexOf(v) >= 0 ? arr.filter(function (x) { return x !== v; }) : arr.concat([v]); };
+    var fService = ['Audio', 'Video'].map(function (v) { var on = S.fSvc.indexOf(v) >= 0; return { label: v, on: on, cls: 'fchk' + (on ? ' on' : ''), toggle: function () { self.setState({ fSvc: toggleIn(S.fSvc, v) }); } }; });
+    var fCount = counts.map(function (v) { var on = S.fCount.indexOf(v) >= 0; return { label: v === 1 ? '1 session' : v + ' sessions', on: on, cls: 'fchk' + (on ? ' on' : ''), toggle: function () { self.setState({ fCount: toggleIn(S.fCount, v) }); } }; });
+    var D = this.disc();
+
+    // ----- details -----
+    var DP = byId(S.detail.tier), dbp = this.bundlePrice(DP, S.detail.count);
+    var segFor = function (p, cur, onPick) {
+      return counts.map(function (n) { var b = self.bundlePrice(p, n); return { label: String(n), on: cur === n, cls: 'seg' + (cur === n ? ' on' : ''), hasSave: b.pct > 0, save: b.pct + '%', pick: function () { onPick(n); } }; });
+    };
+    var pd = { tier: DP.tier, svc: DP.name, img: catImg[DP.id], items: DP.items,
+      counts: segFor(DP, S.detail.count, function (n) { self.setState({ detail: { tier: S.detail.tier, count: n } }); }),
+      hasSave: dbp.saved > 0, full: self.money(dbp.full), total: self.money(dbp.total), saved: self.money(dbp.saved),
+      per: S.detail.count === 1 ? 'Single session' : self.money(dbp.per) + ' per session',
+      buy: function () { self.startBundle(S.detail.tier, S.detail.count); } };
+
+    // ----- setups carousel -----
+    var setupList = SU.map(function (s, si) {
+      var on = S.setup === s.id;
+      return { hcls: 'hs-card' + (S.carIdx === si ? ' on' : ''), n: s.n, name: s.name, desc: s.desc, cap: String(s.cap), img: s.img, alt: s.alt, on: on,
+        cls: 'slide-card' + (on ? ' on' : ''), btnCls: 'btn-sel' + (on ? ' on' : ''), btnLabel: on ? 'Selected ✓' : 'Choose ' + s.n,
+        pick: function () { self.setState({ setup: on ? null : s.id, people: Math.min(S.people, s.cap), start: null }); },
+        choose: function () { self.setState({ setup: s.id, people: Math.min(S.people, s.cap), start: null, w: S.w + 1, showErr: false, carIdx: 0 }); self.scrollTop(); },
+        book: function () { if (self._justDragged) return; self.startSession({ setup: s.id, people: Math.min(S.people, s.cap), start: null }); } };
+    });
+    var carDots = SU.map(function (s, i) { return { cls: 'dot' + (S.carIdx === i ? ' on' : ''), label: 'Go to slide ' + (i + 1), go: function () { self.carTo(i); } }; });
+
+    // ----- extras -----
+    var extraList = X.map(function (x) {
+      var q = S.ex[x.id];
+      var bump = function (d) { return function () {
+        var ex = Object.assign({}, S.ex); ex[x.id] = Math.max(0, Math.min(x.max, q + d));
+        var s = { ex: ex }; if (x.id === 'hour') s.start = null; self.setState(s); }; };
+      return { name: x.name, qty: q, priceLabel: '+' + self.money(x.price), basis: x.basis,
+        cls: 'xrow' + (q > 0 ? ' on' : ''), atMin: q <= 0, atMax: q >= x.max,
+        minusLabel: 'Remove one ' + x.name.toLowerCase(), plusLabel: 'Add one ' + x.name.toLowerCase(),
+        down: bump(-1), up: bump(1) };
+    });
+
+    // ----- calendar -----
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var horizon = new Date(today); horizon.setDate(today.getDate() + 60);
+    var mStart = new Date(today.getFullYear(), today.getMonth() + S.monthOff, 1);
+    var monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var lead = (mStart.getDay() + 1) % 7;
+    var dim = new Date(mStart.getFullYear(), mStart.getMonth() + 1, 0).getDate();
+    var cells = [];
+    for (var i = 0; i < lead; i++) cells.push({ label: '', cls: 'cd empty', dis: true, aria: '', pick: null });
+    for (var dn = 1; dn <= dim; dn++) {
+      (function (dn) {
+        var d = new Date(mStart.getFullYear(), mStart.getMonth(), dn);
+        var k = self.key(d), fri = d.getDay() === 5, past = d < today, far = d > horizon;
+        var on = S.dateKey === k;
+        cells.push({ label: String(dn), dis: fri || past || far,
+          cls: 'cd' + (fri ? ' fri' : '') + (d.getTime() === today.getTime() ? ' today' : '') + (on ? ' on' : ''),
+          aria: self.longDate(d) + (fri ? ', closed' : past ? ', past' : ''),
+          pick: function () { self.setState({ dateKey: k, start: null }); } });
+      })(dn);
+    }
+    while (cells.length % 7) cells.push({ label: '', cls: 'cd empty', dis: true, aria: '', pick: null });
+    var cal = { title: monthNames[mStart.getMonth()] + ' ' + mStart.getFullYear(), cells: cells,
+      noPrev: S.monthOff <= 0, noNext: new Date(mStart.getFullYear(), mStart.getMonth() + 1, 1) > horizon,
+      prev: function () { self.setState({ monthOff: S.monthOff - 1 }); }, next: function () { self.setState({ monthOff: S.monthOff + 1 }); } };
+    var slotList = [];
+    if (date) {
+      for (var h = 15; h + dur <= 23; h++) {
+        (function (h) {
+          var st = 'free';
+          for (var j = h; j < h + dur; j++) { var s1 = self.hourStatus(date, j, S.setup); if (s1 !== 'free') { st = s1; break; } }
+          var on = S.start === h;
+          slotList.push({ label: self.range(h, h + dur), on: on, disabled: st !== 'free',
+            cls: 'slot slot-' + (on ? 'selected' : st === 'free' ? 'available' : st),
+            status: on ? 'Selected' : st === 'booked' ? 'Taken' : st === 'passed' ? 'Passed' : 'Free',
+            pick: function () { self.setState({ start: on ? null : h }); } });
+        })(h);
+      }
+    }
+    var freeCount = slotList.filter(function (s) { return !s.disabled; }).length;
+
+    // ----- wizard -----
+    var steps = isBundle ? ['bundle', 'info', 'pay'] : ['service', 'setup', 'people', 'extras', 'time', 'info', 'pay'];
+    var titleMap = { service: 'Choose a service', bundle: 'Your package', setup: isBundle ? 'Your preferred setup' : 'Choose your setup', people: 'Who is on camera?', extras: 'Add extras', time: 'Pick a date & time', info: 'Your information', pay: 'Review & pay' };
+    var backMap = { service: 'Back', bundle: 'Back', setup: isBundle ? 'Back to package' : 'Back to service', people: 'Back to setup', extras: 'Back to people', time: 'Back to extras', info: isBundle ? 'Back to package' : 'Back to date & time', pay: 'Back to your information' };
+    var cur = steps[S.w - 1];
+    var st = {}; ['service', 'bundle', 'setup', 'people', 'extras', 'time', 'info', 'pay'].forEach(function (k) { st[k] = cur === k; });
+    var progBars = steps.map(function (t, i) { return i + 1 < S.w ? 'on' : i + 1 === S.w ? 'cur' : ''; });
+    var blockedMap = { service: false, bundle: false, setup: !S.setup, people: false, extras: false, time: !(date && S.start != null), info: false,
+      pay: !S.agreed || S.paying || (needsPay && S.method === 'online' && !cardOk) };
+    var payLabel = S.paying ? 'Processing…' : !needsPay ? 'Confirm booking' : S.method === 'online' ? 'Pay ' + self.money(total) + (isBundle ? ' & buy credits' : ' & book') : 'Confirm — pay at the studio';
+    var nextLabel = cur === 'pay' ? payLabel : cur === 'info' ? 'Continue to payment' : 'Continue';
+    var nextShort = cur === 'pay' ? (S.paying ? 'Processing…' : !needsPay ? 'Confirm' : S.method === 'online' ? (isBundle ? 'Pay & buy' : 'Pay & book') : 'Confirm') : 'Continue';
+
+    var pay = function () {
+      self.setState({ paying: true });
+      setTimeout(function () {
+        var online = S.method === 'online' && needsPay;
+        var ref = 'NP-' + Math.floor(10000 + Math.random() * 89999);
+        var payState = !needsPay ? 'Credit used' : online ? 'Paid' : 'Due at studio';
+        var payCls = online || !needsPay ? 'pill-ok' : 'pill-due';
+        var method = !needsPay ? 'Package credit' : online ? 'Card •••• ' + C.num.replace(/\D/g, '').slice(-4) : 'Pay at the studio';
+        var name = I.first.trim() + ' ' + I.last.trim(), email = I.email.trim();
+        var base = { paying: false, start: null, agreed: false, signedIn: true, acctEmail: email, screen: 'confirm', w: 1, card: { holder: '', num: '', exp: '', cvc: '' } };
+        if (isBundle) {
+          var exp = new Date(today); exp.setDate(today.getDate() + validDays);
+          var cr = { id: ref, svc: P.id, tier: P.tier, name: P.name, count: S.bCount, left: S.bCount, expires: self.shortDate(exp) };
+          var lb = { kind: 'bundle', ref: ref, email: email, headline: 'Credits added to your account', kicker: 'Package', big: P.tier + ' · ' + S.bCount + (S.bCount === 1 ? ' session' : ' sessions'),
+            sub: 'Valid until ' + cr.expires, totalLabel: self.money(total), payState: payState, payCls: payCls, svc: P.id,
+            rows: [{ k: 'Service', v: P.name }, { k: 'Per session', v: self.money(BP.per) }, { k: 'Name', v: name }, { k: 'Payment', v: method }],
+            note: S.bCount + (S.bCount === 1 ? ' credit has' : ' credits have') + ' been added to your account. Sign in any time to book a session — choose the setup, extras, date and time then.' };
+          self.setState(Object.assign(base, { credits: S.credits.concat([cr]), last: lb }));
+        } else {
+          var b = { kind: 'session', ref: ref, key: S.dateKey, setup: S.setup, start: S.start, end: S.start + dur, pkgName: P.name,
+            setupLabel: SET.n, dateLabel: self.longDate(date), timeLabel: self.range(S.start, S.start + dur), totalLabel: self.money(total) };
+          var credits = S.credits;
+          if (usingCredit) credits = S.credits.map(function (c) { return c.id === credit.id ? Object.assign({}, c, { left: c.left - 1 }) : c; });
+          var ls = { kind: 'session', ref: ref, email: email, headline: "You're booked!", kicker: 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
+            totalLabel: self.money(total), payState: payState, payCls: payCls, start: b.start, end: b.end,
+            rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: method }],
+            note: 'Your hours are now locked in ' + SET.n + ' — book the same day again and you will see them taken.' };
+          self.setState(Object.assign(base, { bookings: S.bookings.concat([b]), credits: credits, last: ls }));
+        }
+        self.scrollTop();
+      }, 1300);
+    };
+    var wzNext = function () {
+      if (cur === 'info') {
+        if (!infoOk) {
+          self.setState({ showErr: true });
+          var first = errs.first ? 'i-first' : errs.last ? 'i-last' : 'i-email';
+          setTimeout(function () { var el = self.rootEl && self.rootEl.querySelector('#' + first); if (el) el.focus(); }, 40);
+          return;
+        }
+      }
+      if (cur === 'pay') { if (!blockedMap.pay) pay(); return; }
+      if (cur === 'service' && S.setup && !isBundle) { self.setW(S.w + 2); return; }
+      if (!blockedMap[cur]) self.setW(S.w + 1);
+    };
+    var wzBack = function () { if (S.w > 1) self.setW(S.w - 1); else self.goBack(); };
+
+    // ----- side panel -----
+    var q;
+    if (isBundle) {
+      q = { img: catImg[P.id], label: 'Your package', title: P.tier + ' · ' + P.name, meta: S.bCount + (S.bCount === 1 ? ' session' : ' sessions') + ' · ' + self.money(BP.per) + ' each',
+        whenK: 'How it works', when: 'Credits go to your account. Book each session — setup, extras, date and time — whenever you like.', lines: lines, total: self.money(total), onsite: S.method === 'onsite' && cur === 'pay',
+        foot: 'Valid ' + validDays + ' days. Book each session whenever you like — extras are added per session.' };
+    } else {
+      q = { img: SET ? SET.img : IM.hero, label: 'Your session', title: P.name,
+        meta: (SET ? SET.n : 'Setup not chosen') + ' · ' + S.people + (S.people === 1 ? ' person' : ' people') + ' · ' + hoursText,
+        whenK: 'When', when: date ? self.longDate(date) + (S.start != null ? ' · ' + self.range(S.start, S.start + dur) : ' · pick a time') : 'Pick a date & time',
+        lines: lines, total: self.money(total), onsite: S.method === 'onsite' && cur === 'pay' && needsPay,
+        foot: 'Free to reschedule up to 24 hours before your session. [CONFIRM POLICY]' };
+    }
+
+    // ----- tour: calendar + 15-minute slots (availability set by admin; mocked here) -----
+    var tStart = new Date(today.getFullYear(), today.getMonth() + S.tOff, 1);
+    var tLead = (tStart.getDay() + 1) % 7, tDim = new Date(tStart.getFullYear(), tStart.getMonth() + 1, 0).getDate(), tCells = [];
+    for (var ti = 0; ti < tLead; ti++) tCells.push({ label: '', cls: 'cd empty', dis: true, aria: '', pick: null });
+    for (var td = 1; td <= tDim; td++) {
+      (function (td) {
+        var d = new Date(tStart.getFullYear(), tStart.getMonth(), td), k = self.key(d), fri = d.getDay() === 5, past = d < today, far = d > horizon;
+        tCells.push({ label: String(td), dis: fri || past || far, cls: 'cd' + (fri ? ' fri' : '') + (d.getTime() === today.getTime() ? ' today' : '') + (S.tDate === k ? ' on' : ''),
+          aria: self.longDate(d) + (fri ? ', closed' : ''), pick: function () { self.setState({ tDate: k, tSlot: null }); } });
+      })(td);
+    }
+    while (tCells.length % 7) tCells.push({ label: '', cls: 'cd empty', dis: true, aria: '', pick: null });
+    var tcal = { title: monthNames[tStart.getMonth()] + ' ' + tStart.getFullYear(), cells: tCells, noPrev: S.tOff <= 0,
+      noNext: new Date(tStart.getFullYear(), tStart.getMonth() + 1, 1) > horizon,
+      prev: function () { self.setState({ tOff: S.tOff - 1 }); }, next: function () { self.setState({ tOff: S.tOff + 1 }); } };
+    var fmtM = function (m) { var h = Math.floor(m / 60), mm = m % 60, x = h > 12 ? h - 12 : h; return x + ':' + (mm < 10 ? '0' : '') + mm + ' PM'; };
+    var tD = S.tDate ? self.fromKey(S.tDate) : null, tSlots = [], tFree = 0;
+    if (tD) {
+      var isToday = tD.getTime() === today.getTime(), nowM = new Date().getHours() * 60 + new Date().getMinutes();
+      for (var m = 15 * 60; m < 23 * 60; m += 15) {
+        (function (m) {
+          var passed = isToday && m <= nowM;
+          var blocked = ((tD.getDate() * 17 + m / 15 * 7) % 5) === 0;
+          var on = S.tSlot === m, dis = passed || blocked;
+          if (!dis) tFree++;
+          tSlots.push({ label: fmtM(m), on: on, disabled: dis, cls: 'ts' + (on ? ' on' : ''), aria: fmtM(m) + ' to ' + fmtM(m + 15) + (dis ? ', unavailable' : ''),
+            pick: function () { self.setState({ tSlot: on ? null : m }); } });
+        })(m);
+      }
+    }
+    var tour = { hasDate: !!tD, noDate: !tD, dateLong: tD ? self.longDate(tD) : '', slots: tSlots, freeLabel: tFree + ' slots free',
+      when: tD && S.tSlot != null ? self.longDate(tD) + ' · ' + fmtM(S.tSlot) + ' – ' + fmtM(S.tSlot + 15) : '',
+      summary: tD ? (S.tSlot != null ? self.longDate(tD) + ' · ' + fmtM(S.tSlot) : self.longDate(tD) + ' · pick a time') : 'Pick a day and a time' };
+    var E = S.showErr ? errs : { first: false, last: false, email: false };
+    var cellsFor = function (s, e) { var a = []; for (var h = 15; h < 23; h++) a.push('tlc' + (h >= s && h < e ? ' on' : '')); return a; };
+    var last = S.last ? Object.assign({}, S.last, { cells: cellsFor(S.last.start || 0, S.last.end || 0), isBundle: S.last.kind === 'bundle', isSession: S.last.kind === 'session', acctCls: S.last.kind === 'bundle' ? 'btn-gold' : 'btn-ghost' }) :
+      { email: '', ref: '', headline: '', kicker: '', big: '', sub: '', totalLabel: '', payState: '', payCls: '', rows: [], note: '', cells: cellsFor(0, 0), isBundle: false, isSession: true, acctCls: 'btn-ghost' };
+    var mk = function (g) { return function (f) { return function (e) { self.setF(g, f, e.target.value); }; }; };
+    var fC = mk('cf'), fT = mk('tf'), fI = mk('info');
+    var fmtNum = function (v) { return v.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 '); };
+    var fmtExp = function (v) { var d = v.replace(/\D/g, '').slice(0, 4); return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d; };
+    var legalTitles = { privacy: 'Privacy Policy', terms: 'Terms & Conditions', refund: 'Refund & Cancelation' };
+    var bookingList = S.bookings.slice().reverse().map(function (b) { return Object.assign({}, b, { cells: cellsFor(b.start, b.end) }); });
+    var creditList = S.credits.slice().reverse().map(function (c) {
+      return { title: c.tier + ' · ' + c.name, left: c.left + ' of ' + c.count + ' left', expires: 'Valid until ' + c.expires,
+        canBook: c.left > 0, book: function () { self.startSession({ svc: c.svc, setup: null, w: 2 }); } };
+    });
+
+    return {
+      setRoot: function (el) { self.rootEl = el; },
+      setCar: function (el) { self.carEl = el; if (el) setTimeout(function () { self.fx(el); }, 60); },
+      dragStart: function (e) {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        var el = e.currentTarget; self._drag = { x: e.clientX, left: el.scrollLeft, moved: 0, el: el };
+        el.classList.add('dragging');
+      },
+      dragMove: function (e) {
+        var d = self._drag; if (!d) return;
+        var dx = e.clientX - d.x; d.moved = Math.max(d.moved, Math.abs(dx));
+        d.el.scrollLeft = d.left - dx;
+      },
+      dragEnd: function () {
+        var d = self._drag; if (!d) return; self._drag = null;
+        var el = d.el; el.classList.remove('dragging');
+        self._justDragged = d.moved > 6; setTimeout(function () { self._justDragged = false; }, 80);
+        if (!el.children.length) return;
+        var w = el.children[0].offsetWidth + Number(el.getAttribute('data-gap') || 0);
+        var i = Math.round(el.scrollLeft / w), dir = el.scrollLeft - d.left;
+        if (Math.abs(dir) > 40 && Math.round(d.left / w) === i) i += dir > 0 ? 1 : -1;
+        self.carTo(i);
+      },
+      onCarScroll: function (e) {
+        var el = e.currentTarget; if (!el.children.length) return;
+        self.fx(el);
+        var w = el.children[0].offsetWidth + Number(el.getAttribute('data-gap') || 0), i = Math.round(el.scrollLeft / w);
+        if (i !== self.state.carIdx) self.setState({ carIdx: i });
+      },
+      carPrev: function () { self.carTo(S.carIdx - 1); }, carNext: function () { self.carTo(S.carIdx + 1); }, carDots: carDots,
+      is: { home: S.screen === 'home', studios: S.screen === 'studios', cyclorama: S.screen === 'cyclorama', audio: S.screen === 'audio',
+        services: S.screen === 'services', contact: S.screen === 'contact', tour: S.screen === 'tour', account: S.screen === 'account',
+        legal: S.screen === 'legal', book: S.screen === 'book', confirm: S.screen === 'confirm', packages: S.screen === 'packages', pkgDetail: S.screen === 'pkgDetail' },
+      st: st,
+      nav: { home: goTo('home'), packages: goTo('packages'), studios: goTo('studios'), services: goTo('services'),
+        contact: goTo('contact'), tour: goTo('tour'), account: goTo('account') },
+      legal: { privacy: function () { self.go('legal', { legal: 'privacy' }); }, terms: function (e) { if (e) e.preventDefault(); self.go('legal', { legal: 'terms' }); }, refund: function (e) { if (e) e.preventDefault(); self.go('legal', { legal: 'refund' }); } },
+      legalTitle: legalTitles[S.legal],
+      legalBack: function () { self.goBack(); },
+      legalBackLabel: S.prevScreen === 'book' ? 'Back to your booking' : 'Back',
+      showBack: ['home', 'book', 'confirm'].indexOf(S.screen) < 0, goBack: function () { self.goBack(); },
+      social: { fb: function () { self.showToast('Opens the Nilepods Facebook page'); }, ig: function () { self.showToast('Opens the Nilepods Instagram page'); } },
+      toastArabic: function () { self.setState({ menu: false }); self.showToast('Switches the site to Arabic'); },
+      navItems: navItems, menuOpen: S.menu,
+      openMenu: function () { self.setState({ menu: true }); }, closeMenu: function () { self.setState({ menu: false }); },
+      bookNow: bookNow, pkgs: pkgs,
+      bookS1: function () { self.startSession({ setup: 's1' }); }, bookS2: function () { self.startSession({ setup: 's2' }); },
+      howSteps: [{ n: '01', t: 'Choose your service', d: 'Pick the service and the setup you want to record in.' }, { n: '02', t: 'Set date & time', d: 'Choose your hours between 3 and 11 PM.' }, { n: '03', t: 'Pay securely', d: 'Online, at the studio, or with a package credit.' }, { n: '04', t: 'Start your shoot', d: 'Walk in, sit down, and hit record.' }],
+      stages: [{ stage: 'Stage 01', t: 'Strategy Development', d: 'We help you sharpen your concept and turn it into a show worth tuning into.', img: IM.shelves },
+        { stage: 'Stage 02', t: 'Studios & Production', d: 'Fully equipped studios and a production team running every session.', img: IM.mics },
+        { stage: 'Stage 03', t: 'Distribution & Post-Production', d: 'Editing, mastering and the final polish — ready to publish.', img: IM.win }],
+      faqs: [{ q: 'What is Nilepods and how can it help me?', a: 'Nilepods is a set of ready-to-record studios with everything you need to shoot, record, edit and distribute your content — from podcasts to masterclasses.' },
+        { q: 'What makes Nilepods unique?', a: 'Our equipment is automated, so shooting is simple and fast — and your edit is ready soon after you finish recording.' },
+        { q: 'Do packages save me money?', a: 'Yes — buy 3, 5 or 10 sessions in one package and each session costs less. You book each session whenever you like within ' + validDays + ' days.' },
+        { q: 'How can I book a studio?', a: 'Book online in a few minutes — pick a service, a setup and your hours between 3 and 11 PM, then pay online, at the studio, or with a package credit.' }],
+      // catalog
+      catalog: catalog, noResults: catalog.length === 0, fService: fService, fCount: fCount,
+      anyFilter: S.fSvc.length + S.fCount.length > 0, clearFilters: function () { self.setState({ fSvc: [], fCount: [] }); },
+      resultLabel: catalog.length === 1 ? '1 package' : catalog.length + ' packages',
+      discLabel: { d3: Math.round(D[3] * 100) + '%', d5: Math.round(D[5] * 100) + '%', d10: Math.round(D[10] * 100) + '%' },
+      validDays: String(validDays), pd: pd,
+      bq: isBundle ? { tier: P.tier, svc: P.name, img: catImg[P.id], inc: P.inc,
+        counts: segFor(P, S.bCount, function (n) { self.setState({ bCount: n }); }),
+        countLabel: S.bCount === 1 ? '1 session' : S.bCount + ' sessions', per: self.money(BP.per) + ' per session',
+        hasSave: BP.saved > 0, saved: self.money(BP.saved) } : { tier: '', svc: '', img: IM.hero, inc: [], counts: [], countLabel: '', per: '', hasSave: false, saved: '' },
+      // contact / tour / account
+      cf: S.cf, onC: { name: fC('name'), phone: fC('phone'), email: fC('email'), msg: fC('msg') },
+      contactSent: S.contactSent, contactForm: !S.contactSent,
+      contactBlocked: !(S.cf.name.trim() && (S.cf.phone.trim() || S.cf.email.trim()) && S.cf.msg.trim()),
+      sendContact: function () { self.setState({ contactSent: true }); self.scrollTop(); },
+      tf: S.tf, onT: { name: fT('name'), phone: fT('phone'), note: fT('note') },
+      tourSent: S.tourSent, tourForm: !S.tourSent,
+      tourBlocked: !(S.tf.name.trim() && S.tf.phone.replace(/\D/g, '').length >= 8 && S.tDate && S.tSlot != null),
+      tcal: tcal, tour: tour,
+      sendTour: function () { self.setState({ tourSent: true }); self.scrollTop(); },
+      signedIn: S.signedIn, signedOut: !S.signedIn, acctEmail: S.acctEmail,
+      onAcct: function (e) { self.setState({ acctEmail: e.target.value }); },
+      signinBlocked: !/.+@.+\..+/.test(S.acctEmail),
+      signIn: function () { self.setState({ signedIn: true }); },
+      signOut: function () { self.setState({ signedIn: false }); },
+      bookingList: bookingList, noBookings: bookingList.length === 0 && creditList.length === 0,
+      creditList: creditList, hasCredits: creditList.length > 0, hasBookings: bookingList.length > 0,
+      // wizard
+      wz: { n: String(S.w), of: String(steps.length), title: titleMap[cur], backLabel: backMap[cur], kind: isBundle ? 'Buy a package' : 'Book a session', progCls: 'prog' + (isBundle ? ' p3' : '') },
+      progBars: progBars, wzNext: wzNext, wzBack: wzBack,
+      nextBlocked: blockedMap[cur], nextLabel: nextLabel, nextShort: nextShort,
+      setupList: setupList,
+      setupTabs: SU.map(function (s, si) { return { name: s.name, on: S.carIdx === si, cls: 'stab' + (S.carIdx === si ? ' on' : ''), go: function () { self.carTo(si); } }; }),
+      setupIntro: isBundle ? 'Pick the setup you would like to record in. You can switch setups for any session when you book it. Swipe to see them all.' : 'Swipe through the setups and choose the one you want to record in.',
+      setupName: SET ? SET.n : 'Your setup', setupCap: String(cap),
+      people: String(S.people), peopleMin: S.people <= 1, peopleMax: S.people >= cap,
+      peopleDown: function () { self.setState({ people: Math.max(1, S.people - 1) }); },
+      peopleUp: function () { self.setState({ people: Math.min(cap, S.people + 1) }); },
+      extraList: extraList, durLabel: hoursText,
+      cal: cal, hasDate: !!date, noDate: !date, dateLong: date ? self.longDate(date) : '',
+      slotList: slotList, noSlots: !!date && freeCount === 0,
+      info: I, onI: { first: fI('first'), last: fI('last'), email: fI('email'), phone: fI('phone') },
+      toggleWa: function () { self.setF('info', 'wa', !I.wa); },
+      err: { firstBad: E.first, lastBad: E.last, emailBad: E.email,
+        firstCls: 'inp' + (E.first ? ' bad' : ''), lastCls: 'inp' + (E.last ? ' bad' : ''), emailCls: 'inp' + (E.email ? ' bad' : '') },
+      canCredit: !isBundle && !!credit, useCredit: S.useCredit, toggleCredit: function () { self.setState({ useCredit: !S.useCredit }); },
+      creditNote: credit ? credit.tier + ' package · ' + credit.left + ' left · covers the first hour' : '',
+      needsPay: needsPay, noPay: !needsPay,
+      payMethods: [{ id: 'online', label: 'Online', sub: 'Card · pay now' }, { id: 'onsite', label: 'On-site', sub: 'Pay at the studio' }].map(function (m) {
+        return { label: m.label, sub: m.sub, on: S.method === m.id, cls: 'opt' + (S.method === m.id ? ' on' : ''), pick: function () { self.setState({ method: m.id }); } }; }),
+      payOnline: S.method === 'online',
+      payHelp: S.method === 'online' ? 'You pay ' + self.money(total) + ' now by card.' : (isBundle ? 'Your package is reserved now. You pay ' : 'Your slot is confirmed now. You pay ') + self.money(total) + ' at the studio.',
+      card: C,
+      onP: { holder: function (e) { self.setF('card', 'holder', e.target.value); }, num: function (e) { self.setF('card', 'num', fmtNum(e.target.value)); },
+        exp: function (e) { self.setF('card', 'exp', fmtExp(e.target.value)); }, cvc: function (e) { self.setF('card', 'cvc', e.target.value.replace(/\D/g, '').slice(0, 4)); } },
+      agreed: S.agreed, toggleAgree: function () { self.setState({ agreed: !S.agreed }); },
+      q: q, notSetup: cur !== 'setup',
+      last: last, addCal: function () { self.showToast('Added to your calendar'); },
+      scheduleFirst: function () { self.startSession({ svc: S.last.svc, setup: null, w: 2 }); },
+      hasToast: !!S.toast, toast: S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

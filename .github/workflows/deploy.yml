@@ -1,0 +1,68 @@
+# Builds the site and uploads it to Hostinger on every push to main.
+#
+# Repository secrets needed (GitHub -> Settings -> Secrets and variables -> Actions):
+#   HOSTINGER_FTP_SERVER     e.g. ftp.yourdomain.com or the IP from hPanel -> Files -> FTP Accounts
+#   HOSTINGER_FTP_USERNAME   the FTP username from hPanel
+#   HOSTINGER_FTP_PASSWORD   the FTP password from hPanel
+#   VITE_SUPABASE_URL        Supabase project URL
+#   VITE_SUPABASE_ANON_KEY   Supabase publishable / anon key (never the service_role key)
+# Optional repository variable (Settings -> Secrets and variables -> Actions -> Variables):
+#   HOSTINGER_REMOTE_DIR     folder to upload into; defaults to public_html/
+
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Check that FTP secrets are set
+        env:
+          S: ${{ secrets.HOSTINGER_FTP_SERVER }}
+          U: ${{ secrets.HOSTINGER_FTP_USERNAME }}
+          P: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+        run: |
+          if [ -z "$S" ] || [ -z "$U" ] || [ -z "$P" ]; then
+            echo "::error::Hostinger FTP secrets are not set yet. Add them in GitHub repo Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
+      - name: Upload to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_SERVER }}
+          username: ${{ secrets.HOSTINGER_FTP_USERNAME }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: ${{ vars.HOSTINGER_REMOTE_DIR || 'public_html/' }}
+          # Only removes files this action uploaded before; never touches other files on the server.
+          dangerous-clean-slate: false

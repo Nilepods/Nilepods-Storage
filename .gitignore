@@ -1,0 +1,17 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Secrets: environment files are never committed. .env.example (no values) is.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
