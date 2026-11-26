@@ -177,6 +177,10 @@ details[open] .plus{transform:rotate(45deg)}
 .fchk:hover{border-color:rgba(226,184,114,.5)}
 .fchk.on{border-color:#E2B872;color:#fff;background:rgba(226,184,114,.08)}
 .fchk input{width:18px;height:18px;margin:0;accent-color:#E2B872}
+.stabs{display:flex;gap:4px;padding:4px;border-radius:999px;border:1px solid rgba(241,234,223,.12);width:max-content;max-width:100%;overflow-x:auto}
+.stab{min-height:40px;padding:0 18px;border-radius:999px;font-size:14px;color:#CFC5B5;white-space:nowrap}
+.stab.on{background:#E2B872;color:#17120B;font-weight:600}
+.sfilt{display:flex;flex-wrap:wrap;gap:8px}.sfilt .fchk{min-height:36px;font-size:14px}
 .pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .pcard.pop{border-color:rgba(226,184,114,.55);box-shadow:0 0 0 1px rgba(226,184,114,.25),0 24px 60px -30px rgba(226,184,114,.35)}
 .poptag{position:absolute;top:14px;right:14px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#E2B872;background:rgba(14,12,10,.82);border:1px solid rgba(226,184,114,.6);padding:6px 10px;border-radius:999px;backdrop-filter:blur(6px)}
@@ -678,18 +682,23 @@ details[open] .plus{transform:rotate(45deg)}
 </sc-for>
 </div>
 </sc-if>
-<sc-if value="{{ hasBookings }}" hint-placeholder-val="{{ false }}"><p class="lbl">My sessions</p></sc-if>
+<sc-if value="{{ hasBookings }}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 4px">
+<p class="lbl" style="margin: 0">My sessions</p>
+<div class="stabs" role="tablist" aria-label="Sessions"><sc-for list="{{ sessTabs }}" as="t" hint-placeholder-count="3"><button class="{{ t.cls }}" role="tab" aria-selected="{{ t.on }}" onClick="{{ t.go }}">{{ t.label }}</button></sc-for></div>
+<sc-if value="{{ hasSessSvcs }}" hint-placeholder-val="{{ false }}"><div class="sfilt" role="group" aria-label="Filter by service"><sc-for list="{{ sessSvcs }}" as="f" hint-placeholder-count="3"><button class="{{ f.cls }}" aria-pressed="{{ f.on }}" onClick="{{ f.go }}">{{ f.label }}</button></sc-for></div></sc-if>
+<sc-if value="{{ sessEmpty }}" hint-placeholder-val="{{ false }}"><div class="card" style="padding: 28px; text-align: center"><p style="margin: 0; color: #A89C8B">{{ sessEmptyText }}</p><button class="btn-ghost" onClick="{{ bookNow }}" style="margin-top: 14px">Book a session</button></div></sc-if>
+</div></sc-if>
 <sc-if value="{{ noBookings }}" hint-placeholder-val="{{ false }}">
 <div class="card" style="padding: 40px; text-align: center"><p class="lead">You have no bookings yet.</p><button class="btn-gold" onClick="{{ bookNow }}" style="margin-top: 18px">Book your first session</button></div>
 </sc-if>
 <div style="display: flex; flex-direction: column; gap: 16px">
 <sc-for list="{{ bookingList }}" as="b" hint-placeholder-count="1">
-<div class="{{ b.cardCls }}" style="padding: 28px 32px">
+<div class="{{ b.cardCls }}" style="padding: 24px 28px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: flex-start">
 <div class="cxdim"><p style="margin: 0; font-size: 13px; color: #A89C8B">Booking {{ b.ref }}</p><h2 class="ttl" style="margin: 6px 0 0; font-size: 24px; color: #FFFFFF">{{ b.pkgName }}</h2><p style="margin: 8px 0 0; font-size: 15px; color: #DCD3C4">{{ b.dateLabel }} · {{ b.timeLabel }}</p><p style="margin: 4px 0 0; font-size: 13px; color: #A89C8B">{{ b.setupLabel }}</p></div>
 <div style="text-align: right"><span class="{{ b.statusCls }}">{{ b.statusLabel }}</span><p class="ttl" style="margin: 14px 0 0; font-size: 22px; font-weight: 700; color: #FFFFFF">{{ b.totalLabel }}</p></div>
 </div>
-<div class="cxdim" style="margin-top: 22px"><div class="tl"><sc-for list="{{ b.cells }}" as="c" hint-placeholder-count="8"><div class="{{ c }}"></div></sc-for></div><div class="tll"><span>3 PM</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10–11</span></div></div>
+<sc-if value="{{ b.full }}" hint-placeholder-val="{{ true }}"><div class="cxdim" style="margin-top: 22px"><div class="tl"><sc-for list="{{ b.cells }}" as="c" hint-placeholder-count="8"><div class="{{ c }}"></div></sc-for></div><div class="tll"><span>3 PM</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10–11</span></div></div></sc-if>
 <sc-if value="{{ b.canMove }}" hint-placeholder-val="{{ false }}"><div style="margin-top: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><button class="btn-ghost" onClick="{{ b.toggleMove }}">{{ b.moveLabel }}</button><span style="font-size: 13px; color: #A89C8B">You can move this session yourself until 48 hours before it starts.</span></div></sc-if>
 <sc-if value="{{ b.tooLate }}" hint-placeholder-val="{{ false }}"><p style="margin: 20px 0 0; font-size: 13px; color: #A89C8B">Less than 48 hours to go, so this session can no longer be moved online. To ask for a change, reply to your booking email.</p></sc-if>
 <sc-if value="{{ b.moveOpen }}" hint-placeholder-val="{{ false }}"><div style="margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(241,234,223,0.10); display: flex; flex-direction: column; gap: 16px">

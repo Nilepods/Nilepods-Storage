@@ -54,7 +54,7 @@ export default class Logic extends DCLogic {
       bookings: [], credits: [], last: null, signedIn: false, acctEmail: '', menu: false, toast: '',
       legal: 'privacy', cf: { name: '', phone: '', email: '', msg: '' }, contactSent: false,
       tf: { name: '', phone: '', note: '' }, tourSent: false, tDate: null, tOff: 0, tSlot: null,
-      busy: {}, moveRef: null, moveDate: '', moveStart: null, moveBusy: false, signInBusy: false, signInNote: '', acctPw: '', newPw: '', showPwPanel: false, pwReset: false
+      busy: {}, sessTab: 'upcoming', sessSvc: 'all', moveRef: null, moveDate: '', moveStart: null, moveBusy: false, signInBusy: false, signInNote: '', acctPw: '', newPw: '', showPwPanel: false, pwReset: false
     };
   }
   // ---------- live data (Supabase + Paymob) ----------
@@ -116,7 +116,8 @@ export default class Logic extends DCLogic {
         if (r.kind === 'session') {
           var a = cairoParts(r.starts_at), e = cairoParts(r.ends_at), d = new Date(a.y, a.m - 1, a.d);
           var su = SU.filter(function (x) { return x.id === r.setup_id; })[0];
-          bookings.push({ ref: r.ref, key: a.y + '-' + a.m + '-' + a.d, setup: r.setup_id, start: a.h, end: e.h || 24,
+          bookings.push({ ref: r.ref, status: r.status, svc: r.service, startsMs: new Date(r.starts_at).getTime(), endsMs: new Date(r.ends_at).getTime(),
+            key: a.y + '-' + a.m + '-' + a.d, setup: r.setup_id, start: a.h, end: e.h || 24,
             pkgName: byId(r.service).name, setupLabel: su ? su.n : r.setup_id, dateLabel: self.longDate(d) + ' ' + a.y,
             timeLabel: self.range(a.h, e.h || 24), totalLabel: self.money(r.total_egp), statusLabel: st[0], statusCls: st[1],
             // Customers may move a confirmed session themselves until 48 hours before it starts.
@@ -645,9 +646,32 @@ export default class Logic extends DCLogic {
       }
       return { slots: slots, note: slots.length ? '' : 'No free times on this date for ' + b.setupLabel + '. Try another date.' };
     };
-    var bookingList = S.bookings.slice().reverse().map(function (b) {
+    // My sessions: Upcoming / Past / Cancelled tabs, plus a filter by service.
+    var nowMs = Date.now();
+    var groupOf = function (b) {
+      if (b.status === 'cancelled') return 'cancelled';
+      if (b.status === 'completed' || b.status === 'no_show' || (b.endsMs || 0) <= nowMs) return 'past';
+      return 'upcoming';
+    };
+    var svcNames = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit' };
+    var bySvc = S.bookings.filter(function (b) { return S.sessSvc === 'all' || b.svc === S.sessSvc; });
+    var sessCounts = { upcoming: 0, past: 0, cancelled: 0 };
+    bySvc.forEach(function (b) { sessCounts[groupOf(b)]++; });
+    var sessTabs = [['upcoming', 'Upcoming'], ['past', 'Past'], ['cancelled', 'Cancelled']].map(function (t) {
+      var on = S.sessTab === t[0];
+      return { label: t[1] + ' (' + sessCounts[t[0]] + ')', on: on, cls: 'stab' + (on ? ' on' : ''), go: function () { self.setState({ sessTab: t[0], moveRef: null }); } };
+    });
+    var svcsUsed = ['rec', 'mix', 'pro'].filter(function (id) { return S.bookings.some(function (b) { return b.svc === id; }); });
+    var sessSvcs = svcsUsed.length > 1 ? [['all', 'All services']].concat(svcsUsed.map(function (id) { return [id, svcNames[id]]; })).map(function (t) {
+      var on = S.sessSvc === t[0];
+      return { label: t[1], on: on, cls: 'fchk' + (on ? ' on' : ''), go: function () { self.setState({ sessSvc: t[0], moveRef: null }); } };
+    }) : [];
+    var shown = bySvc.filter(function (b) { return groupOf(b) === S.sessTab; })
+      .sort(function (x, y) { return S.sessTab === 'upcoming' ? x.startsMs - y.startsMs : y.startsMs - x.startsMs; });
+    var emptyText = { upcoming: 'No upcoming sessions.', past: 'No past sessions yet.', cancelled: 'No cancelled sessions.' }[S.sessTab];
+    var bookingList = shown.map(function (b) {
       var open = S.moveRef === b.ref, mv = open ? moveSlotsFor(b) : { slots: [], note: '' };
-      return Object.assign({}, b, { cells: cellsFor(b.start, b.end), cardCls: 'card mpad' + (b.statusCls === 'pill-cx' ? ' cxcard' : ''),
+      return Object.assign({}, b, { cells: cellsFor(b.start, b.end), cardCls: 'card mpad' + (b.statusCls === 'pill-cx' ? ' cxcard' : ''), full: S.sessTab === 'upcoming', compact: S.sessTab !== 'upcoming',
         canMove: !!b.canMove, tooLate: !!b.upcoming && !b.canMove, moveOpen: open,
         moveLabel: open ? 'Keep this time' : 'Reschedule',
         toggleMove: function () { if (!open) self.loadBusy(); self.setState({ moveRef: open ? null : b.ref, moveDate: '', moveStart: null }); },
@@ -787,8 +811,9 @@ export default class Logic extends DCLogic {
       hasBookingAs: S.signedIn && cur === 'pay' && steps.indexOf('info') < 0, bookingAs: (I.first + ' ' + I.last).trim() + ' · ' + S.acctEmail,
       editInfo: function () { self.setState({ editInfo: true, w: isBundle ? 2 : 6 }); },
       signOut: function () { authSignOut().then(function () { self.setState({ signedIn: false, bookings: [], credits: [], acctEmail: '', showPwPanel: false, info: { first: '', last: '', email: '', phone: '', wa: false, pw: '' } }); }); },
-      bookingList: bookingList, noBookings: bookingList.length === 0 && creditList.length === 0,
-      creditList: creditList, hasCredits: creditList.length > 0, hasBookings: bookingList.length > 0,
+      bookingList: bookingList, noBookings: S.bookings.length === 0 && creditList.length === 0,
+      sessTabs: sessTabs, sessSvcs: sessSvcs, hasSessSvcs: sessSvcs.length > 0, sessEmpty: S.bookings.length > 0 && bookingList.length === 0, sessEmptyText: emptyText,
+      creditList: creditList, hasCredits: creditList.length > 0, hasBookings: S.bookings.length > 0,
       // wizard
       wz: { n: String(S.w), of: String(steps.length), title: titleMap[cur], backLabel: backMap[cur], kind: isBundle ? 'Buy a package' : 'Book a session', progCls: 'prog' + (isBundle ? ' p3' : '') },
       progBars: progBars, wzNext: wzNext, wzBack: wzBack,
