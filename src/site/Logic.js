@@ -714,7 +714,11 @@ export default class Logic extends DCLogic {
       canCredit: !isBundle && !!credit, useCredit: S.useCredit, toggleCredit: function () { self.setState({ useCredit: !S.useCredit }); },
       creditNote: credit ? credit.tier + ' package · ' + credit.left + ' left · covers the first hour' : '',
       needsPay: needsPay && !usingCredit, noPay: !needsPay || usingCredit,
-      creditPayNote: usingCredit && needsPay ? 'Nothing to pay now. Your package credit covers the session; extras (' + self.money(total) + ') are added to your bill at the studio.' : 'Nothing to pay. Your package credit covers this session.',
+      // Breakdown shown instead of payment options when a package credit is used.
+      creditPayTitle: usingCredit && needsPay ? 'No payment now: 1 hour is deducted from your package' : 'Nothing to pay: 1 hour is deducted from your package',
+      creditLines: lines.map(function (l) { var covered = l.v === 'Package credit';
+        return { k: l.k, v: covered ? 'Covered by package credit' : l.v, cls: covered ? 'pill-ok' : '' }; }),
+      hasCreditDue: usingCredit && needsPay, creditDue: self.money(total),
       // Card only, on Paymob's hosted checkout. Card details are never entered on this site.
       payMethods: [{ id: 'card', label: 'Card', sub: 'Visa · Mastercard · Meeza' }, { id: 'cash', label: 'At the studio', sub: 'Pay cash on the day' }].map(function (m) {
         return { label: m.label, sub: m.sub, on: S.method === m.id, cls: 'opt' + (S.method === m.id ? ' on' : ''), pick: function () { self.setState({ method: m.id }); } }; }),

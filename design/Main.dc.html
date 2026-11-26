@@ -931,7 +931,11 @@ details[open] .plus{transform:rotate(45deg)}
 </div>
 </sc-if>
 </sc-if>
-<sc-if value="{{ noPay }}" hint-placeholder-val="{{ false }}"><div class="xrow on"><p style="margin: 0; font-size: 15px; color: #FFFFFF">{{ creditPayNote }}</p></div></sc-if>
+<sc-if value="{{ noPay }}" hint-placeholder-val="{{ false }}"><div class="xrow on" style="flex-direction: column; align-items: stretch; gap: 10px">
+<p style="margin: 0 0 4px; font-size: 15px; font-weight: 600; color: #FFFFFF">{{ creditPayTitle }}</p>
+<sc-for list="{{ creditLines }}" as="cl" hint-placeholder-count="2"><div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px"><span style="color: #CFC5B5">{{ cl.k }}</span><span class="{{ cl.cls }}">{{ cl.v }}</span></div></sc-for>
+<sc-if value="{{ hasCreditDue }}" hint-placeholder-val="{{ false }}"><div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 4px; padding-top: 10px; border-top: 1px solid rgba(241,234,223,0.12); font-size: 15px; font-weight: 600"><span style="color: #E2B872">To pay at the studio</span><span style="color: #E2B872">{{ creditDue }}</span></div></sc-if>
+</div></sc-if>
 <label class="chkbox" style="margin-top: 22px"><input type="checkbox" checked="{{ agreed }}" onChange="{{ toggleAgree }}"><span>I agree to the <button class="link" onClick="{{ legal.terms }}">Terms</button> and <button class="link" onClick="{{ legal.refund }}">Refund &amp; Cancelation</button> policy.</span></label>
 </sc-if>
 

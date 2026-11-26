@@ -1778,10 +1778,30 @@ export default function View(v) {
                         </>) : null}
                       </>) : null}
                       {v.noPay ? (<>
-                        <div className="xrow on">
-                          <p style={{ margin: "0", fontSize: "15px", color: "#FFFFFF" }}>
-                            {v.creditPayNote}
+                        <div className="xrow on" style={{ flexDirection: "column", alignItems: "stretch", gap: "10px" }}>
+                          <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: "600", color: "#FFFFFF" }}>
+                            {v.creditPayTitle}
                           </p>
+                          {(v.creditLines || []).map((cl, cl_i31) => (<Fragment key={cl_i31}>
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", fontSize: "14px" }}>
+                              <span style={{ color: "#CFC5B5" }}>
+                                {cl.k}
+                              </span>
+                              <span className={cl.cls}>
+                                {cl.v}
+                              </span>
+                            </div>
+                          </Fragment>))}
+                          {v.hasCreditDue ? (<>
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", marginTop: "4px", paddingTop: "10px", borderTop: "1px solid rgba(241,234,223,0.12)", fontSize: "15px", fontWeight: "600" }}>
+                              <span style={{ color: "#E2B872" }}>
+                                {"To pay at the studio"}
+                              </span>
+                              <span style={{ color: "#E2B872" }}>
+                                {v.creditDue}
+                              </span>
+                            </div>
+                          </>) : null}
                         </div>
                       </>) : null}
                       <label className="chkbox" style={{ marginTop: "22px" }}>
@@ -1880,7 +1900,7 @@ export default function View(v) {
                       {"Your slot in the studio day (3 PM – 11 PM)"}
                     </p>
                     <div className="tl">
-                      {(v.last.cells || []).map((c, c_i31) => (<Fragment key={c_i31}>
+                      {(v.last.cells || []).map((c, c_i32) => (<Fragment key={c_i32}>
                         <div className={c} />
                       </Fragment>))}
                     </div>
@@ -1913,7 +1933,7 @@ export default function View(v) {
                   </div>
                 </>) : null}
                 <div style={{ marginTop: "28px" }}>
-                  {(v.last.rows || []).map((r, r_i32) => (<Fragment key={r_i32}>
+                  {(v.last.rows || []).map((r, r_i33) => (<Fragment key={r_i33}>
                     <div className="row">
                       <span className="k">
                         {r.k}
