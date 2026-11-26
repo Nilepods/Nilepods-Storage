@@ -389,7 +389,13 @@ button.trow:hover{background:#17140F}
 <sc-if value="{{ sel.canCheckIn }}" hint-placeholder-val="{{ false }}"><button class="btn-gold" onClick="{{ act.checkIn }}">Check in</button></sc-if>
 <sc-if value="{{ sel.canComplete }}" hint-placeholder-val="{{ false }}"><button class="btn-gold" onClick="{{ act.complete }}">Mark as completed</button></sc-if>
 <sc-if value="{{ sel.canNoShow }}" hint-placeholder-val="{{ false }}"><button class="btn-ghost" onClick="{{ act.noShow }}">Mark as no-show</button></sc-if>
-<sc-if value="{{ sel.canChange }}" hint-placeholder-val="{{ false }}"><button class="btn-ghost" onClick="{{ act.reschedule }}">Reschedule</button></sc-if>
+<sc-if value="{{ sel.canMove }}" hint-placeholder-val="{{ false }}"><button class="btn-ghost" onClick="{{ act.reschedule }}">{{ mv.label }}</button></sc-if>
+<sc-if value="{{ mv.open }}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 1px solid rgba(241,234,223,0.12); border-radius: 14px">
+<p style="margin: 0; font-size: 13px; color: #A89C8B">Same setup and length. The customer and the team get an email with the new time.</p>
+<div class="field"><label for="mv-date">New date</label><input id="mv-date" class="inp" type="date" value="{{ mv.date }}" onChange="{{ mv.onDate }}"></div>
+<div class="field"><label for="mv-hour">Start time</label><select id="mv-hour" class="inp" value="{{ mv.hour }}" onChange="{{ mv.onHour }}"><sc-for list="{{ mv.hours }}" as="h" hint-placeholder-count="8"><option value="{{ h.v }}">{{ h.label }}</option></sc-for></select></div>
+<button class="btn-gold" disabled="{{ mv.blocked }}" onClick="{{ mv.go }}">{{ mv.btn }}</button>
+</div></sc-if>
 <button class="btn-ghost" onClick="{{ act.message }}">Message on WhatsApp</button>
 <sc-if value="{{ sel.canChange }}" hint-placeholder-val="{{ false }}"><button class="btn-danger" onClick="{{ act.cancel }}">Cancel booking</button></sc-if>
 </div>

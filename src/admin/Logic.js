@@ -3,6 +3,7 @@
 // Every action is checked again by the database, so hiding a button is never the only protection.
 import DCLogic from '../lib/DCLogic.jsx';
 import { supabase } from '../lib/supabase.js';
+import { rescheduleBooking } from '../lib/booking.js';
 import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut, signInWithPassword, sendPasswordReset, setPassword, saveProfile } from '../lib/auth.js';
 
 const ROLE_UI = { owner: 'Owner', manager: 'Manager', front_desk: 'Front desk' };
@@ -27,7 +28,7 @@ export default class Logic extends DCLogic {
       authed: false, email: '', pw: '', loginErr: '', signInBusy: false, linkSent: '', newPw: '', showPwPanel: false, pwReset: false, hasPw: true, tab: 'overview', range: 7,
       me: null, team: [], rows: [], orders: [], signIns: [], testCount: 0, testArmed: false, testBusy: false, loaded: false,
       q: '', fStatus: 'all', sel: null, schedOff: 0, tourOff: 0, tourBlocks: {},
-      invite: { email: '', role: 'Front desk' }, toast: ''
+      invite: { email: '', role: 'Front desk' }, toast: '', mvOpen: false, mvDate: '', mvHour: '', mvBusy: false
     };
   }
   // ---------- session & data ----------
@@ -152,7 +153,7 @@ export default class Logic extends DCLogic {
         time: self.fmtH(b.start) + ' – ' + self.fmtH(b.end), dateShort: self.dayName(b.date, false), dateLong: self.dayName(b.date, true),
         amountLabel: self.money(b.amount), payLabel: pay, payCls: payCls, status: b.status, pillCls: pillCls[b.status] || 'pill p-up',
         methodLabel: (b.packageRef ? 'Package credit (' + b.packageRef + ')' + (b.amount > 0 ? ' + ' : '') : '') + (b.packageRef && b.amount === 0 ? '' : b.method === 'cash' ? 'At the studio (cash)' : 'Card (Paymob)'), people: String(b.people), extras: b.extras, phone: b.phone, email: b.email, created: self.rel(b.createdOff, b.createdH),
-        open: function () { self.setState({ sel: b.id }); } };
+        open: function () { self.setState({ sel: b.id, mvOpen: false }); } };
     };
     // ---- sign-in ----
     var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.email.trim());
@@ -339,6 +340,7 @@ export default class Logic extends DCLogic {
       selV.canComplete = selB.status === 'In studio';
       selV.canNoShow = selB.status === 'Upcoming' && selB.off <= 0;
       selV.canChange = selB.status === 'Upcoming' && me.role !== 'Front desk';
+      selV.canMove = selB.status === 'Upcoming';
     }
     var act = {
       pay: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_mark_paid: true }, 'Marked as paid'); },
@@ -346,9 +348,28 @@ export default class Logic extends DCLogic {
       complete: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'completed' }, 'Session completed'); },
       noShow: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'no_show' }, 'Marked as no-show'); },
       cancel: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'cancelled' }, 'Booking cancelled. The slot is free again. Refund the customer in Paymob if needed.'); },
-      reschedule: function () { self.showToast('To move a booking: cancel it, then book the new time for the customer.'); },
+      reschedule: function () { self.setState({ mvOpen: !S.mvOpen, mvDate: '', mvHour: '' }); },
       message: function () { var digits = String(selB ? selB.phone : '').replace(/\D/g, '').replace(/^0/, '20'); if (digits.length > 6) window.open('https://wa.me/' + digits, '_blank', 'noopener'); else self.showToast('No phone number on this booking'); }
     };
+    // Staff reschedule: any time, same setup and length; the server checks the slot is free.
+    var hh12 = function (h) { var x = h % 12 || 12; return x + ':00 ' + (h % 24 < 12 ? 'AM' : 'PM'); };
+    var mvDur = selB ? selB.end - selB.start : 1, mvHours = [{ v: '', label: 'Pick a time' }];
+    for (var mh = 15; mh + mvDur <= 23; mh++) mvHours.push({ v: String(mh), label: hh12(mh) + ' – ' + hh12(mh + mvDur) });
+    var mv = { open: !!selB && S.mvOpen, label: S.mvOpen ? 'Close' : 'Reschedule', date: S.mvDate, hour: S.mvHour, hours: mvHours,
+      onDate: function (e) { self.setState({ mvDate: e.target.value }); }, onHour: function (e) { self.setState({ mvHour: e.target.value }); },
+      blocked: S.mvBusy || !S.mvDate || !S.mvHour, btn: S.mvBusy ? 'Moving\u2026' : 'Move booking',
+      go: function () {
+        self.setState({ mvBusy: true });
+        supabase.auth.getSession().then(function (r) {
+          var token = r.data.session && r.data.session.access_token;
+          if (!token) throw new Error('Please sign in again.');
+          return rescheduleBooking(S.sel, S.mvDate, parseInt(S.mvHour, 10), token);
+        }).then(function () {
+          self.setState({ mvBusy: false, mvOpen: false, mvDate: '', mvHour: '' });
+          self.showToast('Booking moved. The customer was emailed the new time.');
+          self.loadAll();
+        }).catch(function (err) { self.setState({ mvBusy: false }); self.showToast(err.message); });
+      } };
     var ranges = [[1, 'Today'], [7, '7 days'], [14, '14 days']].map(function (r2) { return { label: r2[1], cls: S.range === r2[0] ? 'on' : '', go: function () { self.setState({ range: r2[0] }); } }; });
     var nameFirst = (me.name || '').split(' ')[0];
     var testInData = all.some(function (b) { return b.isTest; });
@@ -374,6 +395,7 @@ export default class Logic extends DCLogic {
       },
       signOut: function () { authSignOut().then(function () { self._checked = null; self.setState({ authed: false, sel: null, me: null, linkSent: '', showPwPanel: false }); }); },
       me: { name: me.name, role: me.role, initials: me.name ? initials(me.name) : '', first: nameFirst },
+      mv: mv,
       tabs: tabs, is: { overview: tab === 'overview', schedule: tab === 'schedule', bookings: tab === 'bookings', payments: tab === 'payments', tours: tab === 'tours', team: tab === 'team' },
       todayLong: this.dayName(D.today, true), ranges: ranges, rangeLabel: rangeLabel, k: k,
       dataNote: !S.loaded ? 'loading…' : testInData ? 'live data, includes test bookings' : 'live data',

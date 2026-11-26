@@ -669,6 +669,15 @@ details[open] .plus{transform:rotate(45deg)}
 <div style="text-align: right"><span class="{{ b.statusCls }}">{{ b.statusLabel }}</span><p class="ttl" style="margin: 14px 0 0; font-size: 22px; font-weight: 700; color: #FFFFFF">{{ b.totalLabel }}</p></div>
 </div>
 <div style="margin-top: 22px"><div class="tl"><sc-for list="{{ b.cells }}" as="c" hint-placeholder-count="8"><div class="{{ c }}"></div></sc-for></div><div class="tll"><span>3 PM</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10–11</span></div></div>
+<sc-if value="{{ b.canMove }}" hint-placeholder-val="{{ false }}"><div style="margin-top: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><button class="btn-ghost" onClick="{{ b.toggleMove }}">{{ b.moveLabel }}</button><span style="font-size: 13px; color: #A89C8B">You can move this session yourself until 48 hours before it starts.</span></div></sc-if>
+<sc-if value="{{ b.tooLate }}" hint-placeholder-val="{{ false }}"><p style="margin: 20px 0 0; font-size: 13px; color: #A89C8B">Less than 48 hours to go, so this session can no longer be moved online. To ask for a change, reply to your booking email.</p></sc-if>
+<sc-if value="{{ b.moveOpen }}" hint-placeholder-val="{{ false }}"><div style="margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(241,234,223,0.10); display: flex; flex-direction: column; gap: 16px">
+<p style="margin: 0; font-size: 15px; font-weight: 600; color: #FFFFFF">Pick a new time · same setup and length</p>
+<div class="field" style="max-width: 260px"><label for="mv-date">New date</label><input id="mv-date" class="inp" type="date" value="{{ b.moveDate }}" min="{{ b.moveMin }}" max="{{ b.moveMax }}" onChange="{{ b.onMoveDate }}"></div>
+<sc-if value="{{ b.hasMoveNote }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 14px; color: #A89C8B">{{ b.moveNote }}</p></sc-if>
+<div class="slots" role="list"><sc-for list="{{ b.moveSlots }}" as="s" hint-placeholder-count="4"><button class="{{ s.cls }}" onClick="{{ s.pick }}" aria-pressed="{{ s.on }}"><span class="t">{{ s.label }}</span></button></sc-for></div>
+<button class="btn-gold" disabled="{{ b.moveBlocked }}" onClick="{{ b.confirmMove }}" style="align-self: flex-start">{{ b.moveBtn }}</button>
+</div></sc-if>
 </div>
 </sc-for>
 </div>

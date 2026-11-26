@@ -1,6 +1,6 @@
 // State and behaviour for this page. Converted from design/Main.dc.html; safe to edit.
 import DCLogic from '../lib/DCLogic.jsx';
-import { loadBusySlots, startCheckout, getPaymentStatus, isoDate, forwardPaymobResult } from '../lib/booking.js';
+import { loadBusySlots, startCheckout, getPaymentStatus, isoDate, forwardPaymobResult, rescheduleBooking } from '../lib/booking.js';
 import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut, signInWithPassword, signUpWithPassword, sendPasswordReset, setPassword, saveProfile } from '../lib/auth.js';
 import { supabase } from '../lib/supabase.js';
 
@@ -54,7 +54,7 @@ export default class Logic extends DCLogic {
       bookings: [], credits: [], last: null, signedIn: false, acctEmail: '', menu: false, toast: '',
       legal: 'privacy', cf: { name: '', phone: '', email: '', msg: '' }, contactSent: false,
       tf: { name: '', phone: '', note: '' }, tourSent: false, tDate: null, tOff: 0, tSlot: null,
-      busy: {}, signInBusy: false, signInNote: '', acctPw: '', newPw: '', showPwPanel: false, pwReset: false
+      busy: {}, moveRef: null, moveDate: '', moveStart: null, moveBusy: false, signInBusy: false, signInNote: '', acctPw: '', newPw: '', showPwPanel: false, pwReset: false
     };
   }
   // ---------- live data (Supabase + Paymob) ----------
@@ -110,7 +110,10 @@ export default class Logic extends DCLogic {
           var su = SU.filter(function (x) { return x.id === r.setup_id; })[0];
           bookings.push({ ref: r.ref, key: a.y + '-' + a.m + '-' + a.d, setup: r.setup_id, start: a.h, end: e.h || 24,
             pkgName: byId(r.service).name, setupLabel: su ? su.n : r.setup_id, dateLabel: self.longDate(d) + ' ' + a.y,
-            timeLabel: self.range(a.h, e.h || 24), totalLabel: self.money(r.total_egp), statusLabel: st[0], statusCls: st[1] });
+            timeLabel: self.range(a.h, e.h || 24), totalLabel: self.money(r.total_egp), statusLabel: st[0], statusCls: st[1],
+            // Customers may move a confirmed session themselves until 48 hours before it starts.
+            upcoming: r.status === 'confirmed' && new Date(r.starts_at).getTime() > Date.now(),
+            canMove: r.status === 'confirmed' && new Date(r.starts_at).getTime() - Date.now() >= 48 * 3600 * 1000 });
         }
       });
       // my_bookings returns newest first; the page shows the list reversed
@@ -612,7 +615,59 @@ export default class Logic extends DCLogic {
     var fmtNum = function (v) { return v.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 '); };
     var fmtExp = function (v) { var d = v.replace(/\D/g, '').slice(0, 4); return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d; };
     var legalTitles = { privacy: 'Privacy Policy', terms: 'Terms & Conditions', refund: 'Refund & Cancellation' };
-    var bookingList = S.bookings.slice().reverse().map(function (b) { return Object.assign({}, b, { cells: cellsFor(b.start, b.end) }); });
+    // ----- reschedule (My account) -----
+    var pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
+    var nowC = cairoParts(new Date().toISOString());
+    var todayIso = nowC.y + '-' + pad2(nowC.m) + '-' + pad2(nowC.d);
+    var maxD = new Date(nowC.y, nowC.m - 1, nowC.d + 60), maxIso = maxD.getFullYear() + '-' + pad2(maxD.getMonth() + 1) + '-' + pad2(maxD.getDate());
+    var moveSlotsFor = function (b) {
+      if (!S.moveDate) return { slots: [], note: 'Pick a new date to see the free times.' };
+      var p = S.moveDate.split('-').map(Number), dt = new Date(p[0], p[1] - 1, p[2]);
+      if (dt.getDay() === 5) return { slots: [], note: 'The studio is closed on Fridays. Pick another date.' };
+      if (S.moveDate < todayIso || S.moveDate > maxIso) return { slots: [], note: 'Pick a date within the next 60 days.' };
+      var dur = b.end - b.start, key = p[0] + '-' + p[1] + '-' + p[2];
+      var taken = (S.busy[key + '|' + b.setup] || []).filter(function (r) { return !(key === b.key && r[0] === b.start && r[1] === b.end); });
+      var slots = [];
+      for (var h = 15; h + dur <= 23; h++) {
+        var past = S.moveDate === todayIso && h <= nowC.h;
+        var clash = taken.some(function (r) { return h < r[1] && h + dur > r[0]; });
+        var same = key === b.key && h === b.start;
+        if (past || clash || same) continue;
+        (function (hh) {
+          slots.push({ label: self.range(hh, hh + dur), cls: 'slot ' + (S.moveStart === hh ? 'slot-selected' : 'slot-available'), on: S.moveStart === hh,
+            pick: function () { self.setState({ moveStart: hh }); } });
+        })(h);
+      }
+      return { slots: slots, note: slots.length ? '' : 'No free times on this date for ' + b.setupLabel + '. Try another date.' };
+    };
+    var bookingList = S.bookings.slice().reverse().map(function (b) {
+      var open = S.moveRef === b.ref, mv = open ? moveSlotsFor(b) : { slots: [], note: '' };
+      return Object.assign({}, b, { cells: cellsFor(b.start, b.end),
+        canMove: !!b.canMove, tooLate: !!b.upcoming && !b.canMove, moveOpen: open,
+        moveLabel: open ? 'Keep this time' : 'Reschedule',
+        toggleMove: function () { if (!open) self.loadBusy(); self.setState({ moveRef: open ? null : b.ref, moveDate: '', moveStart: null }); },
+        moveDate: S.moveDate, moveMin: todayIso, moveMax: maxIso,
+        onMoveDate: function (e) { self.setState({ moveDate: e.target.value, moveStart: null }); },
+        moveSlots: mv.slots, hasMoveNote: !!mv.note, moveNote: mv.note,
+        moveBlocked: S.moveBusy || S.moveStart == null, moveBtn: S.moveBusy ? 'Moving\u2026' : 'Confirm new time',
+        confirmMove: function () {
+          if (S.moveStart == null) return;
+          self.setState({ moveBusy: true });
+          supabase.auth.getSession().then(function (r) {
+            var token = r.data.session && r.data.session.access_token;
+            if (!token) throw new Error('Please sign in again.');
+            return rescheduleBooking(b.ref, S.moveDate, S.moveStart, token);
+          }).then(function () {
+            self.setState({ moveBusy: false, moveRef: null, moveDate: '', moveStart: null });
+            self.showToast('Done! Your session was moved. We emailed you the new time.');
+            self.loadMyBookings(); self.loadBusy();
+          }).catch(function (err) {
+            self.setState({ moveBusy: false });
+            self.showToast(err.message);
+            if (err.code === 'slot_taken') { self.setState({ moveStart: null }); self.loadBusy(); }
+          });
+        } });
+    });
     var creditList = S.credits.slice().reverse().map(function (c) {
       return { title: c.tier + ' · ' + c.name, left: c.left + ' of ' + c.count + (c.count === 1 ? ' session' : ' sessions') + ' left',
         expires: 'Valid until ' + c.expires + (c.unpaid ? ' · pay at the studio' : '') + ' · Order ' + c.id,

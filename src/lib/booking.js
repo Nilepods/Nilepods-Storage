@@ -43,6 +43,29 @@ export async function startCheckout(payload, accessToken) {
   return body;
 }
 
+// Moves a booked session to a new time (date 'YYYY-MM-DD', start hour 15-22).
+// The server checks it is the customer's own booking and still 48+ hours away.
+export async function rescheduleBooking(ref, date, start, accessToken) {
+  if (!FUNCTIONS_URL) throw new Error('Rescheduling is not available right now.');
+  let res;
+  try {
+    res = await fetch(FUNCTIONS_URL + '/reschedule', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY, Authorization: 'Bearer ' + accessToken },
+      body: JSON.stringify({ ref, date, start }),
+    });
+  } catch {
+    throw new Error('Could not reach the booking service. Check your connection and try again.');
+  }
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok || !body.ok) {
+    const err = new Error(body.error || 'Could not move this booking. Please try again.');
+    err.code = body.code;
+    throw err;
+  }
+  return body;
+}
+
 // Sends Paymob's signed redirect result to the server (which checks the signature).
 export function forwardPaymobResult(search) {
   if (!FUNCTIONS_URL) return;

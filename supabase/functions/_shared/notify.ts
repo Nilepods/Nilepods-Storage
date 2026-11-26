@@ -44,7 +44,8 @@ async function send(messages: { to: string; subject: string; html: string; reply
 }
 
 // Sends the confirmation + team alert for a booking or package order, by reference.
-export async function sendBookingEmails(ref: string): Promise<void> {
+// kind 'rescheduled': the session was moved to a new time (shows the previous time too).
+export async function sendBookingEmails(ref: string, kind: 'new' | 'rescheduled' = 'new'): Promise<void> {
   try {
     const db = adminClient();
     const { data: b } = await db.from('bookings').select('*').eq('ref', ref).maybeSingle();
@@ -63,10 +64,12 @@ export async function sendBookingEmails(ref: string): Promise<void> {
       const time = `${hour(b.starts_at)} &ndash; ${hour(b.ends_at)}`;
       const extras = [b.extra_cameras ? `${b.extra_cameras} extra camera` : '', b.extra_mics ? `${b.extra_mics} extra mic` : '', b.photographer ? 'Photographer' : ''].filter(Boolean).join(', ') || 'None';
       rows = [['Order', esc(b.ref)], ['Date', esc(date)], ['Time', time], ['Service', esc(SERVICES[b.service] ?? b.service)], ['Setup', esc(SETUPS[b.setup_id] ?? b.setup_id)],
+        ...(kind === 'rescheduled' && b.previous_starts_at ? [['Previous time', esc(`${cairo(b.previous_starts_at, { weekday: 'short', day: 'numeric', month: 'short' })}, ${hour(b.previous_starts_at)}`)] as [string, string]] : []),
         ['People on camera', esc(b.people)], ['Extras', esc(extras)], ...(viaPackage ? [['Package', `1 hour from package ${esc(b.package_ref)}`] as [string, string]] : []), ['Total', payLine]];
       subjectWhat = `${cairo(b.starts_at, { weekday: 'short', day: 'numeric', month: 'short' })}, ${hour(b.starts_at)}`;
-      intro = `Hi ${esc(b.first_name)}, your session is booked. We can't wait to see you at the studio.`;
-      footnote = (cash && !paid ? 'Please pay at the studio on the day. ' : '') + 'Please arrive 10 minutes early. To change or cancel, reply to this email.';
+      intro = kind === 'rescheduled' ? `Hi ${esc(b.first_name)}, your session has been moved to the new time below. See you at the studio.`
+        : `Hi ${esc(b.first_name)}, your session is booked. We can't wait to see you at the studio.`;
+      footnote = (cash && !paid ? 'Please pay at the studio on the day. ' : '') + 'Please arrive 10 minutes early. Need a different time? Sign in at My account to move your session (up to 48 hours before it starts). To cancel, reply to this email.';
     } else {
       rows = [['Order', esc(o.ref)], ['Package', esc(`${SERVICES[o.service] ?? o.service} × ${o.sessions} sessions`)], ['Total', payLine]];
       subjectWhat = `${o.sessions}-session package`;
@@ -74,13 +77,14 @@ export async function sendBookingEmails(ref: string): Promise<void> {
       footnote = (cash && !paid ? 'Please pay at the studio. ' : '') + 'Questions? Just reply to this email.';
     }
 
-    const customerHtml = shell(b ? "You're booked!" : 'Your Nilepods package', intro, rows, { label: 'View my bookings', url: `${SITE_URL}/?account=1` }, footnote);
+    const moved = kind === 'rescheduled' && !!b;
+    const customerHtml = shell(moved ? 'Your session was moved' : b ? "You're booked!" : 'Your Nilepods package', intro, rows, { label: 'View my bookings', url: `${SITE_URL}/?account=1` }, footnote);
     const staffRows: [string, string][] = [['Customer', esc(`${r.first_name} ${r.last_name}`)], ['Email', esc(r.email)], ['Phone', esc(r.phone || '—') + (r.whatsapp_ok ? ' (WhatsApp OK)' : '')], ...rows];
-    const staffHtml = shell(b ? 'New booking' : 'New package order', `${esc(r.first_name)} ${esc(r.last_name)} just ${b ? 'booked a session' : 'ordered a package'}${r.is_test ? ' (test data)' : ''}.`, staffRows, { label: 'Open the admin', url: `${SITE_URL}/admin/` });
+    const staffHtml = shell(moved ? 'Booking rescheduled' : b ? 'New booking' : 'New package order', (moved ? `The session for ${esc(r.first_name)} ${esc(r.last_name)} was moved to a new time` : `${esc(r.first_name)} ${esc(r.last_name)} just ${b ? 'booked a session' : 'ordered a package'}`) + `${r.is_test ? ' (test data)' : ''}.`, staffRows, { label: 'Open the admin', url: `${SITE_URL}/admin/` });
 
     await send([
-      { to: r.email, replyTo: BOOKINGS_INBOX, subject: `${test}Your Nilepods booking: ${subjectWhat}`.trim(), html: customerHtml },
-      { to: BOOKINGS_INBOX, replyTo: r.email, subject: `${test}New ${b ? 'booking' : 'package'}: ${r.first_name} ${r.last_name} · ${subjectWhat}`.trim(), html: staffHtml },
+      { to: r.email, replyTo: BOOKINGS_INBOX, subject: `${test}${moved ? 'Your session was moved' : 'Your Nilepods booking'}: ${subjectWhat}`.trim(), html: customerHtml },
+      { to: BOOKINGS_INBOX, replyTo: r.email, subject: `${test}${moved ? 'Rescheduled' : 'New ' + (b ? 'booking' : 'package')}: ${r.first_name} ${r.last_name} · ${subjectWhat}`.trim(), html: staffHtml },
     ]);
     console.log('Booking emails sent', ref);
   } catch (e) {
