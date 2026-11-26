@@ -4,6 +4,13 @@ RewriteEngine On
 RewriteCond %{HTTPS} !=on
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# www.nilepods.com -> nilepods.com (one address for search engines and sign-in links)
+RewriteCond %{HTTP_HOST} ^www\.nilepods\.com$ [NC]
+RewriteRule ^ https://nilepods.com%{REQUEST_URI} [L,R=301]
+
+# Old WordPress addresses (e.g. /about/, /wp-admin/) open the home page instead of an error.
+ErrorDocument 404 /index.html
+
 # Cache hashed build assets for a long time; always re-check the HTML.
 <IfModule mod_headers.c>
   <FilesMatch "\.(js|css|woff2?)$">
