@@ -4,7 +4,7 @@
 //
 // Secrets (Supabase -> Edge Functions -> Secrets): BREVO_SMTP_USER, BREVO_SMTP_KEY
 // Never throws: a failed email must not break a booking. Failures are logged.
-import { SMTPClient } from 'https://deno.land/x/denomailer@1.6.0/mod.ts';
+import nodemailer from 'npm:nodemailer@6.9.16';
 import { adminClient } from './admin.ts';
 import { BOOKINGS_INBOX, SENDER, SITE_URL } from './config.ts';
 
@@ -35,12 +35,12 @@ ${footnote ? `<tr><td style="padding:0 32px 30px;font-size:13px;line-height:1.6;
 async function send(messages: { to: string; subject: string; html: string; replyTo?: string }[]) {
   const user = (Deno.env.get('BREVO_SMTP_USER') ?? '').trim(), pass = (Deno.env.get('BREVO_SMTP_KEY') ?? '').trim();
   if (!user || !pass) { console.error('Booking email not sent: BREVO_SMTP_USER / BREVO_SMTP_KEY secrets are missing'); return; }
-  const client = new SMTPClient({ connection: { hostname: 'smtp-relay.brevo.com', port: 465, tls: true, auth: { username: user, password: pass } } });
-  try {
-    for (const m of messages) await client.send({ from: SENDER, to: m.to, replyTo: m.replyTo, subject: m.subject, html: m.html, content: 'auto' });
-  } finally {
-    await client.close().catch(() => {});
+  const transport = nodemailer.createTransport({ host: 'smtp-relay.brevo.com', port: 465, secure: true, auth: { user, pass } });
+  for (const m of messages) {
+    const info = await transport.sendMail({ from: SENDER, to: m.to, replyTo: m.replyTo, subject: m.subject, html: m.html });
+    console.log('Email accepted by Brevo', m.to, info.messageId);
   }
+  transport.close();
 }
 
 // Sends the confirmation + team alert for a booking or package order, by reference.
