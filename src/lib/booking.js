@@ -21,13 +21,14 @@ export async function loadBusySlots(fromDate, toDate) {
 // Saves the booking and returns { ref, total, url } where url is Paymob's hosted checkout
 // (card: the slot is held 20 minutes), or { ref, total, cash: true } for pay-at-the-studio
 // (confirmed straight away). Throws an Error with a customer-friendly message.
-export async function startCheckout(payload) {
+export async function startCheckout(payload, accessToken) {
   if (!FUNCTIONS_URL) throw new Error('Online booking is not available right now.');
   let res;
   try {
     res = await fetch(FUNCTIONS_URL + '/checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+      headers: Object.assign({ 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+        accessToken ? { Authorization: 'Bearer ' + accessToken } : {}),
       body: JSON.stringify(payload),
     });
   } catch {

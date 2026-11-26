@@ -53,7 +53,8 @@ export async function sendBookingEmails(ref: string): Promise<void> {
     if (!r) { console.error('Booking email: reference not found', ref); return; }
 
     const cash = r.payment_method === 'cash', paid = r.payment_status === 'paid';
-    const payLine = paid ? `Paid by card &middot; ${money(r.total_egp)}` : cash ? `${money(r.total_egp)} &middot; pay at the studio` : money(r.total_egp);
+    const viaPackage = !!(b && b.package_ref);
+    const payLine = viaPackage && r.total_egp === 0 ? 'Covered by your package' : paid ? `Paid by card &middot; ${money(r.total_egp)}` : cash ? `${money(r.total_egp)} &middot; pay at the studio` : money(r.total_egp);
     const test = r.is_test ? '[TEST] ' : '';
     let rows: [string, string][], subjectWhat: string, intro: string, footnote: string;
 
@@ -62,14 +63,14 @@ export async function sendBookingEmails(ref: string): Promise<void> {
       const time = `${hour(b.starts_at)} &ndash; ${hour(b.ends_at)}`;
       const extras = [b.extra_cameras ? `${b.extra_cameras} extra camera` : '', b.extra_mics ? `${b.extra_mics} extra mic` : '', b.photographer ? 'Photographer' : ''].filter(Boolean).join(', ') || 'None';
       rows = [['Order', esc(b.ref)], ['Date', esc(date)], ['Time', time], ['Service', esc(SERVICES[b.service] ?? b.service)], ['Setup', esc(SETUPS[b.setup_id] ?? b.setup_id)],
-        ['People on camera', esc(b.people)], ['Extras', esc(extras)], ['Total', payLine]];
-      subjectWhat = `${date.split(',')[0]} ${cairo(b.starts_at, { day: 'numeric', month: 'short' })}, ${hour(b.starts_at)}`;
+        ['People on camera', esc(b.people)], ['Extras', esc(extras)], ...(viaPackage ? [['Package', `1 hour from package ${esc(b.package_ref)}`] as [string, string]] : []), ['Total', payLine]];
+      subjectWhat = `${cairo(b.starts_at, { weekday: 'short', day: 'numeric', month: 'short' })}, ${hour(b.starts_at)}`;
       intro = `Hi ${esc(b.first_name)}, your session is booked. We can't wait to see you at the studio.`;
       footnote = (cash && !paid ? 'Please pay at the studio on the day. ' : '') + 'Please arrive 10 minutes early. To change or cancel, reply to this email.';
     } else {
       rows = [['Order', esc(o.ref)], ['Package', esc(`${SERVICES[o.service] ?? o.service} × ${o.sessions} sessions`)], ['Total', payLine]];
       subjectWhat = `${o.sessions}-session package`;
-      intro = `Hi ${esc(o.first_name)}, your package is ${paid ? 'confirmed' : 'reserved'}. Our team will contact you to schedule your sessions.`;
+      intro = `Hi ${esc(o.first_name)}, your ${o.sessions}-session package is ready. To book a session with it, sign in at My account with this email and book as usual: the session hour is covered by your package. Valid for 90 days.`;
       footnote = (cash && !paid ? 'Please pay at the studio. ' : '') + 'Questions? Just reply to this email.';
     }
 

@@ -70,14 +70,21 @@ export default class Logic extends DCLogic {
           bookings.push({ ref: r.ref, key: a.y + '-' + a.m + '-' + a.d, setup: r.setup_id, start: a.h, end: e.h || 24,
             pkgName: byId(r.service).name, setupLabel: su ? su.n : r.setup_id, dateLabel: self.longDate(d) + ' ' + a.y,
             timeLabel: self.range(a.h, e.h || 24), totalLabel: self.money(r.total_egp), statusLabel: st[0], statusCls: st[1] });
-        } else {
-          var P = byId(r.service);
-          credits.push({ tier: P.tier, name: P.name, count: r.sessions, ref: r.ref,
-            status: r.status === 'active' ? 'Paid' : (STATUS_LABELS[r.status] || ['Pending'])[0], total: self.money(r.total_egp) });
         }
       });
       // my_bookings returns newest first; the page shows the list reversed
-      self.setState({ bookings: bookings.reverse(), credits: credits.reverse() });
+      self.setState({ bookings: bookings.reverse() });
+    });
+    // Packages and the sessions left on each (spent when booking while signed in).
+    supabase.rpc('my_packages').then(function (res) {
+      if (res.error) { console.warn('Could not load packages', res.error); return; }
+      var pk = self.pkgData();
+      var credits = (res.data || []).map(function (o) {
+        var P = pk.filter(function (p) { return p.id === o.service; })[0] || { name: o.service, tier: '' };
+        return { id: o.ref, svc: o.service, tier: P.tier, name: P.name, count: o.sessions, left: o.remaining,
+          expires: self.shortDate(new Date(o.expires_at)), unpaid: o.payment_status !== 'paid' };
+      });
+      self.setState({ credits: credits.reverse() });
     });
   }
   loadBusy() {
@@ -265,8 +272,8 @@ export default class Logic extends DCLogic {
     // credits for chosen session service
     var credit = S.credits.filter(function (c) { return c.svc === S.svc && c.left > 0; })[0] || null;
     var creditsFor = function (id) { return S.credits.filter(function (c) { return c.svc === id; }).reduce(function (a, c) { return a + c.left; }, 0); };
-    // Package credits need customer accounts, which are not built yet: never apply them online.
-    var usingCredit = false;
+    // A package credit covers the first hour; only for signed-in customers (checked again on the server).
+    var usingCredit = !isBundle && S.signedIn && !!credit && S.useCredit;
 
     // ----- quote -----
     var lines = [], total = 0, extrasNames = [], BP = null;
@@ -422,28 +429,37 @@ export default class Logic extends DCLogic {
       var name = I.first.trim() + ' ' + I.last.trim(), email = I.email.trim();
       var info = { first: I.first.trim(), last: I.last.trim(), email: email, phone: (I.phone || '').trim(), wa: !!I.wa };
       var payload, draft;
+      if (usingCredit && email.toLowerCase() !== (S.acctEmail || '').toLowerCase()) {
+        self.setState({ paying: false });
+        self.showToast('To use your package, enter the email you are signed in with (' + S.acctEmail + ').');
+        return;
+      }
+      var payLabelRow = usingCredit ? ('Package credit' + (needsPay ? ' + ' + (S.method === 'cash' ? 'pay at the studio' : 'card') : '')) : (S.method === 'cash' ? 'Pay at the studio' : 'Card (Paymob)');
       if (isBundle) {
         payload = { kind: 'package', service: P.id, sessions: S.bCount, info: info, payment: S.method };
         draft = { kind: 'bundle', email: email, headline: 'Package confirmed', kicker: 'Package', big: P.tier + ' · ' + S.bCount + (S.bCount === 1 ? ' session' : ' sessions'),
           sub: 'Valid for ' + validDays + ' days', totalLabel: self.money(total), svc: P.id,
           rows: [{ k: 'Service', v: P.name }, { k: 'Per session', v: self.money(BP.per) }, { k: 'Name', v: name }, { k: 'Payment', v: S.method === 'cash' ? 'Pay at the studio' : 'Card (Paymob)' }],
-          note: 'Our team will contact you to schedule your ' + (S.bCount === 1 ? 'session' : S.bCount + ' sessions') + '.' };
+          note: 'Sign in at My account with ' + email + ' to book your ' + (S.bCount === 1 ? 'session' : S.bCount + ' sessions') + ' with this package. Valid for ' + validDays + ' days.' };
       } else {
-        payload = { kind: 'session', service: S.svc, setup: S.setup, date: isoDate(date), start: S.start, people: S.people, extras: S.ex, info: info, payment: S.method };
+        payload = { kind: 'session', service: S.svc, setup: S.setup, date: isoDate(date), start: S.start, people: S.people, extras: S.ex, info: info,
+          payment: needsPay ? S.method : 'cash', credit: usingCredit ? credit.id : undefined };
         var b = { kind: 'session', key: S.dateKey, setup: S.setup, start: S.start, end: S.start + dur, pkgName: P.name,
           setupLabel: SET.n, dateLabel: self.longDate(date), timeLabel: self.range(S.start, S.start + dur), totalLabel: self.money(total) };
         draft = { kind: 'session', email: email, headline: "You're booked!", kicker: 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
           totalLabel: self.money(total), start: b.start, end: b.end, booking: b,
-          rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: S.method === 'cash' ? 'Pay at the studio' : 'Card (Paymob)' }],
+          rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: payLabelRow }],
           note: 'Your hours are locked in ' + SET.n + '. Please arrive 10 minutes early.' };
       }
-      startCheckout(payload).then(function (r) {
+      var tokenP = usingCredit && supabase ? supabase.auth.getSession().then(function (r) { return r.data.session && r.data.session.access_token; }) : Promise.resolve(null);
+      tokenP.then(function (token) { return startCheckout(payload, token); }).then(function (r) {
         draft.ref = r.ref; if (draft.booking) draft.booking.ref = r.ref;
         if (r.cash) {
-          // Pay at the studio: confirmed right away, no payment page.
+          // Pay at the studio, or fully covered by a package credit: confirmed right away, no payment page.
           if (isBundle) draft.headline = 'Package reserved';
+          var covered = r.credit && r.total === 0;
           self.setState({ paying: false, screen: 'confirm', w: 1, agreed: false, start: null,
-            last: Object.assign({}, draft, { payState: 'Due at studio', payCls: 'pill-due' }) });
+            last: Object.assign({}, draft, covered ? { payState: 'Covered by package', payCls: 'pill-ok' } : { payState: 'Due at studio', payCls: 'pill-due' }) });
           self.scrollTop(); self.loadBusy(); if (self.state.signedIn) self.loadMyBookings();
           return;
         }
@@ -531,8 +547,9 @@ export default class Logic extends DCLogic {
     var legalTitles = { privacy: 'Privacy Policy', terms: 'Terms & Conditions', refund: 'Refund & Cancelation' };
     var bookingList = S.bookings.slice().reverse().map(function (b) { return Object.assign({}, b, { cells: cellsFor(b.start, b.end) }); });
     var creditList = S.credits.slice().reverse().map(function (c) {
-      return { title: c.tier + ' · ' + c.name, left: c.count + (c.count === 1 ? ' session' : ' sessions') + ' · ' + c.total + ' · ' + c.status,
-        expires: 'Order ' + c.ref + '. Our team will contact you to schedule your sessions.', canBook: false, book: function () {} };
+      return { title: c.tier + ' · ' + c.name, left: c.left + ' of ' + c.count + (c.count === 1 ? ' session' : ' sessions') + ' left',
+        expires: 'Valid until ' + c.expires + (c.unpaid ? ' · pay at the studio' : '') + ' · Order ' + c.id,
+        canBook: c.left > 0, book: function () { self.startSession({ svc: c.svc, setup: null, w: 2, useCredit: true }); } };
     });
 
     return {

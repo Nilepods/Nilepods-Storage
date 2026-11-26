@@ -89,7 +89,7 @@ export default class Logic extends DCLogic {
       if (r.photographer) ex.push('Session photographer'); if (r.extra_hours) ex.push('Extra hour × ' + r.extra_hours);
       return { id: r.ref, off: off, date: d, key: self.key(d), setup: parseInt(String(r.setup_id).slice(1), 10) || 0, start: a.h, end: e.h || 24, svc: r.service,
         customer: r.first_name + ' ' + r.last_name, phone: r.phone || '—', email: r.email, people: r.people, extras: ex.length ? ex.join(', ') : 'None',
-        method: r.payment_method || 'card', amount: r.total_egp, status: st, paid: r.payment_status === 'paid', refunded: r.payment_status === 'refunded',
+        method: r.payment_method || 'card', packageRef: r.package_ref, amount: r.total_egp, status: st, paid: r.payment_status === 'paid', refunded: r.payment_status === 'refunded',
         isTest: r.is_test, createdOff: c.off, createdH: c.h };
     });
     var packs = S.orders.map(function (o) {
@@ -147,7 +147,7 @@ export default class Logic extends DCLogic {
       return { id: b.id, customer: b.customer + (b.isTest ? ' (test)' : ''), setup: 'Setup ' + b.setup, service: sv.name, serviceShort: sv.short,
         time: self.fmtH(b.start) + ' – ' + self.fmtH(b.end), dateShort: self.dayName(b.date, false), dateLong: self.dayName(b.date, true),
         amountLabel: self.money(b.amount), payLabel: pay, payCls: payCls, status: b.status, pillCls: pillCls[b.status] || 'pill p-up',
-        methodLabel: b.method === 'cash' ? 'At the studio (cash)' : 'Card (Paymob)', people: String(b.people), extras: b.extras, phone: b.phone, email: b.email, created: self.rel(b.createdOff, b.createdH),
+        methodLabel: (b.packageRef ? 'Package credit (' + b.packageRef + ')' + (b.amount > 0 ? ' + ' : '') : '') + (b.packageRef && b.amount === 0 ? '' : b.method === 'cash' ? 'At the studio (cash)' : 'Card (Paymob)'), people: String(b.people), extras: b.extras, phone: b.phone, email: b.email, created: self.rel(b.createdOff, b.createdH),
         open: function () { self.setState({ sel: b.id }); } };
     };
     // ---- sign-in ----

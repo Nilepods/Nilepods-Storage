@@ -15,6 +15,11 @@ const FRIENDLY: Record<string, string> = {
   too_far_ahead: 'Bookings open up to 60 days ahead.',
   invalid_people: 'Too many people for this setup.',
   too_many_requests: 'Too many attempts. Please wait a while and try again.',
+  no_credits_left: 'Your package has no sessions left.',
+  package_expired: 'Your package has expired.',
+  package_not_active: 'Your package is not active yet.',
+  wrong_service: 'Your package is for a different service. Pick that service to use it.',
+  not_your_package: 'Sign in with the email you bought the package with, and use that email in your booking.',
 };
 
 function cors(origin: string | null) {
@@ -87,6 +92,26 @@ Deno.serve(async (req) => {
     table = 'package_orders';
   } else {
     return reply({ error: 'Invalid request' }, 400, origin);
+  }
+
+  // Package credit: only for signed-in customers booking with their own verified email.
+  if (b.credit && table === 'bookings') {
+    const token = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
+    const { data: who } = token ? await db.auth.getUser(token) : { data: { user: null } };
+    const signedIn = who?.user?.email?.toLowerCase();
+    const fail = async (code: string) => {
+      await db.rpc('record_payment', { p_ref: ref, p_success: false, p_amount_cents: 0, p_paymob_order_id: null, p_paymob_transaction_id: null });
+      return reply({ error: FRIENDLY[code] ?? 'Could not use your package. Please try again.', code }, 400, origin);
+    };
+    if (!signedIn || signedIn !== email.toLowerCase()) return await fail('not_your_package');
+    const { data: newTotal, error: cErr } = await db.rpc('apply_package_credit', { p_booking_ref: ref, p_package_ref: str(b.credit, 20), p_email: signedIn });
+    if (cErr) return await fail(cErr.message);
+    total = Number(newTotal);
+    if (total === 0) {
+      if (PAYMOB_PUBLIC_KEY.includes('_test_')) await db.rpc('mark_test', { p_ref: ref });
+      background(sendBookingEmails(ref));
+      return reply({ ref, total, cash: true, credit: true }, 200, origin);
+    }
   }
 
   // While Paymob runs on test keys, everything booked is test data the owner can clear.
