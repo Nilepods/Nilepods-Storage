@@ -32,6 +32,12 @@ export default function View(v) {
               </label>
               <input id="l-email" className="inp" type="email" value={v.email} onChange={v.onEmail} autoComplete="username" placeholder="you@nilepods.com" />
             </div>
+            <div className="field">
+              <label htmlFor="l-pw">
+                {"Password"}
+              </label>
+              <input id="l-pw" className="inp" type="password" value={v.pw} onChange={v.onPw} onKeyDown={v.pwKey} autoComplete="current-password" placeholder="Your password" />
+            </div>
             {v.hasLoginErr ? (<>
               <p className="ferr" role="alert" style={{ margin: "0" }}>
                 {v.loginErr}
@@ -40,6 +46,14 @@ export default function View(v) {
             <button className="btn-gold" disabled={v.signInBusy} onClick={v.signIn} style={{ minHeight: "50px", fontSize: "15px" }}>
               {v.signInLabel}
             </button>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", flexWrap: "wrap", fontSize: "13px" }}>
+              <button className="link" onClick={v.forgotPw}>
+                {"Forgot password?"}
+              </button>
+              <button className="link" onClick={v.emailLink}>
+                {v.linkLabel}
+              </button>
+            </div>
             <p style={{ margin: "0", fontSize: "12.5px", color: "#7D7365", textAlign: "center", lineHeight: "1.6" }}>
               {v.loginNote}
             </p>
@@ -71,11 +85,35 @@ export default function View(v) {
             <span style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#2A241C", color: "#E2B872", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "600", fontSize: "14px" }} aria-hidden="true">
               {v.me.initials}
             </span>
+            <button className="btn-ghost" onClick={v.togglePwPanel} style={{ minHeight: "40px" }}>
+              {v.pwPanelLabel}
+            </button>
             <button className="btn-ghost" onClick={v.signOut} style={{ minHeight: "40px" }}>
               {"Sign out"}
             </button>
           </div>
         </header>
+        {v.showPwNudge ? (<>
+          <div style={{ padding: "12px 24px", background: "rgba(226,184,114,0.10)", borderBottom: "1px solid rgba(226,184,114,0.25)", fontSize: "14px", color: "#E8D9BE", display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+            {"Set a password so next time you can sign in straight away, without waiting for an email. "}
+            <button className="link" onClick={v.togglePwPanel}>
+              {"Set a password"}
+            </button>
+          </div>
+        </>) : null}
+        {v.showPwPanel ? (<>
+          <div style={{ padding: "18px 24px", borderBottom: "1px solid rgba(241,234,223,0.08)", display: "flex", gap: "12px", alignItems: "flex-end", flexWrap: "wrap" }}>
+            <div className="field" style={{ minWidth: "260px" }}>
+              <label htmlFor="n-pw">
+                {v.pwPanelTitle}
+              </label>
+              <input id="n-pw" className="inp" type="password" value={v.newPw} onChange={v.onNewPw} autoComplete="new-password" placeholder="At least 8 characters" />
+            </div>
+            <button className="btn-gold" disabled={v.newPwBlocked} onClick={v.saveNewPw} style={{ minHeight: "46px" }}>
+              {"Save password"}
+            </button>
+          </div>
+        </>) : null}
         <div className="shell">
           <nav className="side" aria-label="Admin">
             <p className="lbl" style={{ padding: "4px 14px 10px" }}>

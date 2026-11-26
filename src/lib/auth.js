@@ -51,9 +51,9 @@ export async function signUpWithPassword(email, password, profile) {
   return data.session ? 'signed_in' : 'created';
 }
 
-export async function sendPasswordReset(email) {
+export async function sendPasswordReset(email, returnPath = '/?account=1&reset=1') {
   need();
-  const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: window.location.origin + '/?account=1&reset=1' });
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: window.location.origin + returnPath });
   if (error) throw new Error(rateLimited(error) ? 'Please wait a minute before asking again.' : 'Could not send the reset email. Check the address and try again.');
 }
 

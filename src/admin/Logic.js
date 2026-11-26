@@ -3,7 +3,7 @@
 // Every action is checked again by the database, so hiding a button is never the only protection.
 import DCLogic from '../lib/DCLogic.jsx';
 import { supabase } from '../lib/supabase.js';
-import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut } from '../lib/auth.js';
+import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut, signInWithPassword, sendPasswordReset, setPassword, saveProfile } from '../lib/auth.js';
 
 const ROLE_UI = { owner: 'Owner', manager: 'Manager', front_desk: 'Front desk' };
 const ROLE_DB = { 'Owner': 'owner', 'Manager': 'manager', 'Front desk': 'front_desk' };
@@ -24,7 +24,7 @@ export default class Logic extends DCLogic {
   constructor(props) {
     super(props);
     this.state = {
-      authed: false, email: '', loginErr: '', signInBusy: false, linkSent: '', tab: 'overview', range: 7,
+      authed: false, email: '', pw: '', loginErr: '', signInBusy: false, linkSent: '', newPw: '', showPwPanel: false, pwReset: false, hasPw: true, tab: 'overview', range: 7,
       me: null, team: [], rows: [], orders: [], signIns: [], testCount: 0, testArmed: false, testBusy: false, loaded: false,
       q: '', fStatus: 'all', sel: null, schedOff: 0, tourOff: 0, tourBlocks: {},
       invite: { email: '', role: 'Front desk' }, toast: ''
@@ -33,12 +33,15 @@ export default class Logic extends DCLogic {
   // ---------- session & data ----------
   componentDidMount() {
     var self = this;
-    this._unwatch = watchSession(function (session) { self.onSession(session); });
+    this._unwatch = watchSession(function (session, event) { self.onSession(session, event); });
   }
   componentWillUnmount() { clearTimeout(this._tt); if (this._unwatch) this._unwatch(); }
-  onSession(session) {
+  onSession(session, event) {
     var self = this, email = session && session.user && session.user.email;
+    if (event === 'PASSWORD_RECOVERY') this.setState({ showPwPanel: true, pwReset: true });
     if (!email) { this.setState({ authed: false, me: null }); return; }
+    // Staff who have not saved a password yet see a reminder to set one.
+    this.setState({ hasPw: !!(session.user.user_metadata || {}).staff_pw });
     if (this._checked === email && this.state.authed) return;
     this._checked = email;
     recordSignIn().then(function (who) {
@@ -155,10 +158,26 @@ export default class Logic extends DCLogic {
     var validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.email.trim());
     var signIn = function () {
       if (!validEmail) { self.setState({ loginErr: 'Enter your work email.' }); return; }
-      var em = S.email.trim().toLowerCase();
+      if (!S.pw) { self.setState({ loginErr: 'Enter your password. First time here? Tap "Email me a sign-in link" below.' }); return; }
       self.setState({ signInBusy: true, loginErr: '' });
-      sendSignInLink(em, '/admin/').then(function () { self.setState({ signInBusy: false, linkSent: em }); })
-        .catch(function (err) { self.setState({ signInBusy: false, loginErr: err.message }); });
+      signInWithPassword(S.email, S.pw).then(function () { self.setState({ signInBusy: false, pw: '' }); })
+        .catch(function (err) {
+          var msg = err.code === 'invalid' ? 'Wrong email or password. No password yet? Tap "Email me a sign-in link", then set one inside.' : err.message;
+          self.setState({ signInBusy: false, loginErr: msg });
+        });
+    };
+    var emailLink = function () {
+      if (!validEmail) { self.setState({ loginErr: 'Enter your work email first.' }); return; }
+      var em = S.email.trim().toLowerCase();
+      self.setState({ loginErr: '' });
+      sendSignInLink(em, '/admin/').then(function () { self.setState({ linkSent: em }); })
+        .catch(function (err) { self.setState({ loginErr: err.message }); });
+    };
+    var forgotPw = function () {
+      if (!validEmail) { self.setState({ loginErr: 'Enter your work email first, then tap "Forgot password?".' }); return; }
+      var em = S.email.trim().toLowerCase();
+      sendPasswordReset(em, '/admin/').then(function () { self.setState({ loginErr: '', linkSent: em }); })
+        .catch(function (err) { self.setState({ loginErr: err.message }); });
     };
     // ---- tabs ----
     var tabDefs = [
@@ -338,9 +357,22 @@ export default class Logic extends DCLogic {
       loggedIn: S.authed, loggedOut: !S.authed, email: S.email,
       onEmail: function (e) { self.setState({ email: e.target.value, loginErr: '' }); },
       hasLoginErr: !!S.loginErr, loginErr: S.loginErr, signIn: signIn,
-      signInBusy: S.signInBusy || !validEmail, signInLabel: S.signInBusy ? 'Sending…' : S.linkSent ? 'Send the link again' : 'Email me a sign-in link',
-      loginNote: S.linkSent ? 'Check your inbox at ' + S.linkSent + ' and open the link on this device. It can take a minute; check spam too.' : 'No password: we email you a sign-in link. Only people the owner has added can open the dashboard.',
-      signOut: function () { authSignOut().then(function () { self._checked = null; self.setState({ authed: false, sel: null, me: null, linkSent: '' }); }); },
+      pw: S.pw, onPw: function (e) { self.setState({ pw: e.target.value, loginErr: '' }); },
+      pwKey: function (e) { if (e.key === 'Enter') signIn(); },
+      signInBusy: S.signInBusy || !validEmail, signInLabel: S.signInBusy ? 'Signing in…' : 'Sign in',
+      forgotPw: forgotPw, emailLink: emailLink, linkLabel: S.linkSent ? 'Send the link again' : 'Email me a sign-in link',
+      loginNote: S.linkSent ? 'We sent an email to ' + S.linkSent + '. Open the link on this device. It can take a minute; check spam too.' : 'First time? Tap "Email me a sign-in link", then set your password inside. Only people the owner has added can open the dashboard.',
+      showPwNudge: S.authed && !S.hasPw && !S.showPwPanel,
+      showPwPanel: S.authed && S.showPwPanel, pwPanelLabel: S.showPwPanel ? 'Close' : (S.hasPw ? 'Change password' : 'Set password'),
+      pwPanelTitle: S.pwReset ? 'Choose a new password' : S.hasPw ? 'New password' : 'Create a password',
+      togglePwPanel: function () { self.setState({ showPwPanel: !S.showPwPanel, pwReset: false, newPw: '' }); },
+      newPw: S.newPw, onNewPw: function (e) { self.setState({ newPw: e.target.value }); }, newPwBlocked: (S.newPw || '').length < 8,
+      saveNewPw: function () {
+        setPassword(S.newPw).then(function () { return saveProfile({ staff_pw: true }); })
+          .then(function () { self.setState({ showPwPanel: false, pwReset: false, newPw: '', hasPw: true }); self.showToast('Password saved. Next time, sign in with your email and password.'); })
+          .catch(function (err) { self.showToast(err.message); });
+      },
+      signOut: function () { authSignOut().then(function () { self._checked = null; self.setState({ authed: false, sel: null, me: null, linkSent: '', showPwPanel: false }); }); },
       me: { name: me.name, role: me.role, initials: me.name ? initials(me.name) : '', first: nameFirst },
       tabs: tabs, is: { overview: tab === 'overview', schedule: tab === 'schedule', bookings: tab === 'bookings', payments: tab === 'payments', tours: tab === 'tours', team: tab === 'team' },
       todayLong: this.dayName(D.today, true), ranges: ranges, rangeLabel: rangeLabel, k: k,

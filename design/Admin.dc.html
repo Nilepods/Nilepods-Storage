@@ -135,8 +135,10 @@ button.trow:hover{background:#17140F}
 </div>
 <div style="text-align: center"><h1 class="ttl" style="margin: 0; font-size: 26px; color: #FFFFFF">Sign in</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A89C8B">Only team members the owner has invited can sign in.</p></div>
 <div class="field"><label for="l-email">Work email</label><input id="l-email" class="inp" type="email" value="{{ email }}" onChange="{{ onEmail }}" autoComplete="username" placeholder="you@nilepods.com"></div>
+<div class="field"><label for="l-pw">Password</label><input id="l-pw" class="inp" type="password" value="{{ pw }}" onChange="{{ onPw }}" onKeyDown="{{ pwKey }}" autoComplete="current-password" placeholder="Your password"></div>
 <sc-if value="{{ hasLoginErr }}" hint-placeholder-val="{{ false }}"><p class="ferr" role="alert" style="margin: 0">{{ loginErr }}</p></sc-if>
 <button class="btn-gold" disabled="{{ signInBusy }}" onClick="{{ signIn }}" style="min-height: 50px; font-size: 15px">{{ signInLabel }}</button>
+<div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px"><button class="link" onClick="{{ forgotPw }}">Forgot password?</button><button class="link" onClick="{{ emailLink }}">{{ linkLabel }}</button></div>
 <p style="margin: 0; font-size: 12.5px; color: #7D7365; text-align: center; line-height: 1.6">{{ loginNote }}</p>
 </div>
 </div>
@@ -152,9 +154,15 @@ button.trow:hover{background:#17140F}
 <div style="display: flex; align-items: center; gap: 12px">
 <div class="desk" style="text-align: right"><p style="margin: 0; font-size: 14px; font-weight: 500; color: #FFFFFF">{{ me.name }}</p><p style="margin: 0; font-size: 12px; color: #8C8172">{{ me.role }}</p></div>
 <span style="width: 40px; height: 40px; border-radius: 50%; background: #2A241C; color: #E2B872; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px" aria-hidden="true">{{ me.initials }}</span>
+<button class="btn-ghost" onClick="{{ togglePwPanel }}" style="min-height: 40px">{{ pwPanelLabel }}</button>
 <button class="btn-ghost" onClick="{{ signOut }}" style="min-height: 40px">Sign out</button>
 </div>
 </header>
+<sc-if value="{{ showPwNudge }}" hint-placeholder-val="{{ false }}"><div style="padding: 12px 24px; background: rgba(226,184,114,0.10); border-bottom: 1px solid rgba(226,184,114,0.25); font-size: 14px; color: #E8D9BE; display: flex; gap: 12px; align-items: center; flex-wrap: wrap">Set a password so next time you can sign in straight away, without waiting for an email. <button class="link" onClick="{{ togglePwPanel }}">Set a password</button></div></sc-if>
+<sc-if value="{{ showPwPanel }}" hint-placeholder-val="{{ false }}"><div style="padding: 18px 24px; border-bottom: 1px solid rgba(241,234,223,0.08); display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap">
+<div class="field" style="min-width: 260px"><label for="n-pw">{{ pwPanelTitle }}</label><input id="n-pw" class="inp" type="password" value="{{ newPw }}" onChange="{{ onNewPw }}" autoComplete="new-password" placeholder="At least 8 characters"></div>
+<button class="btn-gold" disabled="{{ newPwBlocked }}" onClick="{{ saveNewPw }}" style="min-height: 46px">Save password</button>
+</div></sc-if>
 <div class="shell">
 <nav class="side" aria-label="Admin">
 <p class="lbl" style="padding: 4px 14px 10px">Studio</p>
