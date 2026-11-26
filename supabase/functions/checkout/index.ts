@@ -3,6 +3,7 @@
 //  2. Creates a Paymob payment intention.
 //  3. Returns the URL of Paymob's hosted checkout. Card details are entered there, never on our site.
 import { adminClient } from '../_shared/admin.ts';
+import { sendBookingEmails } from '../_shared/notify.ts';
 import { ALLOWED_ORIGINS, ALLOW_CASH, PAYMOB_API, PAYMOB_CARD_INTEGRATION_ID, PAYMOB_PUBLIC_KEY } from '../_shared/config.ts';
 
 const SERVICE_NAMES: Record<string, string> = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit' };
@@ -29,6 +30,10 @@ function cors(origin: string | null) {
 function reply(body: unknown, status: number, origin: string | null) {
   return new Response(JSON.stringify(body), { status, headers: { ...cors(origin), 'Content-Type': 'application/json' } });
 }
+
+// Runs work after the response is sent, so customers never wait for emails.
+// deno-lint-ignore no-explicit-any
+const background = (p: Promise<unknown>) => { const rt = (globalThis as any).EdgeRuntime; if (rt?.waitUntil) rt.waitUntil(p); else p.catch(() => {}); };
 
 const str = (v: unknown, max = 200) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 const int = (v: unknown) => (Number.isInteger(v) ? (v as number) : null);
@@ -91,6 +96,7 @@ Deno.serve(async (req) => {
   if (b.payment === 'cash') {
     if (!ALLOW_CASH) return reply({ error: 'Paying at the studio is not available.' }, 400, origin);
     await db.rpc('confirm_cash', { p_ref: ref });
+    background(sendBookingEmails(ref));
     return reply({ ref, total, cash: true }, 200, origin);
   }
 

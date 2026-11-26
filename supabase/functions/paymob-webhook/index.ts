@@ -1,6 +1,7 @@
 // Receives Paymob's "transaction processed" callback, verifies its HMAC signature,
 // and records the result. Unsigned or tampered requests are rejected.
 import { adminClient } from '../_shared/admin.ts';
+import { sendBookingEmails } from '../_shared/notify.ts';
 
 // Field order defined by Paymob for the transaction-callback HMAC.
 const HMAC_FIELDS = [
@@ -66,5 +67,11 @@ Deno.serve(async (req) => {
     return new Response('error', { status: 500 });
   }
   console.log('Paymob callback', ref, data);
+  if (data === 'confirmed' || data === 'paid_slot_lost' || data === 'amount_mismatch') {
+    // deno-lint-ignore no-explicit-any
+    const rt = (globalThis as any).EdgeRuntime;
+    const p = sendBookingEmails(String(ref));
+    if (rt?.waitUntil) rt.waitUntil(p); else await p;
+  }
   return new Response('ok');
 });

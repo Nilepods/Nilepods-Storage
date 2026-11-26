@@ -10,6 +10,11 @@ export const PAYMOB_CARD_INTEGRATION_ID = 6077815; // test mode, "Online Card", 
 
 export const PAYMOB_API = 'https://accept.paymob.com';
 
+// Booking emails
+export const SITE_URL = 'https://preview.nilepods.com';      // change to https://nilepods.com at launch
+export const BOOKINGS_INBOX = 'bookings@nilepods.com';         // receives "new booking" alerts; customers' replies go here
+export const SENDER = 'Nilepods <noreply@nilepods.com>';
+
 // Offer "Pay at the studio" (cash). Set to false to make the site card-only.
 export const ALLOW_CASH = true;
 
