@@ -383,7 +383,7 @@ details[open] .plus{transform:rotate(45deg)}
 <sc-for list="{{ pkgs }}" as="p" hint-placeholder-count="3">
 <article class="{{ p.cardCls }}">
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px"><h3 class="ttl" style="margin: 0; font-size: 24px; font-weight: 600; color: #FFFFFF">{{ p.name }}</h3><sc-if value="{{ p.featured }}" hint-placeholder-val="{{ false }}"><span class="badge">{{ p.badge }}</span></sc-if></div>
-<p style="margin: 18px 0 0; display: flex; align-items: baseline; gap: 8px"><span class="ttl" style="font-size: 52px; font-weight: 700; color: #FFFFFF; line-height: 1">{{ p.priceLabel }}</span><span style="font-size: 15px; color: #BDB2A2">EGP / episode</span></p>
+<p style="margin: 18px 0 0; display: flex; align-items: baseline; gap: 8px"><span class="ttl" style="font-size: 52px; font-weight: 700; color: #FFFFFF; line-height: 1">{{ p.priceLabel }}</span><span style="font-size: 15px; color: #BDB2A2">EGP / hour</span></p>
 <p style="margin: 14px 0 0; font-size: 14px; line-height: 1.6; color: #A89C8B">{{ p.blurb }}</p>
 <div style="height: 1px; background: rgba(241,234,223,0.1); margin: 28px 0"></div>
 <p class="lbl">What's included</p>
@@ -392,7 +392,7 @@ details[open] .plus{transform:rotate(45deg)}
 </article>
 </sc-for>
 </div>
-<p style="margin: 28px 0 0; font-size: 13px; color: #9A8E7D; text-align: center">Prices are per single episode with up to 60 minutes of raw material.</p>
+<p style="margin: 28px 0 0; font-size: 13px; color: #9A8E7D; text-align: center">Prices are per hour of studio time. Save with 3, 5 or 10-session packages.</p>
 </div>
 </section>
 
@@ -897,7 +897,7 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="field"><label for="i-last">Last name</label><input id="i-last" class="{{ err.lastCls }}" value="{{ info.last }}" onChange="{{ onI.last }}" autoComplete="family-name" aria-invalid="{{ err.lastBad }}"><sc-if value="{{ err.lastBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Please enter your last name.</span></sc-if></div>
 </div>
 <div class="field"><label for="i-email">Email</label><input id="i-email" class="{{ err.emailCls }}" type="email" value="{{ info.email }}" onChange="{{ onI.email }}" readOnly="{{ signedIn }}" autoComplete="email" placeholder="you@example.com" aria-invalid="{{ err.emailBad }}"><sc-if value="{{ err.emailBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Enter a valid email — your confirmation goes here.</span></sc-if></div>
-<div class="field"><label for="i-phone">Phone (optional)</label><input id="i-phone" class="inp" type="tel" inputMode="tel" value="{{ info.phone }}" onChange="{{ onI.phone }}" autoComplete="tel" placeholder="+20 1x xxxx xxxx"></div>
+<div class="field"><label for="i-phone">Phone (optional)</label><input id="i-phone" class="{{ err.phoneCls }}" type="tel" inputMode="tel" value="{{ info.phone }}" onChange="{{ onI.phone }}" autoComplete="tel" placeholder="+20 1x xxxx xxxx"><sc-if value="{{ err.phoneBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Add a phone number so we can send WhatsApp updates.</span></sc-if></div>
 <label class="chkbox"><input type="checkbox" checked="{{ info.wa }}" onChange="{{ toggleWa }}"><span>Send my booking updates on WhatsApp</span></label>
 <sc-if value="{{ needPassword }}" hint-placeholder-val="{{ false }}">
 <div class="field"><label for="i-pw">Create a password</label><input id="i-pw" class="{{ err.pwCls }}" type="password" value="{{ info.pw }}" onChange="{{ onI.pw }}" autoComplete="new-password" placeholder="At least 8 characters" aria-invalid="{{ err.pwBad }}"><sc-if value="{{ err.pwBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Use at least 8 characters.</span></sc-if><span style="font-size: 13px; color: #A89C8B">You will use this email and password to see your bookings and packages. Already have an account? <button class="link" onClick="{{ nav.account }}">Sign in first</button></span></div>
@@ -937,13 +937,14 @@ details[open] .plus{transform:rotate(45deg)}
 </sc-if>
 </sc-if>
 
-<label class="chkbox" style="margin-top: 22px"><input type="checkbox" checked="{{ agreed }}" onChange="{{ toggleAgree }}"><span>I agree to the <button class="link" onClick="{{ legal.terms }}">Terms</button> and <button class="link" onClick="{{ legal.refund }}">Refund &amp; Cancelation</button> policy.</span></label>
+<label class="chkbox" style="margin-top: 22px"><input type="checkbox" checked="{{ agreed }}" onChange="{{ toggleAgree }}"><span>I agree to the <button class="link" onClick="{{ legal.terms }}">Terms</button> and <button class="link" onClick="{{ legal.refund }}">Refund &amp; Cancellation</button> policy.</span></label>
 </sc-if>
 
 </div>
 
 <div class="wz-f desk">
 <button class="btn-ghost" onClick="{{ wzBack }}">Back</button>
+<div style="margin-left: auto; margin-right: 20px; text-align: right"><p style="margin: 0; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8C8172">Total</p><p class="ttl" style="margin: 0; font-size: 22px; font-weight: 700; color: #FFFFFF">{{ q.total }}</p></div>
 <button class="btn-gold" onClick="{{ wzNext }}" disabled="{{ nextBlocked }}" style="min-width: 200px">{{ nextLabel }}</button>
 </div>
 </div>
@@ -1003,7 +1004,7 @@ details[open] .plus{transform:rotate(45deg)}
 <nav aria-label="Legal" style="display: flex; flex-wrap: wrap; gap: 8px 24px">
 <button onClick="{{ legal.privacy }}">Privacy Policy</button>
 <button onClick="{{ legal.terms }}">Terms &amp; Conditions</button>
-<button onClick="{{ legal.refund }}">Refund &amp; Cancelation</button>
+<button onClick="{{ legal.refund }}">Refund &amp; Cancellation</button>
 <button onClick="{{ nav.account }}">My Account</button>
 </nav>
 <p style="margin: 0">© Nilepods · Powered by Capital Studios</p>
@@ -1057,7 +1058,7 @@ class Component extends DCLogic {
       { id: 's3', n: 'Setup 3', name: 'Setup 3', cap: 2, img: B + '113ecd6e6a3d2de8944e3757f1945c32', alt: 'Setup 3: a round wooden table with two mesh chairs in front of lit shelves and a green-lit plant',
         desc: 'A round wooden table, two studio chairs and glowing shelves behind — built for conversations.' },
       { id: 's4', n: 'Setup 4', name: 'Setup 4', cap: 1, img: B + '2ac233ffaa36829ee7a6988f671bcf5f', alt: 'Setup 4: a single mesh chair across a wooden table, with a bookshelf, a small guitar and a plant',
-        desc: 'One chair across the table, framed by dark curtains and a lit shelf — for interviews and solo takes.' },
+        desc: 'One chair across the table, framed by dark curtains and a lit shelf — for solo takes and talking-head videos.' },
       { id: 's5', n: 'Setup 5', name: 'Setup 5', cap: 2, img: B + 'dd85524628dcc9ee4b96e61cac0a9b34', alt: 'Setup 5: two beige armchairs facing a side table with a lamp, in front of a blue velvet curtain',
         desc: 'Two armchairs, a lamp-lit side table and a rich blue velvet backdrop.' },
       { id: 's6', n: 'Setup 6', name: 'Setup 6', cap: 2, img: B + 'b898d02d75c253e89b08c320c1cad962', alt: 'Setup 6: two beige armchairs in front of lit bookshelves with a tall plant',
@@ -1429,7 +1430,7 @@ class Component extends DCLogic {
     var fC = mk('cf'), fT = mk('tf'), fI = mk('info');
     var fmtNum = function (v) { return v.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 '); };
     var fmtExp = function (v) { var d = v.replace(/\D/g, '').slice(0, 4); return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d; };
-    var legalTitles = { privacy: 'Privacy Policy', terms: 'Terms & Conditions', refund: 'Refund & Cancelation' };
+    var legalTitles = { privacy: 'Privacy Policy', terms: 'Terms & Conditions', refund: 'Refund & Cancellation' };
     var bookingList = S.bookings.slice().reverse().map(function (b) { return Object.assign({}, b, { cells: cellsFor(b.start, b.end) }); });
     var creditList = S.credits.slice().reverse().map(function (c) {
       return { title: c.tier + ' · ' + c.name, left: c.left + ' of ' + c.count + ' left', expires: 'Valid until ' + c.expires,

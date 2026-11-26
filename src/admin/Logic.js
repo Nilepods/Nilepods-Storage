@@ -43,8 +43,9 @@ export default class Logic extends DCLogic {
     this._checked = email;
     recordSignIn().then(function (who) {
       if (!who || !who.role) {
-        self.setState({ authed: false, email: email, loginErr: email + " isn't on the team. Ask the owner to add you, then sign in again." });
-        authSignOut();
+        // Never sign people out here: the sign-in is shared with the customer site (all tabs),
+        // so signing out would also log a customer out of My account.
+        self.setState({ authed: false, email: '', loginErr: "You're signed in as " + email + " (a customer account), which isn't on the team. To open the admin, sign in below with a team email, or ask the owner to add you." });
         return;
       }
       var first = ['overview', 'schedule', 'bookings', 'payments', 'tours', 'team'].filter(function (t) { return self.canSee(ROLE_UI[who.role], t); })[0];

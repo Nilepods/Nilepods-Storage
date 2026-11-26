@@ -17,6 +17,27 @@ const STATUS_LABELS = {
 };
 
 // Wizard fields kept while the customer is on Paymob's page, so a failed payment can be retried.
+const PAGES = ['home', 'packages', 'pkgDetail', 'studios', 'cyclorama', 'audio', 'services', 'contact', 'tour', 'account', 'legal', 'book', 'confirm'];
+
+// Address for a page, e.g. /?p=packages, /?p=legal&doc=terms, /?p=pkgDetail&tier=mix&n=3
+function pageUrl(S) {
+  if (S.screen === 'home' || PAGES.indexOf(S.screen) < 0) return window.location.pathname;
+  var q = '?p=' + S.screen;
+  if (S.screen === 'legal') q += '&doc=' + S.legal;
+  if (S.screen === 'pkgDetail') q += '&tier=' + S.detail.tier + '&n=' + S.detail.count;
+  return window.location.pathname + q;
+}
+// Page state from an address (used on first load and on browser Back/Forward).
+function pageFromUrl() {
+  var qs = new URLSearchParams(window.location.search), p = qs.get('p');
+  if (!p || PAGES.indexOf(p) < 0) return { screen: 'home' };
+  var s = { screen: p === 'confirm' ? 'home' : p };
+  if (p === 'legal') s.legal = ['privacy', 'terms', 'refund'].indexOf(qs.get('doc')) >= 0 ? qs.get('doc') : 'privacy';
+  if (p === 'pkgDetail') s.detail = { tier: ['rec', 'mix', 'pro'].indexOf(qs.get('tier')) >= 0 ? qs.get('tier') : 'mix', count: [1, 3, 5, 10].indexOf(+qs.get('n')) >= 0 ? +qs.get('n') : 3 };
+  if (p === 'book') { s.w = 1; s.mode = 'session'; }
+  return s;
+}
+
 const WIZARD_KEYS = ['mode', 'svc', 'setup', 'people', 'ex', 'dateKey', 'start', 'bTier', 'bCount', 'info', 'monthOff'];
 
 export default class Logic extends DCLogic {
@@ -42,11 +63,24 @@ export default class Logic extends DCLogic {
     this.loadBusy();
     this.checkPaymentReturn();
     var qs = new URLSearchParams(window.location.search);
+    if (qs.get('p')) this.setState(pageFromUrl());
     if (qs.get('account')) this.setState({ screen: 'account' });
+    this._onPop = function () { self._fromPop = true; self.setState(Object.assign({ menu: false }, pageFromUrl())); self.scrollTop(); };
+    window.addEventListener('popstate', this._onPop);
     if (qs.get('reset')) this.setState({ showPwPanel: true, pwReset: true });
     this._unwatch = watchSession(function (session, event) { self.onSession(session, event); });
   }
-  componentWillUnmount() { clearTimeout(this._poll); clearTimeout(this._tt); if (this._unwatch) this._unwatch(); }
+  componentWillUnmount() { clearTimeout(this._poll); clearTimeout(this._tt); if (this._unwatch) this._unwatch(); window.removeEventListener('popstate', this._onPop); }
+  // Give every page its own address, so browser Back/Forward and refresh work.
+  componentDidUpdate(prevProps, prevState) {
+    var S = this.state;
+    var changed = prevState.screen !== S.screen || (S.screen === 'legal' && prevState.legal !== S.legal) ||
+      (S.screen === 'pkgDetail' && (prevState.detail.tier !== S.detail.tier || prevState.detail.count !== S.detail.count));
+    if (!changed) return;
+    if (this._fromPop) { this._fromPop = false; return; }
+    var url = pageUrl(S);
+    if (url !== window.location.pathname + window.location.search) window.history.pushState({ p: S.screen }, '', url);
+  }
   onSession(session, event) {
     var self = this, email = session && session.user && session.user.email;
     if (event === 'PASSWORD_RECOVERY') this.setState({ screen: 'account', showPwPanel: true, pwReset: true });
@@ -162,7 +196,7 @@ export default class Logic extends DCLogic {
       { id: 's3', n: 'Setup 3', name: 'Setup 3', cap: 2, img: B + '113ecd6e6a3d2de8944e3757f1945c32.jpg', alt: 'Setup 3: a round wooden table with two mesh chairs in front of lit shelves and a green-lit plant',
         desc: 'A round wooden table, two studio chairs and glowing shelves behind — built for conversations.' },
       { id: 's4', n: 'Setup 4', name: 'Setup 4', cap: 1, img: B + '2ac233ffaa36829ee7a6988f671bcf5f.jpg', alt: 'Setup 4: a single mesh chair across a wooden table, with a bookshelf, a small guitar and a plant',
-        desc: 'One chair across the table, framed by dark curtains and a lit shelf — for interviews and solo takes.' },
+        desc: 'One chair across the table, framed by dark curtains and a lit shelf — for solo takes and talking-head videos.' },
       { id: 's5', n: 'Setup 5', name: 'Setup 5', cap: 2, img: B + 'dd85524628dcc9ee4b96e61cac0a9b34.jpg', alt: 'Setup 5: two beige armchairs facing a side table with a lamp, in front of a blue velvet curtain',
         desc: 'Two armchairs, a lamp-lit side table and a rich blue velvet backdrop.' },
       { id: 's6', n: 'Setup 6', name: 'Setup 6', cap: 2, img: B + 'b898d02d75c253e89b08c320c1cad962.jpg', alt: 'Setup 6: two beige armchairs in front of lit bookshelves with a tall plant',
@@ -272,8 +306,8 @@ export default class Logic extends DCLogic {
     var date = S.dateKey ? this.fromKey(S.dateKey) : null;
     var I = S.info, C = S.card;
     var errs = { first: !I.first.trim(), last: !I.last.trim(), email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(I.email.trim()),
-      pw: !S.signedIn && (I.pw || '').length < 8 };
-    var infoOk = !errs.first && !errs.last && !errs.email && !errs.pw;
+      pw: !S.signedIn && (I.pw || '').length < 8, phone: !!I.wa && !(I.phone || '').trim() };
+    var infoOk = !errs.first && !errs.last && !errs.email && !errs.pw && !errs.phone;
     var cardOk = C.holder.trim().length > 1 && C.num.replace(/\D/g, '').length === 16 && /^\d\d\/\d\d$/.test(C.exp) && C.cvc.length >= 3;
     var validDays = this.validDays();
 
@@ -508,7 +542,7 @@ export default class Logic extends DCLogic {
       if (cur === 'info') {
         if (!infoOk) {
           self.setState({ showErr: true });
-          var first = errs.first ? 'i-first' : errs.last ? 'i-last' : errs.email ? 'i-email' : 'i-pw';
+          var first = errs.first ? 'i-first' : errs.last ? 'i-last' : errs.email ? 'i-email' : errs.phone ? 'i-phone' : 'i-pw';
           setTimeout(function () { var el = self.rootEl && self.rootEl.querySelector('#' + first); if (el) el.focus(); }, 40);
           return;
         }
@@ -566,7 +600,7 @@ export default class Logic extends DCLogic {
     var tour = { hasDate: !!tD, noDate: !tD, dateLong: tD ? self.longDate(tD) : '', slots: tSlots, freeLabel: tFree + ' slots free',
       when: tD && S.tSlot != null ? self.longDate(tD) + ' · ' + fmtM(S.tSlot) + ' – ' + fmtM(S.tSlot + 15) : '',
       summary: tD ? (S.tSlot != null ? self.longDate(tD) + ' · ' + fmtM(S.tSlot) : self.longDate(tD) + ' · pick a time') : 'Pick a day and a time' };
-    var E = S.showErr ? errs : { first: false, last: false, email: false, pw: false };
+    var E = S.showErr ? errs : { first: false, last: false, email: false, pw: false, phone: false };
     var acctEmailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((S.acctEmail || '').trim());
     var cellsFor = function (s, e) { var a = []; for (var h = 15; h < 23; h++) a.push('tlc' + (h >= s && h < e ? ' on' : '')); return a; };
     var last = S.last ? Object.assign({}, S.last, { cells: cellsFor(S.last.start || 0, S.last.end || 0), isBundle: S.last.kind === 'bundle', isSession: S.last.kind === 'session', acctCls: S.last.kind === 'bundle' ? 'btn-gold' : 'btn-ghost' }) :
@@ -575,7 +609,7 @@ export default class Logic extends DCLogic {
     var fC = mk('cf'), fT = mk('tf'), fI = mk('info');
     var fmtNum = function (v) { return v.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 '); };
     var fmtExp = function (v) { var d = v.replace(/\D/g, '').slice(0, 4); return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d; };
-    var legalTitles = { privacy: 'Privacy Policy', terms: 'Terms & Conditions', refund: 'Refund & Cancelation' };
+    var legalTitles = { privacy: 'Privacy Policy', terms: 'Terms & Conditions', refund: 'Refund & Cancellation' };
     var bookingList = S.bookings.slice().reverse().map(function (b) { return Object.assign({}, b, { cells: cellsFor(b.start, b.end) }); });
     var creditList = S.credits.slice().reverse().map(function (c) {
       return { title: c.tier + ' · ' + c.name, left: c.left + ' of ' + c.count + (c.count === 1 ? ' session' : ' sessions') + ' left',
@@ -709,7 +743,7 @@ export default class Logic extends DCLogic {
       slotList: slotList, noSlots: !!date && freeCount === 0,
       info: I, onI: { first: fI('first'), last: fI('last'), email: fI('email'), phone: fI('phone'), pw: fI('pw') },
       toggleWa: function () { self.setF('info', 'wa', !I.wa); },
-      err: { firstBad: E.first, lastBad: E.last, emailBad: E.email, pwBad: !!E.pw,
+      err: { firstBad: E.first, lastBad: E.last, emailBad: E.email, pwBad: !!E.pw, phoneBad: !!E.phone, phoneCls: 'inp' + (E.phone ? ' bad' : ''),
         firstCls: 'inp' + (E.first ? ' bad' : ''), lastCls: 'inp' + (E.last ? ' bad' : ''), emailCls: 'inp' + (E.email ? ' bad' : ''), pwCls: 'inp' + (E.pw ? ' bad' : '') },
       canCredit: !isBundle && !!credit, useCredit: S.useCredit, toggleCredit: function () { self.setState({ useCredit: !S.useCredit }); },
       creditNote: credit ? credit.tier + ' package · ' + credit.left + ' left · covers the first hour' : '',

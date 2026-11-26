@@ -194,7 +194,7 @@ export default function View(v) {
                       {p.priceLabel}
                     </span>
                     <span style={{ fontSize: "15px", color: "#BDB2A2" }}>
-                      {"EGP / episode"}
+                      {"EGP / hour"}
                     </span>
                   </p>
                   <p style={{ margin: "14px 0 0", fontSize: "14px", lineHeight: "1.6", color: "#A89C8B" }}>
@@ -218,7 +218,7 @@ export default function View(v) {
               </Fragment>))}
             </div>
             <p style={{ margin: "28px 0 0", fontSize: "13px", color: "#9A8E7D", textAlign: "center" }}>
-              {"Prices are per single episode with up to 60 minutes of raw material."}
+              {"Prices are per hour of studio time. Save with 3, 5 or 10-session packages."}
             </p>
           </div>
         </section>
@@ -1663,7 +1663,12 @@ export default function View(v) {
                           <label htmlFor="i-phone">
                             {"Phone (optional)"}
                           </label>
-                          <input id="i-phone" className="inp" type="tel" inputMode="tel" value={v.info.phone} onChange={v.onI.phone} autoComplete="tel" placeholder="+20 1x xxxx xxxx" />
+                          <input id="i-phone" className={v.err.phoneCls} type="tel" inputMode="tel" value={v.info.phone} onChange={v.onI.phone} autoComplete="tel" placeholder="+20 1x xxxx xxxx" />
+                          {v.err.phoneBad ? (<>
+                            <span className="ferr">
+                              {"Add a phone number so we can send WhatsApp updates."}
+                            </span>
+                          </>) : null}
                         </div>
                         <label className="chkbox">
                           <input type="checkbox" checked={v.info.wa} onChange={v.toggleWa} />
@@ -1813,7 +1818,7 @@ export default function View(v) {
                           </button>
                           {" and "}
                           <button className="link" onClick={v.legal.refund}>
-                            {"Refund & Cancelation"}
+                            {"Refund & Cancellation"}
                           </button>
                           {" policy."}
                         </span>
@@ -1824,6 +1829,14 @@ export default function View(v) {
                     <button className="btn-ghost" onClick={v.wzBack}>
                       {"Back"}
                     </button>
+                    <div style={{ marginLeft: "auto", marginRight: "20px", textAlign: "right" }}>
+                      <p style={{ margin: "0", fontSize: "11px", letterSpacing: "1.5px", textTransform: "uppercase", color: "#8C8172" }}>
+                        {"Total"}
+                      </p>
+                      <p className="ttl" style={{ margin: "0", fontSize: "22px", fontWeight: "700", color: "#FFFFFF" }}>
+                        {v.q.total}
+                      </p>
+                    </div>
                     <button className="btn-gold" onClick={v.wzNext} disabled={v.nextBlocked} style={{ minWidth: "200px" }}>
                       {v.nextLabel}
                     </button>
@@ -1995,7 +2008,7 @@ export default function View(v) {
               {"Terms & Conditions"}
             </button>
             <button onClick={v.legal.refund}>
-              {"Refund & Cancelation"}
+              {"Refund & Cancellation"}
             </button>
             <button onClick={v.nav.account}>
               {"My Account"}
