@@ -93,3 +93,42 @@ export async function sendBookingEmails(ref: string, kind: 'new' | 'rescheduled'
     console.error('Booking email failed', ref, String(e));
   }
 }
+
+// Tells the customer (and the team) that staff cancelled a booking or a package.
+// For a package, bookingsCancelled is how many upcoming sessions were cancelled with it.
+export async function sendCancellationEmails(ref: string, bookingsCancelled = 0): Promise<void> {
+  try {
+    const db = adminClient();
+    const { data: b } = await db.from('bookings').select('*').eq('ref', ref).maybeSingle();
+    const { data: o } = b ? { data: null } : await db.from('package_orders').select('*').eq('ref', ref).maybeSingle();
+    const r = b ?? o;
+    if (!r) { console.error('Cancellation email: reference not found', ref); return; }
+    const test = r.is_test ? '[TEST] ' : '';
+    const paidCard = r.payment_status === 'paid' && r.payment_method !== 'cash' && r.total_egp > 0;
+    const refundNote = paidCard ? 'Any refund is handled under our Refund &amp; Cancellation policy; our team will be in touch. ' : '';
+    let rows: [string, string][], what: string, intro: string;
+    if (b) {
+      const date = cairo(b.starts_at, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      rows = [['Order', esc(b.ref)], ['Date', esc(date)], ['Time', `${hour(b.starts_at)} &ndash; ${hour(b.ends_at)}`], ['Service', esc(SERVICES[b.service] ?? b.service)], ['Setup', esc(SETUPS[b.setup_id] ?? b.setup_id)]];
+      what = `${cairo(b.starts_at, { weekday: 'short', day: 'numeric', month: 'short' })}, ${hour(b.starts_at)}`;
+      intro = `Hi ${esc(b.first_name)}, your session below has been cancelled.` + (b.package_ref ? ' The hour has been returned to your package, so you can book another time.' : '');
+    } else {
+      rows = [['Order', esc(o.ref)], ['Package', esc(`${PACKS[o.sessions] ? PACKS[o.sessions] + ' · ' : ''}${SERVICES[o.service] ?? o.service} · ${o.sessions} sessions`)],
+        ...(bookingsCancelled ? [['Sessions cancelled', String(bookingsCancelled)] as [string, string]] : [])];
+      what = `${PACKS[o.sessions] ?? o.sessions + '-session'} package`;
+      intro = `Hi ${esc(o.first_name)}, your package below has been cancelled, so its remaining sessions can no longer be booked.`
+        + (bookingsCancelled ? ` The ${bookingsCancelled === 1 ? 'session' : bookingsCancelled + ' sessions'} you had booked with it ${bookingsCancelled === 1 ? 'was' : 'were'} cancelled too.` : '');
+    }
+    const footnote = refundNote + 'Questions? Just reply to this email.';
+    const customerHtml = shell(b ? 'Your session was cancelled' : 'Your package was cancelled', intro, rows, { label: 'Book a new time', url: `${SITE_URL}/` }, footnote);
+    const staffRows: [string, string][] = [['Customer', esc(`${r.first_name} ${r.last_name}`)], ['Email', esc(r.email)], ['Phone', esc(r.phone || '—')], ...rows];
+    const staffHtml = shell(b ? 'Booking cancelled' : 'Package cancelled', `Cancelled by the team${r.is_test ? ' (test data)' : ''}.`, staffRows, { label: 'Open the admin', url: `${SITE_URL}/admin/` });
+    await send([
+      { to: r.email, replyTo: BOOKINGS_INBOX, subject: `${test}Cancelled: your Nilepods ${b ? 'session' : 'package'} · ${what}`, html: customerHtml },
+      { to: BOOKINGS_INBOX, replyTo: r.email, subject: `${test}Cancelled: ${r.first_name} ${r.last_name} · ${what}`, html: staffHtml },
+    ]);
+    console.log('Cancellation emails sent', ref);
+  } catch (e) {
+    console.error('Cancellation email failed', ref, String(e));
+  }
+}

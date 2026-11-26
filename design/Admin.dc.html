@@ -267,6 +267,38 @@ button.trow:hover{background:#17140F}
 </div>
 </sc-if>
 
+<!-- ======== PACKAGES ======== -->
+<sc-if value="{{ is.packages }}" hint-placeholder-val="{{ false }}">
+<div class="ph">
+<div><p class="lbl">Packages</p><h1 class="ttl" style="margin: 6px 0 0; font-size: 32px; color: #FFFFFF">Session packages</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A89C8B">{{ pk.count }}</p></div>
+<div style="width: min(320px, 100%)"><label for="pkq" class="lbl" style="display: block; margin-bottom: 6px">Search</label><input id="pkq" class="inp" value="{{ pk.q }}" onChange="{{ pk.onQ }}" placeholder="Name, email or order ID"></div>
+</div>
+<div class="chips" style="margin-bottom: 16px" role="group" aria-label="Filter packages"><sc-for list="{{ pk.chips }}" as="c" hint-placeholder-count="3"><button class="{{ c.cls }}" onClick="{{ c.go }}" aria-pressed="{{ c.on }}">{{ c.label }}</button></sc-for></div>
+<sc-if value="{{ pk.hasSel }}" hint-placeholder-val="{{ false }}"><div class="panel" style="padding: 22px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-start">
+<div><p class="muted" style="margin: 0; font-size: 13px">Order {{ pk.sel.ref }} · bought {{ pk.sel.bought }}</p><h2 class="ttl" style="margin: 6px 0 0; font-size: 24px; color: #FFFFFF">{{ pk.sel.customer }}</h2><p style="margin: 6px 0 0; font-size: 14px; color: #DCD3C4">{{ pk.sel.pack }} · {{ pk.sel.svc }}</p><p class="muted" style="margin: 4px 0 0; font-size: 13px">{{ pk.sel.email }} · {{ pk.sel.phone }}</p></div>
+<div style="display: flex; gap: 10px; align-items: center"><span class="{{ pk.sel.statusCls }}">{{ pk.sel.statusLabel }}</span><button class="btn-ghost" onClick="{{ pk.close }}" style="min-height: 36px">Close</button></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 14px"><span><span class="muted">Used</span> {{ pk.sel.usedLabel }}</span><span><span class="muted">Booked ahead</span> {{ pk.sel.upcoming }}</span><span><span class="muted">Valid until</span> {{ pk.sel.expires }}</span><span><span class="muted">Amount</span> {{ pk.sel.amountLabel }}</span><span><span class="muted">Payment</span> <span class="{{ pk.sel.payCls }}">{{ pk.sel.payLabel }}</span> · {{ pk.sel.method }}</span></div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<sc-if value="{{ pk.canPay }}" hint-placeholder-val="{{ false }}"><button class="btn-gold" onClick="{{ pk.markPaid }}">Mark as paid · {{ pk.sel.amountLabel }}</button></sc-if>
+<sc-if value="{{ pk.canCancel }}" hint-placeholder-val="{{ false }}"><button class="btn-danger" disabled="{{ pk.busy }}" onClick="{{ pk.cancel }}">{{ pk.cancelLabel }}</button></sc-if>
+<sc-if value="{{ pk.armed }}" hint-placeholder-val="{{ false }}"><button class="btn-ghost" onClick="{{ pk.keep }}">Keep it</button></sc-if>
+</div>
+<sc-if value="{{ pk.armed }}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: #DCD3C4">
+<p style="margin: 0">The remaining sessions can no longer be booked, and the customer gets an email. Refund them in Paymob if they paid by card.</p>
+<sc-if value="{{ pk.hasUpcoming }}" hint-placeholder-val="{{ false }}"><label style="display: flex; gap: 10px; align-items: center; cursor: pointer"><input type="checkbox" checked="{{ pk.also }}" onChange="{{ pk.toggleAlso }}" style="width: 18px; height: 18px; accent-color: #E2B872; margin: 0"><span>{{ pk.upcomingLabel }}</span></label></sc-if>
+</div></sc-if>
+</div></sc-if>
+<div class="panel tbox">
+<div class="trow head" style="grid-template-columns: 110px 1.3fr 1.3fr 1fr 1fr 110px 110px"><span>Order</span><span>Customer</span><span>Package</span><span>Used</span><span>Amount</span><span>Payment</span><span>Status</span></div>
+<sc-for list="{{ pk.rows }}" as="p" hint-placeholder-count="6">
+<button class="trow" onClick="{{ p.open }}" style="grid-template-columns: 110px 1.3fr 1.3fr 1fr 1fr 110px 110px"><span class="muted" style="font-size: 13px">{{ p.ref }}</span><span style="color: #FFFFFF">{{ p.customer }}</span><span>{{ p.pack }} · <span class="muted">{{ p.svc }}</span></span><span>{{ p.usedLabel }}</span><span style="color: #FFFFFF; font-weight: 500">{{ p.amountLabel }}</span><span class="{{ p.payCls }}">{{ p.payLabel }}</span><span><span class="{{ p.statusCls }}">{{ p.statusLabel }}</span></span></button>
+</sc-for>
+<sc-if value="{{ pk.none }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding: 32px; text-align: center; color: #8C8172">No packages here.</p></sc-if>
+</div>
+</sc-if>
+
 <!-- ======== PAYMENTS ======== -->
 <sc-if value="{{ is.payments }}" hint-placeholder-val="{{ false }}">
 <div class="ph">

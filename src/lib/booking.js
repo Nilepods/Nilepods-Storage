@@ -66,6 +66,24 @@ export async function rescheduleBooking(ref, date, start, accessToken) {
   return body;
 }
 
+// Staff cancel a booking or package (admin). The customer and the team are emailed.
+export async function staffCancel(kind, ref, opts, accessToken) {
+  if (!FUNCTIONS_URL) throw new Error('Not available right now.');
+  let res;
+  try {
+    res = await fetch(FUNCTIONS_URL + '/staff-cancel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY, Authorization: 'Bearer ' + accessToken },
+      body: JSON.stringify(Object.assign({ kind, ref }, opts || {})),
+    });
+  } catch {
+    throw new Error('Could not reach the server. Check your connection and try again.');
+  }
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok || !body.ok) throw new Error(body.error || 'Could not cancel. Please try again.');
+  return body;
+}
+
 // Sends Paymob's signed redirect result to the server (which checks the signature).
 export function forwardPaymobResult(search) {
   if (!FUNCTIONS_URL) return;

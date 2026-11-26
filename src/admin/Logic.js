@@ -3,7 +3,7 @@
 // Every action is checked again by the database, so hiding a button is never the only protection.
 import DCLogic from '../lib/DCLogic.jsx';
 import { supabase } from '../lib/supabase.js';
-import { rescheduleBooking } from '../lib/booking.js';
+import { rescheduleBooking, staffCancel } from '../lib/booking.js';
 import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut, signInWithPassword, sendPasswordReset, setPassword, saveProfile } from '../lib/auth.js';
 
 const ROLE_UI = { owner: 'Owner', manager: 'Manager', front_desk: 'Front desk' };
@@ -28,7 +28,7 @@ export default class Logic extends DCLogic {
       authed: false, email: '', pw: '', loginErr: '', signInBusy: false, linkSent: '', newPw: '', showPwPanel: false, pwReset: false, hasPw: true, tab: 'overview', range: 7,
       me: null, team: [], rows: [], orders: [], signIns: [], testCount: 0, testArmed: false, testBusy: false, loaded: false,
       q: '', fStatus: 'all', sel: null, schedOff: 0, tourOff: 0, tourBlocks: {},
-      invite: { email: '', role: 'Front desk' }, toast: '', mvOpen: false, mvDate: '', mvHour: '', mvBusy: false
+      invite: { email: '', role: 'Front desk' }, toast: '', mvOpen: false, mvDate: '', mvHour: '', mvBusy: false, pkgs: [], pkSel: null, pkFilter: 'active', pkQ: '', pkArmed: false, pkAlso: true, pkBusy: false
     };
   }
   // ---------- session & data ----------
@@ -52,7 +52,7 @@ export default class Logic extends DCLogic {
         self.setState({ authed: false, email: '', loginErr: "You're signed in as " + email + " (a customer account), which isn't on the team. To open the admin, sign in below with a team email, or ask the owner to add you." });
         return;
       }
-      var first = ['overview', 'schedule', 'bookings', 'payments', 'tours', 'team'].filter(function (t) { return self.canSee(ROLE_UI[who.role], t); })[0];
+      var first = ['overview', 'schedule', 'bookings', 'packages', 'payments', 'tours', 'team'].filter(function (t) { return self.canSee(ROLE_UI[who.role], t); })[0];
       self.setState({ authed: true, loginErr: '', linkSent: '', me: { name: who.name, email: who.email, role: ROLE_UI[who.role] }, tab: first });
       self.loadAll();
     }).catch(function () { self.setState({ loginErr: 'Could not check your access. Please try again.' }); });
@@ -70,12 +70,13 @@ export default class Logic extends DCLogic {
       money ? supabase.from('sign_ins').select('*').order('at', { ascending: false }).limit(25) : Promise.resolve({ data: [] }),
       role === 'Owner' ? supabase.from('bookings').select('ref', { count: 'exact', head: true }).eq('is_test', true) : Promise.resolve({ count: 0 }),
       role === 'Owner' ? supabase.from('package_orders').select('ref', { count: 'exact', head: true }).eq('is_test', true) : Promise.resolve({ count: 0 }),
+      money ? supabase.rpc('staff_packages') : Promise.resolve({ data: [] }),
     ];
     return Promise.all(q).then(function (r) {
       var err = r.filter(function (x) { return x && x.error; })[0];
       if (err) { console.warn(err.error); self.showToast('Some data could not be loaded.'); }
       self.setState({ rows: r[0].data || [], team: r[1].data || [], orders: r[2].data || [], signIns: r[3].data || [],
-        testCount: (r[4].count || 0) + (r[5].count || 0), loaded: true });
+        testCount: (r[4].count || 0) + (r[5].count || 0), pkgs: r[6].data || [], loaded: true });
     });
   }
   services() { return { rec: { name: 'Recording Only', short: 'Recording', price: 1150 }, mix: { name: 'Recording + Live Edit', short: 'Live Edit', price: 1450 }, pro: { name: 'Recording + Pro Edit', short: 'Pro Edit', price: 1950 } }; }
@@ -185,6 +186,7 @@ export default class Logic extends DCLogic {
       ['overview', 'Overview', 'M4 13h6V4H4zM14 20h6v-9h-6zM14 4v4h6V4zM4 20h6v-4H4z'],
       ['schedule', 'Schedule', 'M7 3v3M17 3v3M4 8h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z'],
       ['bookings', 'Bookings', 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01'],
+      ['packages', 'Packages', 'M4 7l8-4 8 4v10l-8 4-8-4zM4 7l8 4 8-4M12 11v10'],
       ['payments', 'Payments', 'M3 7h18v10H3zM3 11h18M7 15h3'],
       ['tours', 'Tours', 'M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21zM12 7v3l2 1'],
       ['team', 'Team & access', 'M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM22 19v-1a4 4 0 0 0-3-3.9M16 4.1a3 3 0 0 1 0 5.8']
@@ -347,7 +349,16 @@ export default class Logic extends DCLogic {
       checkIn: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'in_studio' }, selB.customer + ' checked in'); },
       complete: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'completed' }, 'Session completed'); },
       noShow: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'no_show' }, 'Marked as no-show'); },
-      cancel: function () { self.rpc('staff_update_booking', { p_ref: S.sel, p_status: 'cancelled' }, 'Booking cancelled. The slot is free again. Refund the customer in Paymob if needed.'); },
+      cancel: function () {
+        supabase.auth.getSession().then(function (r) {
+          var token = r.data.session && r.data.session.access_token;
+          if (!token) throw new Error('Please sign in again.');
+          return staffCancel('booking', S.sel, {}, token);
+        }).then(function () {
+          self.showToast('Booking cancelled and the customer was emailed. The slot is free again. Refund in Paymob if they paid by card.');
+          self.loadAll();
+        }).catch(function (err) { self.showToast(err.message); });
+      },
       reschedule: function () { self.setState({ mvOpen: !S.mvOpen, mvDate: '', mvHour: '' }); },
       message: function () { var digits = String(selB ? selB.phone : '').replace(/\D/g, '').replace(/^0/, '20'); if (digits.length > 6) window.open('https://wa.me/' + digits, '_blank', 'noopener'); else self.showToast('No phone number on this booking'); }
     };
@@ -370,6 +381,63 @@ export default class Logic extends DCLogic {
           self.loadAll();
         }).catch(function (err) { self.setState({ mvBusy: false }); self.showToast(err.message); });
       } };
+    // ----- packages -----
+    var PN = { 3: 'Pilot', 5: 'Series', 10: 'Season', 20: 'Full Season' }, SVN = this.services();
+    var dmy = function (iso) { var d = new Date(iso); return d.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()] + ' ' + d.getFullYear(); };
+    var pkQ = (S.pkQ || '').trim().toLowerCase();
+    var pkAll = S.pkgs.map(function (o) {
+      var expired = o.status === 'active' && new Date(o.expires_at) < new Date();
+      var st = o.status === 'cancelled' ? ['Cancelled', 'pill p-cx'] : expired ? ['Expired', 'pill p-ns'] : o.remaining === 0 ? ['Used up', 'pill p-done'] : ['Active', 'pill p-up'];
+      return { ref: o.ref, customer: o.first_name + ' ' + o.last_name, email: o.email, phone: o.phone || '—',
+        pack: (PN[o.sessions] ? PN[o.sessions] + ' · ' : '') + o.sessions + ' sessions', svc: (SVN[o.service] || { name: o.service }).name,
+        usedLabel: o.used + ' of ' + o.sessions + ' used', left: o.remaining, upcoming: o.upcoming,
+        amountLabel: self.money(o.total_egp), paid: o.payment_status === 'paid',
+        payLabel: o.payment_status === 'paid' ? 'Paid' : 'Due at studio', payCls: o.payment_status === 'paid' ? 'p-paid' : 'p-due',
+        method: o.payment_method === 'cash' ? 'At the studio' : 'Card (Paymob)',
+        bought: dmy(o.created_at), expires: dmy(o.expires_at), statusLabel: st[0], statusCls: st[1], active: o.status === 'active', isTest: o.is_test };
+    });
+    var pkRows = pkAll.filter(function (p) {
+      if (S.pkFilter === 'active' && !p.active) return false;
+      if (S.pkFilter === 'cancelled' && p.active) return false;
+      return !pkQ || (p.customer + ' ' + p.email + ' ' + p.ref).toLowerCase().indexOf(pkQ) >= 0;
+    }).map(function (p) { return Object.assign({}, p, { open: function () { self.setState({ pkSel: p.ref, pkArmed: false, pkAlso: true }); } }); });
+    var pkS = S.pkSel ? pkAll.filter(function (p) { return p.ref === S.pkSel; })[0] : null;
+    var callStaffCancel = function (opts, okMsg) {
+      self.setState({ pkBusy: true });
+      supabase.auth.getSession().then(function (r) {
+        var token = r.data.session && r.data.session.access_token;
+        if (!token) throw new Error('Please sign in again.');
+        return staffCancel('package', S.pkSel, opts, token);
+      }).then(function (res) {
+        self.setState({ pkBusy: false, pkArmed: false });
+        self.showToast(okMsg(res));
+        self.loadAll();
+      }).catch(function (err) { self.setState({ pkBusy: false }); self.showToast(err.message); });
+    };
+    var pk = {
+      rows: pkRows, none: pkRows.length === 0, count: pkRows.length + (pkRows.length === 1 ? ' package' : ' packages'),
+      q: S.pkQ, onQ: function (e) { self.setState({ pkQ: e.target.value }); },
+      chips: [['active', 'Active'], ['cancelled', 'Cancelled'], ['all', 'All']].map(function (c) {
+        var on = S.pkFilter === c[0]; return { label: c[1], on: on, cls: 'chip' + (on ? ' on' : ''), go: function () { self.setState({ pkFilter: c[0] }); } }; }),
+      hasSel: !!pkS, sel: pkS || {},
+      close: function () { self.setState({ pkSel: null, pkArmed: false }); },
+      canPay: !!pkS && pkS.active && !pkS.paid,
+      markPaid: function () { self.rpc('staff_mark_order_paid', { p_ref: S.pkSel }, 'Package marked as paid'); },
+      canCancel: !!pkS && pkS.active,
+      hasUpcoming: !!pkS && pkS.upcoming > 0,
+      upcomingLabel: pkS ? 'Also cancel the ' + (pkS.upcoming === 1 ? 'session' : pkS.upcoming + ' sessions') + ' already booked with it' : '',
+      also: S.pkAlso, toggleAlso: function () { self.setState({ pkAlso: !S.pkAlso }); },
+      armed: S.pkArmed, busy: S.pkBusy,
+      cancelLabel: S.pkBusy ? 'Cancelling\u2026' : S.pkArmed ? 'Yes, cancel this package' : 'Cancel package',
+      cancel: function () {
+        if (!S.pkArmed) { self.setState({ pkArmed: true }); return; }
+        var also = !!(pkS && pkS.upcoming > 0 && S.pkAlso);
+        callStaffCancel({ cancelBookings: also }, function (res) {
+          return 'Package cancelled' + (res.cancelledSessions ? ' with ' + res.cancelledSessions + ' booked session' + (res.cancelledSessions === 1 ? '' : 's') : '') + '. The customer was emailed.';
+        });
+      },
+      keep: function () { self.setState({ pkArmed: false }); }
+    };
     var ranges = [[1, 'Today'], [7, '7 days'], [14, '14 days']].map(function (r2) { return { label: r2[1], cls: S.range === r2[0] ? 'on' : '', go: function () { self.setState({ range: r2[0] }); } }; });
     var nameFirst = (me.name || '').split(' ')[0];
     var testInData = all.some(function (b) { return b.isTest; });
@@ -395,8 +463,8 @@ export default class Logic extends DCLogic {
       },
       signOut: function () { authSignOut().then(function () { self._checked = null; self.setState({ authed: false, sel: null, me: null, linkSent: '', showPwPanel: false }); }); },
       me: { name: me.name, role: me.role, initials: me.name ? initials(me.name) : '', first: nameFirst },
-      mv: mv,
-      tabs: tabs, is: { overview: tab === 'overview', schedule: tab === 'schedule', bookings: tab === 'bookings', payments: tab === 'payments', tours: tab === 'tours', team: tab === 'team' },
+      mv: mv, pk: pk,
+      tabs: tabs, is: { overview: tab === 'overview', schedule: tab === 'schedule', bookings: tab === 'bookings', packages: tab === 'packages', payments: tab === 'payments', tours: tab === 'tours', team: tab === 'team' },
       todayLong: this.dayName(D.today, true), ranges: ranges, rangeLabel: rangeLabel, k: k,
       dataNote: !S.loaded ? 'loading…' : testInData ? 'live data, includes test bookings' : 'live data',
       chart: chart, chartTotal: self.money(chartSum), chartAria: 'Money in per day for the last 14 days, ' + self.money(chartSum) + ' in total',

@@ -490,6 +490,190 @@ export default function View(v) {
                 </>) : null}
               </div>
             </>) : null}
+            {v.is.packages ? (<>
+              <div className="ph">
+                <div>
+                  <p className="lbl">
+                    {"Packages"}
+                  </p>
+                  <h1 className="ttl" style={{ margin: "6px 0 0", fontSize: "32px", color: "#FFFFFF" }}>
+                    {"Session packages"}
+                  </h1>
+                  <p style={{ margin: "6px 0 0", fontSize: "14px", color: "#A89C8B" }}>
+                    {v.pk.count}
+                  </p>
+                </div>
+                <div style={{ width: "min(320px, 100%)" }}>
+                  <label htmlFor="pkq" className="lbl" style={{ display: "block", marginBottom: "6px" }}>
+                    {"Search"}
+                  </label>
+                  <input id="pkq" className="inp" value={v.pk.q} onChange={v.pk.onQ} placeholder="Name, email or order ID" />
+                </div>
+              </div>
+              <div className="chips" style={{ marginBottom: "16px" }} role="group" aria-label="Filter packages">
+                {(v.pk.chips || []).map((c, c_i48) => (<Fragment key={c_i48}>
+                  <button className={c.cls} onClick={c.go} aria-pressed={c.on}>
+                    {c.label}
+                  </button>
+                </Fragment>))}
+              </div>
+              {v.pk.hasSel ? (<>
+                <div className="panel" style={{ padding: "22px", marginBottom: "14px", display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "12px", alignItems: "flex-start" }}>
+                    <div>
+                      <p className="muted" style={{ margin: "0", fontSize: "13px" }}>
+                        {"Order "}{v.pk.sel.ref}{" · bought "}{v.pk.sel.bought}
+                      </p>
+                      <h2 className="ttl" style={{ margin: "6px 0 0", fontSize: "24px", color: "#FFFFFF" }}>
+                        {v.pk.sel.customer}
+                      </h2>
+                      <p style={{ margin: "6px 0 0", fontSize: "14px", color: "#DCD3C4" }}>
+                        {v.pk.sel.pack}{" · "}{v.pk.sel.svc}
+                      </p>
+                      <p className="muted" style={{ margin: "4px 0 0", fontSize: "13px" }}>
+                        {v.pk.sel.email}{" · "}{v.pk.sel.phone}
+                      </p>
+                    </div>
+                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                      <span className={v.pk.sel.statusCls}>
+                        {v.pk.sel.statusLabel}
+                      </span>
+                      <button className="btn-ghost" onClick={v.pk.close} style={{ minHeight: "36px" }}>
+                        {"Close"}
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 28px", fontSize: "14px" }}>
+                    <span>
+                      <span className="muted">
+                        {"Used"}
+                      </span>
+                      {" "}{v.pk.sel.usedLabel}
+                    </span>
+                    <span>
+                      <span className="muted">
+                        {"Booked ahead"}
+                      </span>
+                      {" "}{v.pk.sel.upcoming}
+                    </span>
+                    <span>
+                      <span className="muted">
+                        {"Valid until"}
+                      </span>
+                      {" "}{v.pk.sel.expires}
+                    </span>
+                    <span>
+                      <span className="muted">
+                        {"Amount"}
+                      </span>
+                      {" "}{v.pk.sel.amountLabel}
+                    </span>
+                    <span>
+                      <span className="muted">
+                        {"Payment"}
+                      </span>
+                      {" "}
+                      <span className={v.pk.sel.payCls}>
+                        {v.pk.sel.payLabel}
+                      </span>
+                      {" · "}{v.pk.sel.method}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
+                    {v.pk.canPay ? (<>
+                      <button className="btn-gold" onClick={v.pk.markPaid}>
+                        {"Mark as paid · "}{v.pk.sel.amountLabel}
+                      </button>
+                    </>) : null}
+                    {v.pk.canCancel ? (<>
+                      <button className="btn-danger" disabled={v.pk.busy} onClick={v.pk.cancel}>
+                        {v.pk.cancelLabel}
+                      </button>
+                    </>) : null}
+                    {v.pk.armed ? (<>
+                      <button className="btn-ghost" onClick={v.pk.keep}>
+                        {"Keep it"}
+                      </button>
+                    </>) : null}
+                  </div>
+                  {v.pk.armed ? (<>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "14px", color: "#DCD3C4" }}>
+                      <p style={{ margin: "0" }}>
+                        {"The remaining sessions can no longer be booked, and the customer gets an email. Refund them in Paymob if they paid by card."}
+                      </p>
+                      {v.pk.hasUpcoming ? (<>
+                        <label style={{ display: "flex", gap: "10px", alignItems: "center", cursor: "pointer" }}>
+                          <input type="checkbox" checked={v.pk.also} onChange={v.pk.toggleAlso} style={{ width: "18px", height: "18px", accentColor: "#E2B872", margin: "0" }} />
+                          <span>
+                            {v.pk.upcomingLabel}
+                          </span>
+                        </label>
+                      </>) : null}
+                    </div>
+                  </>) : null}
+                </div>
+              </>) : null}
+              <div className="panel tbox">
+                <div className="trow head" style={{ gridTemplateColumns: "110px 1.3fr 1.3fr 1fr 1fr 110px 110px" }}>
+                  <span>
+                    {"Order"}
+                  </span>
+                  <span>
+                    {"Customer"}
+                  </span>
+                  <span>
+                    {"Package"}
+                  </span>
+                  <span>
+                    {"Used"}
+                  </span>
+                  <span>
+                    {"Amount"}
+                  </span>
+                  <span>
+                    {"Payment"}
+                  </span>
+                  <span>
+                    {"Status"}
+                  </span>
+                </div>
+                {(v.pk.rows || []).map((p, p_i49) => (<Fragment key={p_i49}>
+                  <button className="trow" onClick={p.open} style={{ gridTemplateColumns: "110px 1.3fr 1.3fr 1fr 1fr 110px 110px" }}>
+                    <span className="muted" style={{ fontSize: "13px" }}>
+                      {p.ref}
+                    </span>
+                    <span style={{ color: "#FFFFFF" }}>
+                      {p.customer}
+                    </span>
+                    <span>
+                      {p.pack}{" · "}
+                      <span className="muted">
+                        {p.svc}
+                      </span>
+                    </span>
+                    <span>
+                      {p.usedLabel}
+                    </span>
+                    <span style={{ color: "#FFFFFF", fontWeight: "500" }}>
+                      {p.amountLabel}
+                    </span>
+                    <span className={p.payCls}>
+                      {p.payLabel}
+                    </span>
+                    <span>
+                      <span className={p.statusCls}>
+                        {p.statusLabel}
+                      </span>
+                    </span>
+                  </button>
+                </Fragment>))}
+                {v.pk.none ? (<>
+                  <p style={{ margin: "0", padding: "32px", textAlign: "center", color: "#8C8172" }}>
+                    {"No packages here."}
+                  </p>
+                </>) : null}
+              </div>
+            </>) : null}
             {v.is.payments ? (<>
               <div className="ph">
                 <div>
@@ -505,7 +689,7 @@ export default function View(v) {
                 </div>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                   <div className="seg" role="group" aria-label="Period">
-                    {(v.ranges || []).map((r, r_i48) => (<Fragment key={r_i48}>
+                    {(v.ranges || []).map((r, r_i50) => (<Fragment key={r_i50}>
                       <button className={r.cls} onClick={r.go}>
                         {r.label}
                       </button>
@@ -517,7 +701,7 @@ export default function View(v) {
                 </div>
               </div>
               <div className="kpis">
-                {(v.payTotals || []).map((p, p_i49) => (<Fragment key={p_i49}>
+                {(v.payTotals || []).map((p, p_i51) => (<Fragment key={p_i51}>
                   <div className="panel kpi">
                     <p className="lbl">
                       {p.label}
@@ -552,7 +736,7 @@ export default function View(v) {
                     {"Status"}
                   </span>
                 </div>
-                {(v.txns || []).map((t, t_i50) => (<Fragment key={t_i50}>
+                {(v.txns || []).map((t, t_i52) => (<Fragment key={t_i52}>
                   <div className="trow" style={{ gridTemplateColumns: "110px 1.2fr 1.6fr 1fr 1fr 110px" }}>
                     <span className="muted" style={{ fontSize: "13px" }}>
                       {t.date}
@@ -629,7 +813,7 @@ export default function View(v) {
                       </div>
                     </div>
                     <div className="tslots">
-                      {(v.tour.slots || []).map((s, s_i51) => (<Fragment key={s_i51}>
+                      {(v.tour.slots || []).map((s, s_i53) => (<Fragment key={s_i53}>
                         <button className={s.cls} onClick={s.toggle} disabled={s.booked} aria-label={s.aria}>
                           {s.label}
                           <small>
@@ -647,7 +831,7 @@ export default function View(v) {
                       {"Tours booked this day"}
                     </p>
                     <div className="list" style={{ marginTop: "8px" }}>
-                      {(v.tour.booked || []).map((b, b_i52) => (<Fragment key={b_i52}>
+                      {(v.tour.booked || []).map((b, b_i54) => (<Fragment key={b_i54}>
                         <div className="li">
                           <span className="time">
                             {b.time}
@@ -691,7 +875,7 @@ export default function View(v) {
               </div>
               <div className="grid2" style={{ marginTop: "0" }}>
                 <div className="panel" style={{ padding: "8px 22px" }}>
-                  {(v.teamRows || []).map((m, m_i53) => (<Fragment key={m_i53}>
+                  {(v.teamRows || []).map((m, m_i55) => (<Fragment key={m_i55}>
                     <div className="li" style={{ flexWrap: "wrap" }}>
                       <span style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#2A241C", color: "#E2B872", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "600", fontSize: "14px", flexShrink: "0" }} aria-hidden="true">
                         {m.initials}
@@ -803,7 +987,7 @@ export default function View(v) {
                         {"No sign-ins yet."}
                       </p>
                     </>) : null}
-                    {(v.logins || []).map((lg, lg_i54) => (<Fragment key={lg_i54}>
+                    {(v.logins || []).map((lg, lg_i56) => (<Fragment key={lg_i56}>
                       <div className="row">
                         <span className="k">
                           {lg.who}
@@ -978,7 +1162,7 @@ export default function View(v) {
                         {"Start time"}
                       </label>
                       <select id="mv-hour" className="inp" value={v.mv.hour} onChange={v.mv.onHour}>
-                        {(v.mv.hours || []).map((h, h_i55) => (<Fragment key={h_i55}>
+                        {(v.mv.hours || []).map((h, h_i57) => (<Fragment key={h_i57}>
                           <option value={h.v}>
                             {h.label}
                           </option>
