@@ -835,13 +835,19 @@ export default function View(v) {
                   {"Sign in"}
                 </h1>
                 <p className="lead" style={{ fontSize: "15px" }}>
-                  {"See your bookings and times. Enter the email you booked with and we will send you a sign-in link, no password needed."}
+                  {"See your bookings, packages and sessions left."}
                 </p>
                 <div className="field">
                   <label htmlFor="a-email">
                     {"Email"}
                   </label>
-                  <input id="a-email" className="inp" type="email" value={v.acctEmail} onChange={v.onAcct} placeholder="you@example.com" />
+                  <input id="a-email" className="inp" type="email" value={v.acctEmail} onChange={v.onAcct} autoComplete="email" placeholder="you@example.com" />
+                </div>
+                <div className="field">
+                  <label htmlFor="a-pass">
+                    {"Password"}
+                  </label>
+                  <input id="a-pass" className="inp" type="password" value={v.acctPw} onChange={v.onAcctPw} autoComplete="current-password" placeholder="Your password" />
                 </div>
                 <button className="btn-gold btn-lg" disabled={v.signinBlocked} onClick={v.signIn}>
                   {v.signInLabel}
@@ -851,8 +857,16 @@ export default function View(v) {
                     {v.signInNote}
                   </p>
                 </>) : null}
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "10px" }}>
+                  <button className="link" onClick={v.forgotPw}>
+                    {"Forgot password?"}
+                  </button>
+                  <button className="link" onClick={v.emailLink}>
+                    {"Email me a sign-in link instead"}
+                  </button>
+                </div>
                 <p style={{ margin: "0", fontSize: "14px", color: "#A89C8B", textAlign: "center" }}>
-                  {"New here? Your account is created the first time you sign in. "}
+                  {"New here? You create your account with a password when you book. "}
                   <button className="link" onClick={v.bookNow}>
                     {"Book a session"}
                   </button>
@@ -872,15 +886,34 @@ export default function View(v) {
                     {"Signed in as "}{v.acctEmail}
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: "12px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
                   <button className="btn-gold" onClick={v.bookNow}>
                     {"New booking"}
+                  </button>
+                  <button className="btn-ghost" onClick={v.togglePwPanel}>
+                    {v.pwPanelLabel}
                   </button>
                   <button className="btn-ghost" onClick={v.signOut}>
                     {"Sign out"}
                   </button>
                 </div>
               </div>
+              {v.showPwPanel ? (<>
+                <div className="card mpad" style={{ padding: "28px 32px", marginBottom: "32px", display: "flex", flexDirection: "column", gap: "14px", maxWidth: "520px" }}>
+                  <p className="lbl" style={{ margin: "0" }}>
+                    {v.pwPanelTitle}
+                  </p>
+                  <div className="field">
+                    <label htmlFor="a-newpw">
+                      {"New password"}
+                    </label>
+                    <input id="a-newpw" className="inp" type="password" value={v.newPw} onChange={v.onNewPw} autoComplete="new-password" placeholder="At least 8 characters" />
+                  </div>
+                  <button className="btn-gold" disabled={v.newPwBlocked} onClick={v.saveNewPw} style={{ alignSelf: "flex-start" }}>
+                    {"Save password"}
+                  </button>
+                </div>
+              </>) : null}
               {v.hasCredits ? (<>
                 <p className="lbl">
                   {"My packages"}
@@ -1619,7 +1652,7 @@ export default function View(v) {
                           <label htmlFor="i-email">
                             {"Email"}
                           </label>
-                          <input id="i-email" className={v.err.emailCls} type="email" value={v.info.email} onChange={v.onI.email} autoComplete="email" placeholder="you@example.com" aria-invalid={v.err.emailBad} />
+                          <input id="i-email" className={v.err.emailCls} type="email" value={v.info.email} onChange={v.onI.email} readOnly={v.signedIn} autoComplete="email" placeholder="you@example.com" aria-invalid={v.err.emailBad} />
                           {v.err.emailBad ? (<>
                             <span className="ferr">
                               {"Enter a valid email — your confirmation goes here."}
@@ -1638,9 +1671,40 @@ export default function View(v) {
                             {"Send my booking updates on WhatsApp"}
                           </span>
                         </label>
+                        {v.needPassword ? (<>
+                          <div className="field">
+                            <label htmlFor="i-pw">
+                              {"Create a password"}
+                            </label>
+                            <input id="i-pw" className={v.err.pwCls} type="password" value={v.info.pw} onChange={v.onI.pw} autoComplete="new-password" placeholder="At least 8 characters" aria-invalid={v.err.pwBad} />
+                            {v.err.pwBad ? (<>
+                              <span className="ferr">
+                                {"Use at least 8 characters."}
+                              </span>
+                            </>) : null}
+                            <span style={{ fontSize: "13px", color: "#A89C8B" }}>
+                              {"You will use this email and password to see your bookings and packages. Already have an account? "}
+                              <button className="link" onClick={v.nav.account}>
+                                {"Sign in first"}
+                              </button>
+                            </span>
+                          </div>
+                        </>) : null}
                       </div>
                     </>) : null}
                     {v.st.pay ? (<>
+                      {v.hasBookingAs ? (<>
+                        <p style={{ margin: "0 0 18px", fontSize: "14px", color: "#A89C8B" }}>
+                          {"Booking as "}
+                          <strong style={{ color: "#FFFFFF" }}>
+                            {v.bookingAs}
+                          </strong>
+                          {" · "}
+                          <button className="link" onClick={v.editInfo}>
+                            {"Edit details"}
+                          </button>
+                        </p>
+                      </>) : null}
                       {v.canCredit ? (<>
                         <label className="xrow" style={{ cursor: "pointer", marginBottom: "22px" }}>
                           <span style={{ display: "flex", gap: "14px", alignItems: "center" }}>

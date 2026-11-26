@@ -1,24 +1,78 @@
 import { supabase } from './supabase.js';
 
-// Email-link sign-in (no passwords). Supabase emails a link; clicking it brings the
-// person back to `returnPath` on this site, already signed in.
+// Customer and staff sign-in.
+// Customers use email + password (created when they first book), with "forgot password"
+// and an email-link fallback. Staff use the email link (see admin).
+
+const need = () => { if (!supabase) throw new Error('Sign-in is not available right now.'); };
+const rateLimited = (e) => /rate limit|security purposes|seconds/i.test(e?.message || '');
+
+// Email-link sign-in (no password).
 export async function sendSignInLink(email, returnPath) {
-  if (!supabase) throw new Error('Sign-in is not available right now.');
+  need();
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim().toLowerCase(),
     options: { emailRedirectTo: window.location.origin + returnPath, shouldCreateUser: true },
   });
   if (error) {
-    if (/rate limit|security purposes|seconds/i.test(error.message)) throw new Error('Please wait a minute before asking for another link.');
+    if (rateLimited(error)) throw new Error('Please wait a minute before asking for another link.');
     throw new Error('Could not send the sign-in link. Check the email address and try again.');
   }
 }
 
-// Calls fn(session) now and whenever the person signs in or out.
+export async function signInWithPassword(email, password) {
+  need();
+  const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+  if (error) {
+    const e = new Error(/not confirmed/i.test(error.message) ? 'Please confirm your email first: open the email we sent you and tap the link.'
+      : /invalid/i.test(error.message) ? 'Wrong email or password.' : 'Could not sign in. Please try again.');
+    e.code = /not confirmed/i.test(error.message) ? 'not_confirmed' : /invalid/i.test(error.message) ? 'invalid' : 'other';
+    throw e;
+  }
+  return data.session;
+}
+
+// Creates an account. Returns 'created' (a confirmation email was sent), 'signed_in'
+// (email confirmation is off), or 'exists' (this email already has an account).
+export async function signUpWithPassword(email, password, profile) {
+  need();
+  const { data, error } = await supabase.auth.signUp({
+    email: email.trim().toLowerCase(), password,
+    options: { data: profile, emailRedirectTo: window.location.origin + '/?account=1' },
+  });
+  if (error) {
+    if (/already registered|already exists/i.test(error.message)) return 'exists';
+    if (rateLimited(error)) throw new Error('Too many attempts. Please wait a minute and try again.');
+    if (/password/i.test(error.message)) throw new Error('Please choose a stronger password (at least 8 characters).');
+    throw new Error('Could not create your account. Please try again.');
+  }
+  // Supabase returns a user with no identities when the email is already registered.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) return 'exists';
+  return data.session ? 'signed_in' : 'created';
+}
+
+export async function sendPasswordReset(email) {
+  need();
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: window.location.origin + '/?account=1&reset=1' });
+  if (error) throw new Error(rateLimited(error) ? 'Please wait a minute before asking again.' : 'Could not send the reset email. Check the address and try again.');
+}
+
+export async function setPassword(password) {
+  need();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw new Error(/same/i.test(error.message) ? 'That is already your password.' : 'Could not save the password. Use at least 8 characters.');
+}
+
+// Saves name/phone on the account so the booking form can skip "Your information".
+export async function saveProfile(profile) {
+  if (supabase) await supabase.auth.updateUser({ data: profile });
+}
+
+// Calls fn(session, event) now and whenever the person signs in or out.
 export function watchSession(fn) {
-  if (!supabase) { fn(null); return () => {}; }
-  supabase.auth.getSession().then(({ data }) => fn(data.session));
-  const { data } = supabase.auth.onAuthStateChange((_event, session) => fn(session));
+  if (!supabase) { fn(null, 'INITIAL'); return () => {}; }
+  supabase.auth.getSession().then(({ data }) => fn(data.session, 'INITIAL'));
+  const { data } = supabase.auth.onAuthStateChange((event, session) => fn(session, event));
   return () => data.subscription.unsubscribe();
 }
 

@@ -1,7 +1,7 @@
 // State and behaviour for this page. Converted from design/Main.dc.html; safe to edit.
 import DCLogic from '../lib/DCLogic.jsx';
 import { loadBusySlots, startCheckout, getPaymentStatus, isoDate } from '../lib/booking.js';
-import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut } from '../lib/auth.js';
+import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut, signInWithPassword, signUpWithPassword, sendPasswordReset, setPassword, saveProfile } from '../lib/auth.js';
 import { supabase } from '../lib/supabase.js';
 
 // Date and hour of a timestamp in studio time (Cairo), whatever the visitor's own time zone.
@@ -28,12 +28,12 @@ export default class Logic extends DCLogic {
       ex: { hour: 0, cam: 0, mic: 0, photo: 0 }, monthOff: 0, dateKey: null, start: null,
       bTier: 'mix', bCount: 3,
       fSvc: [], fCount: [], detail: { tier: 'mix', count: 3 }, carIdx: 0,
-      info: { first: '', last: '', email: '', phone: '', wa: false }, showErr: false,
+      info: { first: '', last: '', email: '', phone: '', wa: false, pw: '' }, showErr: false, editInfo: false,
       method: 'card', card: { holder: '', num: '', exp: '', cvc: '' }, agreed: false, paying: false, useCredit: true,
       bookings: [], credits: [], last: null, signedIn: false, acctEmail: '', menu: false, toast: '',
       legal: 'privacy', cf: { name: '', phone: '', email: '', msg: '' }, contactSent: false,
       tf: { name: '', phone: '', note: '' }, tourSent: false, tDate: null, tOff: 0, tSlot: null,
-      busy: {}, signInBusy: false, signInNote: ''
+      busy: {}, signInBusy: false, signInNote: '', acctPw: '', newPw: '', showPwPanel: false, pwReset: false
     };
   }
   // ---------- live data (Supabase + Paymob) ----------
@@ -41,15 +41,22 @@ export default class Logic extends DCLogic {
     var self = this;
     this.loadBusy();
     this.checkPaymentReturn();
-    if (new URLSearchParams(window.location.search).get('account')) this.setState({ screen: 'account' });
-    this._unwatch = watchSession(function (session) { self.onSession(session); });
+    var qs = new URLSearchParams(window.location.search);
+    if (qs.get('account')) this.setState({ screen: 'account' });
+    if (qs.get('reset')) this.setState({ showPwPanel: true, pwReset: true });
+    this._unwatch = watchSession(function (session, event) { self.onSession(session, event); });
   }
   componentWillUnmount() { clearTimeout(this._poll); clearTimeout(this._tt); if (this._unwatch) this._unwatch(); }
-  onSession(session) {
+  onSession(session, event) {
     var self = this, email = session && session.user && session.user.email;
+    if (event === 'PASSWORD_RECOVERY') this.setState({ screen: 'account', showPwPanel: true, pwReset: true });
     if (!email) { this._recorded = null; this.setState({ signedIn: false, bookings: [], credits: [] }); return; }
     if (window.location.search.indexOf('account=') >= 0) window.history.replaceState(null, '', window.location.pathname);
-    this.setState({ signedIn: true, acctEmail: email, signInNote: '' });
+    // Fill the booking form from the account, so signed-in customers skip "Your information".
+    var md = (session.user.user_metadata) || {}, I0 = this.state.info;
+    var info = { first: I0.first || md.first || '', last: I0.last || md.last || '', email: email,
+      phone: I0.phone || md.phone || '', wa: I0.wa || !!md.wa, pw: '' };
+    this.setState({ signedIn: true, acctEmail: email, signInNote: '', acctPw: '', info: info });
     if (this._recorded !== email) { this._recorded = email; recordSignIn().catch(function (e) { console.warn('sign-in not recorded', e); }); }
     this.loadMyBookings();
   }
@@ -264,8 +271,9 @@ export default class Logic extends DCLogic {
     var X = this.extraData(P.price);
     var date = S.dateKey ? this.fromKey(S.dateKey) : null;
     var I = S.info, C = S.card;
-    var errs = { first: !I.first.trim(), last: !I.last.trim(), email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(I.email.trim()) };
-    var infoOk = !errs.first && !errs.last && !errs.email;
+    var errs = { first: !I.first.trim(), last: !I.last.trim(), email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(I.email.trim()),
+      pw: !S.signedIn && (I.pw || '').length < 8 };
+    var infoOk = !errs.first && !errs.last && !errs.email && !errs.pw;
     var cardOk = C.holder.trim().length > 1 && C.num.replace(/\D/g, '').length === 16 && /^\d\d\/\d\d$/.test(C.exp) && C.cvc.length >= 3;
     var validDays = this.validDays();
 
@@ -412,10 +420,13 @@ export default class Logic extends DCLogic {
     var freeCount = slotList.filter(function (s) { return !s.disabled; }).length;
 
     // ----- wizard -----
-    var steps = isBundle ? ['bundle', 'info', 'pay'] : ['service', 'setup', 'people', 'extras', 'time', 'info', 'pay'];
+    // Signed-in customers with a name on file skip "Your information" (they can still edit it).
+    var profileOk = S.signedIn && !!I.first.trim() && !!I.last.trim();
+    var steps = (isBundle ? ['bundle', 'info', 'pay'] : ['service', 'setup', 'people', 'extras', 'time', 'info', 'pay'])
+      .filter(function (t) { return t !== 'info' || !profileOk || S.editInfo; });
     var titleMap = { service: 'Choose a service', bundle: 'Your package', setup: isBundle ? 'Your preferred setup' : 'Choose your setup', people: 'Who is on camera?', extras: 'Add extras', time: 'Pick a date & time', info: 'Your information', pay: 'Review & pay' };
-    var backMap = { service: 'Back', bundle: 'Back', setup: isBundle ? 'Back to package' : 'Back to service', people: 'Back to setup', extras: 'Back to people', time: 'Back to extras', info: isBundle ? 'Back to package' : 'Back to date & time', pay: 'Back to your information' };
-    var cur = steps[S.w - 1];
+    var backMap = { service: 'Back', bundle: 'Back', setup: isBundle ? 'Back to package' : 'Back to service', people: 'Back to setup', extras: 'Back to people', time: 'Back to extras', info: isBundle ? 'Back to package' : 'Back to date & time', pay: steps.indexOf('info') >= 0 ? 'Back to your information' : isBundle ? 'Back to package' : 'Back to date & time' };
+    var cur = steps[Math.min(S.w, steps.length) - 1];
     var st = {}; ['service', 'bundle', 'setup', 'people', 'extras', 'time', 'info', 'pay'].forEach(function (k) { st[k] = cur === k; });
     var progBars = steps.map(function (t, i) { return i + 1 < S.w ? 'on' : i + 1 === S.w ? 'cur' : ''; });
     var blockedMap = { service: false, bundle: false, setup: !S.setup, people: false, extras: false, time: !(date && S.start != null), info: false,
@@ -426,6 +437,24 @@ export default class Logic extends DCLogic {
 
     var pay = function () {
       self.setState({ paying: true });
+      var profile = { first: I.first.trim(), last: I.last.trim(), phone: (I.phone || '').trim(), wa: !!I.wa };
+      var accountP = Promise.resolve(null);
+      if (!S.signedIn) {
+        // New customers create their account (email + password) as part of the booking.
+        accountP = signUpWithPassword(I.email, I.pw, profile).then(function (res) {
+          if (res !== 'exists') return res;
+          return signInWithPassword(I.email, I.pw).then(function () { return 'signed_in'; }).catch(function (e) {
+            if (e.code === 'not_confirmed') return 'unconfirmed';
+            var err = new Error('This email already has an account. Sign in at My account first (use "Forgot password?" if needed), then book.');
+            err.code = 'account_exists'; throw err;
+          });
+        });
+      } else {
+        saveProfile(profile).catch(function () {});
+      }
+      accountP.then(function (acct) { book(acct); }).catch(function (err) { self.setState({ paying: false }); self.showToast(err.message); });
+    };
+    var book = function (acct) {
       var name = I.first.trim() + ' ' + I.last.trim(), email = I.email.trim();
       var info = { first: I.first.trim(), last: I.last.trim(), email: email, phone: (I.phone || '').trim(), wa: !!I.wa };
       var payload, draft;
@@ -451,6 +480,7 @@ export default class Logic extends DCLogic {
           rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: payLabelRow }],
           note: 'Your hours are locked in ' + SET.n + '. Please arrive 10 minutes early.' };
       }
+      if (acct === 'created' || acct === 'unconfirmed') draft.note = 'We sent a confirmation email to ' + email + '. Tap the link in it to activate your account, then sign in with your email and password to see your bookings. ' + draft.note;
       var tokenP = usingCredit && supabase ? supabase.auth.getSession().then(function (r) { return r.data.session && r.data.session.access_token; }) : Promise.resolve(null);
       tokenP.then(function (token) { return startCheckout(payload, token); }).then(function (r) {
         draft.ref = r.ref; if (draft.booking) draft.booking.ref = r.ref;
@@ -458,7 +488,7 @@ export default class Logic extends DCLogic {
           // Pay at the studio, or fully covered by a package credit: confirmed right away, no payment page.
           if (isBundle) draft.headline = 'Package reserved';
           var covered = r.credit && r.total === 0;
-          self.setState({ paying: false, screen: 'confirm', w: 1, agreed: false, start: null,
+          self.setState({ paying: false, screen: 'confirm', w: 1, agreed: false, start: null, editInfo: false,
             last: Object.assign({}, draft, covered ? { payState: 'Covered by package', payCls: 'pill-ok' } : { payState: 'Due at studio', payCls: 'pill-due' }) });
           self.scrollTop(); self.loadBusy(); if (self.state.signedIn) self.loadMyBookings();
           return;
@@ -478,7 +508,7 @@ export default class Logic extends DCLogic {
       if (cur === 'info') {
         if (!infoOk) {
           self.setState({ showErr: true });
-          var first = errs.first ? 'i-first' : errs.last ? 'i-last' : 'i-email';
+          var first = errs.first ? 'i-first' : errs.last ? 'i-last' : errs.email ? 'i-email' : 'i-pw';
           setTimeout(function () { var el = self.rootEl && self.rootEl.querySelector('#' + first); if (el) el.focus(); }, 40);
           return;
         }
@@ -536,7 +566,8 @@ export default class Logic extends DCLogic {
     var tour = { hasDate: !!tD, noDate: !tD, dateLong: tD ? self.longDate(tD) : '', slots: tSlots, freeLabel: tFree + ' slots free',
       when: tD && S.tSlot != null ? self.longDate(tD) + ' · ' + fmtM(S.tSlot) + ' – ' + fmtM(S.tSlot + 15) : '',
       summary: tD ? (S.tSlot != null ? self.longDate(tD) + ' · ' + fmtM(S.tSlot) : self.longDate(tD) + ' · pick a time') : 'Pick a day and a time' };
-    var E = S.showErr ? errs : { first: false, last: false, email: false };
+    var E = S.showErr ? errs : { first: false, last: false, email: false, pw: false };
+    var acctEmailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((S.acctEmail || '').trim());
     var cellsFor = function (s, e) { var a = []; for (var h = 15; h < 23; h++) a.push('tlc' + (h >= s && h < e ? ' on' : '')); return a; };
     var last = S.last ? Object.assign({}, S.last, { cells: cellsFor(S.last.start || 0, S.last.end || 0), isBundle: S.last.kind === 'bundle', isSession: S.last.kind === 'session', acctCls: S.last.kind === 'bundle' ? 'btn-gold' : 'btn-ghost' }) :
       { email: '', ref: '', headline: '', kicker: '', big: '', sub: '', totalLabel: '', payState: '', payCls: '', rows: [], note: '', cells: cellsFor(0, 0), isBundle: false, isSession: true, acctCls: 'btn-ghost' };
@@ -629,17 +660,37 @@ export default class Logic extends DCLogic {
       sendTour: function () { self.setState({ tourSent: true }); self.scrollTop(); },
       signedIn: S.signedIn, signedOut: !S.signedIn, acctEmail: S.acctEmail,
       onAcct: function (e) { self.setState({ acctEmail: e.target.value }); },
-      signinBlocked: S.signInBusy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.acctEmail.trim()),
-      signInLabel: S.signInBusy ? 'Sending…' : S.signInNote ? 'Send the link again' : 'Email me a sign-in link',
+      signinBlocked: S.signInBusy || !acctEmailOk || !S.acctPw,
+      signInLabel: S.signInBusy ? 'Signing in…' : 'Sign in',
       hasSignInNote: !!S.signInNote, signInNote: S.signInNote,
+      acctPw: S.acctPw, onAcctPw: function (e) { self.setState({ acctPw: e.target.value }); },
       signIn: function () {
-        var em = S.acctEmail.trim();
-        self.setState({ signInBusy: true });
-        sendSignInLink(em, '/?account=1').then(function () {
-          self.setState({ signInBusy: false, signInNote: 'Check your inbox at ' + em + ' and tap the link to sign in. It can take a minute; check spam too.' });
-        }).catch(function (err) { self.setState({ signInBusy: false }); self.showToast(err.message); });
+        self.setState({ signInBusy: true, signInNote: '' });
+        signInWithPassword(S.acctEmail, S.acctPw).then(function () { self.setState({ signInBusy: false, acctPw: '' }); })
+          .catch(function (err) { self.setState({ signInBusy: false, signInNote: err.message }); });
       },
-      signOut: function () { authSignOut().then(function () { self.setState({ signedIn: false, bookings: [], credits: [], acctEmail: '' }); }); },
+      forgotPw: function () {
+        if (!acctEmailOk) { self.setState({ signInNote: 'Type your email above first, then tap "Forgot password?".' }); return; }
+        sendPasswordReset(S.acctEmail).then(function () { self.setState({ signInNote: 'We sent a password reset link to ' + S.acctEmail.trim() + '. Open it on this device to choose a new password.' }); })
+          .catch(function (err) { self.setState({ signInNote: err.message }); });
+      },
+      emailLink: function () {
+        if (!acctEmailOk) { self.setState({ signInNote: 'Type your email above first.' }); return; }
+        sendSignInLink(S.acctEmail, '/?account=1').then(function () { self.setState({ signInNote: 'Check your inbox at ' + S.acctEmail.trim() + ' and tap the link to sign in. It can take a minute; check spam too.' }); })
+          .catch(function (err) { self.setState({ signInNote: err.message }); });
+      },
+      showPwPanel: S.showPwPanel, pwPanelLabel: S.showPwPanel ? 'Close' : 'Change password',
+      pwPanelTitle: S.pwReset ? 'Choose a new password' : 'Change your password',
+      togglePwPanel: function () { self.setState({ showPwPanel: !S.showPwPanel, pwReset: false, newPw: '' }); },
+      newPw: S.newPw, onNewPw: function (e) { self.setState({ newPw: e.target.value }); }, newPwBlocked: (S.newPw || '').length < 8,
+      saveNewPw: function () {
+        setPassword(S.newPw).then(function () { self.setState({ showPwPanel: false, pwReset: false, newPw: '' }); self.showToast('Password saved. Use it next time you sign in.'); })
+          .catch(function (err) { self.showToast(err.message); });
+      },
+      needPassword: !S.signedIn,
+      hasBookingAs: S.signedIn && cur === 'pay' && steps.indexOf('info') < 0, bookingAs: (I.first + ' ' + I.last).trim() + ' · ' + S.acctEmail,
+      editInfo: function () { self.setState({ editInfo: true, w: isBundle ? 2 : 6 }); },
+      signOut: function () { authSignOut().then(function () { self.setState({ signedIn: false, bookings: [], credits: [], acctEmail: '', showPwPanel: false, info: { first: '', last: '', email: '', phone: '', wa: false, pw: '' } }); }); },
       bookingList: bookingList, noBookings: bookingList.length === 0 && creditList.length === 0,
       creditList: creditList, hasCredits: creditList.length > 0, hasBookings: bookingList.length > 0,
       // wizard
@@ -656,10 +707,10 @@ export default class Logic extends DCLogic {
       extraList: extraList, durLabel: hoursText,
       cal: cal, hasDate: !!date, noDate: !date, dateLong: date ? self.longDate(date) : '',
       slotList: slotList, noSlots: !!date && freeCount === 0,
-      info: I, onI: { first: fI('first'), last: fI('last'), email: fI('email'), phone: fI('phone') },
+      info: I, onI: { first: fI('first'), last: fI('last'), email: fI('email'), phone: fI('phone'), pw: fI('pw') },
       toggleWa: function () { self.setF('info', 'wa', !I.wa); },
-      err: { firstBad: E.first, lastBad: E.last, emailBad: E.email,
-        firstCls: 'inp' + (E.first ? ' bad' : ''), lastCls: 'inp' + (E.last ? ' bad' : ''), emailCls: 'inp' + (E.email ? ' bad' : '') },
+      err: { firstBad: E.first, lastBad: E.last, emailBad: E.email, pwBad: !!E.pw,
+        firstCls: 'inp' + (E.first ? ' bad' : ''), lastCls: 'inp' + (E.last ? ' bad' : ''), emailCls: 'inp' + (E.email ? ' bad' : ''), pwCls: 'inp' + (E.pw ? ' bad' : '') },
       canCredit: !isBundle && !!credit, useCredit: S.useCredit, toggleCredit: function () { self.setState({ useCredit: !S.useCredit }); },
       creditNote: credit ? credit.tier + ' package · ' + credit.left + ' left · covers the first hour' : '',
       needsPay: needsPay, noPay: !needsPay,

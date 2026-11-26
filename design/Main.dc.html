@@ -628,18 +628,27 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="card mpad" style="max-width: 480px; margin: 0 auto; padding: 40px; display: flex; flex-direction: column; gap: 18px">
 <p class="eyebrow" style="margin: 0">My account</p>
 <h1 class="ttl" style="margin: 0; font-size: 34px; color: #FFFFFF">Sign in</h1>
-<p class="lead" style="font-size: 15px">See your bookings and times. Enter the email you booked with and we will send you a sign-in link, no password needed.</p>
-<div class="field"><label for="a-email">Email</label><input id="a-email" class="inp" type="email" value="{{ acctEmail }}" onChange="{{ onAcct }}" placeholder="you@example.com"></div>
+<p class="lead" style="font-size: 15px">See your bookings, packages and sessions left.</p>
+<div class="field"><label for="a-email">Email</label><input id="a-email" class="inp" type="email" value="{{ acctEmail }}" onChange="{{ onAcct }}" autoComplete="email" placeholder="you@example.com"></div>
+<div class="field"><label for="a-pass">Password</label><input id="a-pass" class="inp" type="password" value="{{ acctPw }}" onChange="{{ onAcctPw }}" autoComplete="current-password" placeholder="Your password"></div>
 <button class="btn-gold btn-lg" disabled="{{ signinBlocked }}" onClick="{{ signIn }}">{{ signInLabel }}</button>
 <sc-if value="{{ hasSignInNote }}" hint-placeholder-val="{{ false }}"><p role="status" style="margin: 0; font-size: 14px; color: #E2B872; text-align: center; line-height: 1.6">{{ signInNote }}</p></sc-if>
-<p style="margin: 0; font-size: 14px; color: #A89C8B; text-align: center">New here? Your account is created the first time you sign in. <button class="link" onClick="{{ bookNow }}">Book a session</button></p>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px"><button class="link" onClick="{{ forgotPw }}">Forgot password?</button><button class="link" onClick="{{ emailLink }}">Email me a sign-in link instead</button></div>
+<p style="margin: 0; font-size: 14px; color: #A89C8B; text-align: center">New here? You create your account with a password when you book. <button class="link" onClick="{{ bookNow }}">Book a session</button></p>
 </div>
 </sc-if>
 <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 32px">
 <div><p class="eyebrow">My account</p><h1 class="h2">My bookings</h1><p style="margin: 10px 0 0; font-size: 14px; color: #A89C8B">Signed in as {{ acctEmail }}</p></div>
-<div style="display: flex; gap: 12px"><button class="btn-gold" onClick="{{ bookNow }}">New booking</button><button class="btn-ghost" onClick="{{ signOut }}">Sign out</button></div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px"><button class="btn-gold" onClick="{{ bookNow }}">New booking</button><button class="btn-ghost" onClick="{{ togglePwPanel }}">{{ pwPanelLabel }}</button><button class="btn-ghost" onClick="{{ signOut }}">Sign out</button></div>
 </div>
+<sc-if value="{{ showPwPanel }}" hint-placeholder-val="{{ false }}">
+<div class="card mpad" style="padding: 28px 32px; margin-bottom: 32px; display: flex; flex-direction: column; gap: 14px; max-width: 520px">
+<p class="lbl" style="margin: 0">{{ pwPanelTitle }}</p>
+<div class="field"><label for="a-newpw">New password</label><input id="a-newpw" class="inp" type="password" value="{{ newPw }}" onChange="{{ onNewPw }}" autoComplete="new-password" placeholder="At least 8 characters"></div>
+<button class="btn-gold" disabled="{{ newPwBlocked }}" onClick="{{ saveNewPw }}" style="align-self: flex-start">Save password</button>
+</div>
+</sc-if>
 <sc-if value="{{ hasCredits }}" hint-placeholder-val="{{ false }}">
 <p class="lbl">My packages</p>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 36px">
@@ -887,14 +896,18 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="field"><label for="i-first">First name</label><input id="i-first" class="{{ err.firstCls }}" value="{{ info.first }}" onChange="{{ onI.first }}" autoComplete="given-name" aria-invalid="{{ err.firstBad }}"><sc-if value="{{ err.firstBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Please enter your first name.</span></sc-if></div>
 <div class="field"><label for="i-last">Last name</label><input id="i-last" class="{{ err.lastCls }}" value="{{ info.last }}" onChange="{{ onI.last }}" autoComplete="family-name" aria-invalid="{{ err.lastBad }}"><sc-if value="{{ err.lastBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Please enter your last name.</span></sc-if></div>
 </div>
-<div class="field"><label for="i-email">Email</label><input id="i-email" class="{{ err.emailCls }}" type="email" value="{{ info.email }}" onChange="{{ onI.email }}" autoComplete="email" placeholder="you@example.com" aria-invalid="{{ err.emailBad }}"><sc-if value="{{ err.emailBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Enter a valid email — your confirmation goes here.</span></sc-if></div>
+<div class="field"><label for="i-email">Email</label><input id="i-email" class="{{ err.emailCls }}" type="email" value="{{ info.email }}" onChange="{{ onI.email }}" readOnly="{{ signedIn }}" autoComplete="email" placeholder="you@example.com" aria-invalid="{{ err.emailBad }}"><sc-if value="{{ err.emailBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Enter a valid email — your confirmation goes here.</span></sc-if></div>
 <div class="field"><label for="i-phone">Phone (optional)</label><input id="i-phone" class="inp" type="tel" inputMode="tel" value="{{ info.phone }}" onChange="{{ onI.phone }}" autoComplete="tel" placeholder="+20 1x xxxx xxxx"></div>
 <label class="chkbox"><input type="checkbox" checked="{{ info.wa }}" onChange="{{ toggleWa }}"><span>Send my booking updates on WhatsApp</span></label>
+<sc-if value="{{ needPassword }}" hint-placeholder-val="{{ false }}">
+<div class="field"><label for="i-pw">Create a password</label><input id="i-pw" class="{{ err.pwCls }}" type="password" value="{{ info.pw }}" onChange="{{ onI.pw }}" autoComplete="new-password" placeholder="At least 8 characters" aria-invalid="{{ err.pwBad }}"><sc-if value="{{ err.pwBad }}" hint-placeholder-val="{{ false }}"><span class="ferr">Use at least 8 characters.</span></sc-if><span style="font-size: 13px; color: #A89C8B">You will use this email and password to see your bookings and packages. Already have an account? <button class="link" onClick="{{ nav.account }}">Sign in first</button></span></div>
+</sc-if>
 </div>
 </sc-if>
 
 <!-- PAYMENT -->
 <sc-if value="{{ st.pay }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ hasBookingAs }}" hint-placeholder-val="{{ false }}"><p style="margin: 0 0 18px; font-size: 14px; color: #A89C8B">Booking as <strong style="color: #FFFFFF">{{ bookingAs }}</strong> &middot; <button class="link" onClick="{{ editInfo }}">Edit details</button></p></sc-if>
 <sc-if value="{{ canCredit }}" hint-placeholder-val="{{ false }}">
 <label class="xrow" style="cursor: pointer; margin-bottom: 22px"><span style="display: flex; gap: 14px; align-items: center"><input type="checkbox" checked="{{ useCredit }}" onChange="{{ toggleCredit }}" style="width: 20px; height: 20px; accent-color: #E2B872; margin: 0"><span><span style="display: block; font-size: 15px; font-weight: 500; color: #FFFFFF">Use 1 package credit</span><span style="display: block; margin-top: 3px; font-size: 13px; color: #A89C8B">{{ creditNote }}</span></span></span></label>
 </sc-if>

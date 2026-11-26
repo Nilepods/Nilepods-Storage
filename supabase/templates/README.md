@@ -6,6 +6,7 @@ Installed in Supabase -> Authentication -> Emails -> Templates (sent via Brevo S
 | File | Supabase template | Subject |
 |---|---|---|
 | magic_link.html | Magic link or OTP | Your Nilepods sign-in link |
+| reset_password.html | Reset password | Reset your Nilepods password |
 | confirm_signup.html | Confirm sign up (first sign-in of a new email) | Welcome to Nilepods - confirm your email |
 
 Variables: `{{ .ConfirmationURL }}`, `{{ .Email }}`. To change a template, edit the file,
