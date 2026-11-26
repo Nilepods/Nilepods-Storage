@@ -84,5 +84,6 @@ export async function recordSignIn() {
 }
 
 export async function signOut() {
-  if (supabase) await supabase.auth.signOut();
+  // 'local' signs out this browser only, not the account's other devices and sessions.
+  if (supabase) await supabase.auth.signOut({ scope: 'local' });
 }
