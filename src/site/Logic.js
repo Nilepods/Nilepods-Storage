@@ -431,9 +431,9 @@ export default class Logic extends DCLogic {
     var progBars = steps.map(function (t, i) { return i + 1 < S.w ? 'on' : i + 1 === S.w ? 'cur' : ''; });
     var blockedMap = { service: false, bundle: false, setup: !S.setup, people: false, extras: false, time: !(date && S.start != null), info: false,
       pay: !S.agreed || S.paying };
-    var payLabel = S.paying ? 'Processing…' : !needsPay ? 'Confirm booking' : S.method === 'card' ? 'Pay ' + self.money(total) + (isBundle ? ' & buy package' : ' & book') : 'Confirm — pay at the studio';
+    var payLabel = S.paying ? 'Processing…' : (!needsPay || usingCredit) ? 'Confirm booking' : S.method === 'card' ? 'Pay ' + self.money(total) + (isBundle ? ' & buy package' : ' & book') : 'Confirm — pay at the studio';
     var nextLabel = cur === 'pay' ? payLabel : cur === 'info' ? 'Continue to payment' : 'Continue';
-    var nextShort = cur === 'pay' ? (S.paying ? 'Processing…' : !needsPay ? 'Confirm' : S.method === 'card' ? (isBundle ? 'Pay & buy' : 'Pay & book') : 'Confirm') : 'Continue';
+    var nextShort = cur === 'pay' ? (S.paying ? 'Processing…' : (!needsPay || usingCredit) ? 'Confirm' : S.method === 'card' ? (isBundle ? 'Pay & buy' : 'Pay & book') : 'Confirm') : 'Continue';
 
     var pay = function () {
       self.setState({ paying: true });
@@ -463,7 +463,7 @@ export default class Logic extends DCLogic {
         self.showToast('To use your package, enter the email you are signed in with (' + S.acctEmail + ').');
         return;
       }
-      var payLabelRow = usingCredit ? ('Package credit' + (needsPay ? ' + ' + (S.method === 'cash' ? 'pay at the studio' : 'card') : '')) : (S.method === 'cash' ? 'Pay at the studio' : 'Card (Paymob)');
+      var payLabelRow = usingCredit ? ('Package credit' + (needsPay ? ' + extras at the studio (' + self.money(total) + ')' : '')) : (S.method === 'cash' ? 'Pay at the studio' : 'Card (Paymob)');
       if (isBundle) {
         payload = { kind: 'package', service: P.id, sessions: S.bCount, info: info, payment: S.method };
         draft = { kind: 'bundle', email: email, headline: 'Package confirmed', kicker: 'Package', big: P.tier + ' · ' + S.bCount + (S.bCount === 1 ? ' session' : ' sessions'),
@@ -472,7 +472,7 @@ export default class Logic extends DCLogic {
           note: 'Sign in at My account with ' + email + ' to book your ' + (S.bCount === 1 ? 'session' : S.bCount + ' sessions') + ' with this package. Valid for ' + validDays + ' days.' };
       } else {
         payload = { kind: 'session', service: S.svc, setup: S.setup, date: isoDate(date), start: S.start, people: S.people, extras: S.ex, info: info,
-          payment: needsPay ? S.method : 'cash', credit: usingCredit ? credit.id : undefined };
+          payment: needsPay && !usingCredit ? S.method : 'cash', credit: usingCredit ? credit.id : undefined };
         var b = { kind: 'session', key: S.dateKey, setup: S.setup, start: S.start, end: S.start + dur, pkgName: P.name,
           setupLabel: SET.n, dateLabel: self.longDate(date), timeLabel: self.range(S.start, S.start + dur), totalLabel: self.money(total) };
         draft = { kind: 'session', email: email, headline: "You're booked!", kicker: 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
@@ -713,7 +713,8 @@ export default class Logic extends DCLogic {
         firstCls: 'inp' + (E.first ? ' bad' : ''), lastCls: 'inp' + (E.last ? ' bad' : ''), emailCls: 'inp' + (E.email ? ' bad' : ''), pwCls: 'inp' + (E.pw ? ' bad' : '') },
       canCredit: !isBundle && !!credit, useCredit: S.useCredit, toggleCredit: function () { self.setState({ useCredit: !S.useCredit }); },
       creditNote: credit ? credit.tier + ' package · ' + credit.left + ' left · covers the first hour' : '',
-      needsPay: needsPay, noPay: !needsPay,
+      needsPay: needsPay && !usingCredit, noPay: !needsPay || usingCredit,
+      creditPayNote: usingCredit && needsPay ? 'Nothing to pay now. Your package credit covers the session; extras (' + self.money(total) + ') are added to your bill at the studio.' : 'Nothing to pay. Your package credit covers this session.',
       // Card only, on Paymob's hosted checkout. Card details are never entered on this site.
       payMethods: [{ id: 'card', label: 'Card', sub: 'Visa · Mastercard · Meeza' }, { id: 'cash', label: 'At the studio', sub: 'Pay cash on the day' }].map(function (m) {
         return { label: m.label, sub: m.sub, on: S.method === m.id, cls: 'opt' + (S.method === m.id ? ' on' : ''), pick: function () { self.setState({ method: m.id }); } }; }),

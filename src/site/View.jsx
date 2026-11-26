@@ -1780,7 +1780,7 @@ export default function View(v) {
                       {v.noPay ? (<>
                         <div className="xrow on">
                           <p style={{ margin: "0", fontSize: "15px", color: "#FFFFFF" }}>
-                            {"Nothing to pay — your package credit covers this session."}
+                            {v.creditPayNote}
                           </p>
                         </div>
                       </>) : null}

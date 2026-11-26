@@ -931,7 +931,7 @@ details[open] .plus{transform:rotate(45deg)}
 </div>
 </sc-if>
 </sc-if>
-<sc-if value="{{ noPay }}" hint-placeholder-val="{{ false }}"><div class="xrow on"><p style="margin: 0; font-size: 15px; color: #FFFFFF">Nothing to pay — your package credit covers this session.</p></div></sc-if>
+<sc-if value="{{ noPay }}" hint-placeholder-val="{{ false }}"><div class="xrow on"><p style="margin: 0; font-size: 15px; color: #FFFFFF">{{ creditPayNote }}</p></div></sc-if>
 <label class="chkbox" style="margin-top: 22px"><input type="checkbox" checked="{{ agreed }}" onChange="{{ toggleAgree }}"><span>I agree to the <button class="link" onClick="{{ legal.terms }}">Terms</button> and <button class="link" onClick="{{ legal.refund }}">Refund &amp; Cancelation</button> policy.</span></label>
 </sc-if>
 
