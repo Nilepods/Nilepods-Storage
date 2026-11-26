@@ -24,7 +24,7 @@ export async function signInWithPassword(email, password) {
   need();
   const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
   if (error) {
-    const e = new Error(/not confirmed/i.test(error.message) ? 'Please confirm your email first: open the email we sent you and tap the link.'
+    const e = new Error(/not confirmed/i.test(error.message) ? 'Your email is not confirmed yet. Find the email "Welcome to Nilepods - confirm your email" (check Promotions and Spam) and tap Confirm, or tap "Email me a sign-in link instead" below.'
       : /invalid/i.test(error.message) ? 'Wrong email or password.' : 'Could not sign in. Please try again.');
     e.code = /not confirmed/i.test(error.message) ? 'not_confirmed' : /invalid/i.test(error.message) ? 'invalid' : 'other';
     throw e;
