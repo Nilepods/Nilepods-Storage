@@ -138,6 +138,8 @@ details[open] .plus{transform:rotate(45deg)}
 .quote{position:sticky;top:96px;background:#14110D;border:1px solid rgba(241,234,223,.09);border-radius:20px}
 .pill-ok{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#8FCB9B;border:1px solid rgba(143,203,155,.4);padding:6px 12px;border-radius:999px}
 .pill-due{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#E2B872;border:1px solid rgba(226,184,114,.45);padding:6px 12px;border-radius:999px}
+.pill-cx{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#FFFFFF;background:#B4413A;border:1px solid #B4413A;padding:6px 12px;border-radius:999px}
+.cxcard{border-color:rgba(180,65,58,.45) !important}.cxcard .cxdim{opacity:.55}.cxcard .tlc.on{background:#5A4A3A}
 .mbar{display:none}
 @media (max-width:860px){
 .bk{padding:32px 0 130px}

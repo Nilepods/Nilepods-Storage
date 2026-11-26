@@ -12,7 +12,7 @@ function cairoParts(iso) {
 }
 const STATUS_LABELS = {
   confirmed: ['Confirmed', 'pill-ok'], in_studio: ['In studio', 'pill-ok'], completed: ['Completed', 'pill-ok'],
-  no_show: ['Missed', 'pill-due'], cancelled: ['Cancelled', 'pill-due'], needs_review: ['Being reviewed', 'pill-due'],
+  no_show: ['Missed', 'pill-due'], cancelled: ['Cancelled', 'pill-cx'], needs_review: ['Being reviewed', 'pill-due'],
   active: ['Paid', 'pill-ok'],
 };
 
@@ -647,7 +647,7 @@ export default class Logic extends DCLogic {
     };
     var bookingList = S.bookings.slice().reverse().map(function (b) {
       var open = S.moveRef === b.ref, mv = open ? moveSlotsFor(b) : { slots: [], note: '' };
-      return Object.assign({}, b, { cells: cellsFor(b.start, b.end),
+      return Object.assign({}, b, { cells: cellsFor(b.start, b.end), cardCls: 'card mpad' + (b.statusCls === 'pill-cx' ? ' cxcard' : ''),
         canMove: !!b.canMove, tooLate: !!b.upcoming && !b.canMove, moveOpen: open,
         moveLabel: open ? 'Keep this time' : 'Reschedule',
         toggleMove: function () { if (!open) self.loadBusy(); self.setState({ moveRef: open ? null : b.ref, moveDate: '', moveStart: null }); },

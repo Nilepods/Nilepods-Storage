@@ -956,9 +956,9 @@ export default function View(v) {
               </>) : null}
               <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 {(v.bookingList || []).map((b, b_i13) => (<Fragment key={b_i13}>
-                  <div className="card mpad" style={{ padding: "28px 32px" }}>
+                  <div className={b.cardCls} style={{ padding: "28px 32px" }}>
                     <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "16px", alignItems: "flex-start" }}>
-                      <div>
+                      <div className="cxdim">
                         <p style={{ margin: "0", fontSize: "13px", color: "#A89C8B" }}>
                           {"Booking "}{b.ref}
                         </p>
@@ -981,7 +981,7 @@ export default function View(v) {
                         </p>
                       </div>
                     </div>
-                    <div style={{ marginTop: "22px" }}>
+                    <div className="cxdim" style={{ marginTop: "22px" }}>
                       <div className="tl">
                         {(b.cells || []).map((c, c_i14) => (<Fragment key={c_i14}>
                           <div className={c} />
