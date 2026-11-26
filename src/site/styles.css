@@ -20,6 +20,7 @@ button:disabled{cursor:not-allowed}
 .link{color:#E2B872;font-size:14px;font-weight:500}.link:hover{color:#F4D9A6}
 .card{background:#17140F;border:1px solid rgba(241,234,223,.1);border-radius:20px;transition:all .3s ease}
 .card:hover{border-color:rgba(226,184,114,.5)}
+.card.static:hover{border-color:rgba(241,234,223,.1)}
 .lift:hover{transform:translateY(-4px)}
 .chk{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:11px;font-size:14px;color:#DCD3C4}
 .chk li{display:flex;gap:10px;line-height:1.45}
@@ -162,7 +163,20 @@ details[open] .plus{transform:rotate(45deg)}
 .fchk:hover{border-color:rgba(226,184,114,.5)}
 .fchk.on{border-color:#E2B872;color:#fff;background:rgba(226,184,114,.08)}
 .fchk input{width:18px;height:18px;margin:0;accent-color:#E2B872}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.pcard.pop{border-color:rgba(226,184,114,.55);box-shadow:0 0 0 1px rgba(226,184,114,.25),0 24px 60px -30px rgba(226,184,114,.35)}
+.poptag{position:absolute;top:14px;right:14px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#E2B872;background:rgba(14,12,10,.82);border:1px solid rgba(226,184,114,.6);padding:6px 10px;border-radius:999px;backdrop-filter:blur(6px)}
+.frad{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px;width:100%;min-height:58px;padding:10px 14px;border-radius:14px;border:1px solid rgba(241,234,223,.1);background:transparent;text-align:left;color:#DCD3C4;cursor:pointer;transition:all .2s}
+.frad:hover{border-color:rgba(226,184,114,.5)}
+.frad.on{border-color:#E2B872;background:rgba(226,184,114,.08);color:#fff}
+.rdot{width:18px;height:18px;border-radius:999px;border:1.5px solid rgba(241,234,223,.35);display:grid;place-items:center;transition:all .2s}
+.frad.on .rdot{border-color:#E2B872}.frad.on .rdot::after{content:'';width:8px;height:8px;border-radius:999px;background:#E2B872}
+.fname{display:flex;flex-direction:column;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:16px;line-height:1.15;color:#fff}
+.fname small{font-family:'Poppins',sans-serif;font-weight:400;font-size:12px;color:#A89C8B;margin-top:2px}
+.fsave{font-size:12px;font-weight:600;color:#8FCB9B}
+.phead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:0 0 22px}
+.phead h2{margin:0;font-size:30px;font-weight:700;color:#fff;line-height:1}
+.phead p{margin:0;font-size:14px;color:#A89C8B}
 .pcard{display:flex;flex-direction:column;background:#14110D;border:1px solid rgba(241,234,223,.1);border-radius:20px;overflow:hidden;transition:all .3s ease}
 .pcard:hover{border-color:rgba(226,184,114,.5);transform:translateY(-4px)}
 .pimg{height:190px;position:relative;overflow:hidden}
@@ -200,6 +214,10 @@ details[open] .plus{transform:rotate(45deg)}
 .frail{position:static;flex:1 1 100%;gap:16px}
 .fopts{flex-direction:row;flex-wrap:wrap}
 .fchk{min-height:44px}
+.pgrid{grid-template-columns:1fr}
+.fopts{display:grid !important;grid-template-columns:1fr 1fr;gap:8px}
+.frad{grid-template-columns:auto 1fr;min-height:62px}.frad .fsave{grid-column:2}
+.phead h2{font-size:26px}
 .slide{flex-basis:90%}
 .slide-card{height:380px}
 .slide-card .slide-in{padding:22px}
@@ -265,7 +283,7 @@ details[open] .plus{transform:rotate(45deg)}
 .hs-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.18);will-change:transform;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .hs-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,8,6,.9) 0%,rgba(10,8,6,.15) 45%,rgba(10,8,6,0) 70%)}
 .hs-info{position:absolute;left:0;right:0;bottom:0;padding:0 40px 36px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
-.hs-name{margin:0;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:clamp(40px,6vw,92px);line-height:.95;letter-spacing:-1.5px;color:#fff}
+.hs-name{margin:0;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:clamp(30px,3.4vw,48px);line-height:1;letter-spacing:-.5px;color:#fff}
 .hs-meta{margin:12px 0 0;font-size:15px;color:#DCD3C4}
 .hs-book{min-width:170px;padding:14px 30px;flex-shrink:0}
 .hs-arrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:#F1EADF;color:#17120B;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);transition:all .2s;z-index:2}

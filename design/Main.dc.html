@@ -32,6 +32,7 @@ button:disabled{cursor:not-allowed}
 .link{color:#E2B872;font-size:14px;font-weight:500}.link:hover{color:#F4D9A6}
 .card{background:#17140F;border:1px solid rgba(241,234,223,.1);border-radius:20px;transition:all .3s ease}
 .card:hover{border-color:rgba(226,184,114,.5)}
+.card.static:hover{border-color:rgba(241,234,223,.1)}
 .lift:hover{transform:translateY(-4px)}
 .chk{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:11px;font-size:14px;color:#DCD3C4}
 .chk li{display:flex;gap:10px;line-height:1.45}
@@ -174,7 +175,20 @@ details[open] .plus{transform:rotate(45deg)}
 .fchk:hover{border-color:rgba(226,184,114,.5)}
 .fchk.on{border-color:#E2B872;color:#fff;background:rgba(226,184,114,.08)}
 .fchk input{width:18px;height:18px;margin:0;accent-color:#E2B872}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.pcard.pop{border-color:rgba(226,184,114,.55);box-shadow:0 0 0 1px rgba(226,184,114,.25),0 24px 60px -30px rgba(226,184,114,.35)}
+.poptag{position:absolute;top:14px;right:14px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#E2B872;background:rgba(14,12,10,.82);border:1px solid rgba(226,184,114,.6);padding:6px 10px;border-radius:999px;backdrop-filter:blur(6px)}
+.frad{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px;width:100%;min-height:58px;padding:10px 14px;border-radius:14px;border:1px solid rgba(241,234,223,.1);background:transparent;text-align:left;color:#DCD3C4;cursor:pointer;transition:all .2s}
+.frad:hover{border-color:rgba(226,184,114,.5)}
+.frad.on{border-color:#E2B872;background:rgba(226,184,114,.08);color:#fff}
+.rdot{width:18px;height:18px;border-radius:999px;border:1.5px solid rgba(241,234,223,.35);display:grid;place-items:center;transition:all .2s}
+.frad.on .rdot{border-color:#E2B872}.frad.on .rdot::after{content:'';width:8px;height:8px;border-radius:999px;background:#E2B872}
+.fname{display:flex;flex-direction:column;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:16px;line-height:1.15;color:#fff}
+.fname small{font-family:'Poppins',sans-serif;font-weight:400;font-size:12px;color:#A89C8B;margin-top:2px}
+.fsave{font-size:12px;font-weight:600;color:#8FCB9B}
+.phead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:0 0 22px}
+.phead h2{margin:0;font-size:30px;font-weight:700;color:#fff;line-height:1}
+.phead p{margin:0;font-size:14px;color:#A89C8B}
 .pcard{display:flex;flex-direction:column;background:#14110D;border:1px solid rgba(241,234,223,.1);border-radius:20px;overflow:hidden;transition:all .3s ease}
 .pcard:hover{border-color:rgba(226,184,114,.5);transform:translateY(-4px)}
 .pimg{height:190px;position:relative;overflow:hidden}
@@ -212,6 +226,10 @@ details[open] .plus{transform:rotate(45deg)}
 .frail{position:static;flex:1 1 100%;gap:16px}
 .fopts{flex-direction:row;flex-wrap:wrap}
 .fchk{min-height:44px}
+.pgrid{grid-template-columns:1fr}
+.fopts{display:grid !important;grid-template-columns:1fr 1fr;gap:8px}
+.frad{grid-template-columns:auto 1fr;min-height:62px}.frad .fsave{grid-column:2}
+.phead h2{font-size:26px}
 .slide{flex-basis:90%}
 .slide-card{height:380px}
 .slide-card .slide-in{padding:22px}
@@ -277,7 +295,7 @@ details[open] .plus{transform:rotate(45deg)}
 .hs-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.18);will-change:transform;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .hs-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,8,6,.9) 0%,rgba(10,8,6,.15) 45%,rgba(10,8,6,0) 70%)}
 .hs-info{position:absolute;left:0;right:0;bottom:0;padding:0 40px 36px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
-.hs-name{margin:0;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:clamp(40px,6vw,92px);line-height:.95;letter-spacing:-1.5px;color:#fff}
+.hs-name{margin:0;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:clamp(30px,3.4vw,48px);line-height:1;letter-spacing:-.5px;color:#fff}
 .hs-meta{margin:12px 0 0;font-size:15px;color:#DCD3C4}
 .hs-book{min-width:170px;padding:14px 30px;flex-shrink:0}
 .hs-arrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:#F1EADF;color:#17120B;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);transition:all .2s;z-index:2}
@@ -366,7 +384,7 @@ details[open] .plus{transform:rotate(45deg)}
 </div>
 <div style="margin-top: 64px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: rgba(241,234,223,0.12); border: 1px solid rgba(241,234,223,0.12); border-radius: 16px; overflow: hidden">
 <div style="background: rgba(14,12,10,0.78); padding: 22px 24px"><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #E2B872">3</p><p style="margin: 4px 0 0; font-size: 14px; color: #CFC5B5">Cinema cameras per session</p></div>
-<div style="background: rgba(14,12,10,0.78); padding: 22px 24px"><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #E2B872">4</p><p style="margin: 4px 0 0; font-size: 14px; color: #CFC5B5">Shure microphones</p></div>
+<div style="background: rgba(14,12,10,0.78); padding: 22px 24px"><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #E2B872">2</p><p style="margin: 4px 0 0; font-size: 14px; color: #CFC5B5">Shure microphones</p></div>
 <div style="background: rgba(14,12,10,0.78); padding: 22px 24px"><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #E2B872">3–11 PM</p><p style="margin: 4px 0 0; font-size: 14px; color: #CFC5B5">Open daily, except Friday</p></div>
 <div style="background: rgba(14,12,10,0.78); padding: 22px 24px"><p class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #E2B872">14 days</p><p style="margin: 4px 0 0; font-size: 14px; color: #CFC5B5">Raw footage backup</p></div>
 </div>
@@ -377,7 +395,7 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="wrap">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 48px">
 <div><p class="eyebrow">Book by the hour</p><h2 class="h2">Want to book a studio?</h2></div>
-<button class="btn-ghost" onClick="{{ nav.packages }}">Save with 3, 5 or 10 sessions →</button>
+<button class="btn-ghost" onClick="{{ nav.packages }}">Save up to {{ maxSave }} with session packs →</button>
 </div>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px">
 <sc-for list="{{ pkgs }}" as="p" hint-placeholder-count="3">
@@ -393,6 +411,18 @@ details[open] .plus{transform:rotate(45deg)}
 </sc-for>
 </div>
 <p style="margin: 28px 0 0; font-size: 13px; color: #9A8E7D; text-align: center">Prices are per hour of studio time. Save with 3, 5 or 10-session packages.</p>
+</div>
+</section>
+
+<section class="sec" style="background: #15120E; border-top: 1px solid rgba(241,234,223,0.06); border-bottom: 1px solid rgba(241,234,223,0.06)">
+<div class="wrap">
+<p class="eyebrow" style="text-align: center">How it works</p>
+<h2 class="h2" style="max-width: 720px; margin: 0 auto; text-align: center">From booking to recording in four steps</h2>
+<div style="margin-top: 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px">
+<sc-for list="{{ howSteps }}" as="h" hint-placeholder-count="4">
+<div class="card static" style="text-align: left; padding: 32px 28px; background: #1C1813"><p class="ttl" style="margin: 0; font-size: 44px; font-weight: 700; color: #E2B872; line-height: 1">{{ h.n }}</p><h3 class="ttl" style="margin: 26px 0 10px; font-size: 22px; font-weight: 600; color: #FFFFFF">{{ h.t }}</h3><p style="margin: 0; font-size: 14px; line-height: 1.65; color: #B0A595">{{ h.d }}</p></div>
+</sc-for>
+</div>
 </div>
 </section>
 
@@ -421,17 +451,6 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="wrap" style="text-align: center; margin-top: 28px"><button class="btn-ghost" onClick="{{ nav.studios }}">Explore all studios</button></div>
 </section>
 
-<section class="sec" style="background: #15120E; border-top: 1px solid rgba(241,234,223,0.06); border-bottom: 1px solid rgba(241,234,223,0.06)">
-<div class="wrap">
-<p class="eyebrow" style="text-align: center">How it works</p>
-<h2 class="h2" style="max-width: 720px; margin: 0 auto; text-align: center">From booking to recording in four steps</h2>
-<div style="margin-top: 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px">
-<sc-for list="{{ howSteps }}" as="h" hint-placeholder-count="4">
-<button class="card lift" onClick="{{ bookNow }}" style="text-align: left; padding: 32px 28px; background: #1C1813"><p class="ttl" style="margin: 0; font-size: 44px; font-weight: 700; color: #E2B872; line-height: 1">{{ h.n }}</p><h3 class="ttl" style="margin: 26px 0 10px; font-size: 22px; font-weight: 600; color: #FFFFFF">{{ h.t }}</h3><p style="margin: 0; font-size: 14px; line-height: 1.65; color: #B0A595">{{ h.d }}</p></button>
-</sc-for>
-</div>
-</div>
-</section>
 
 
 <section style="padding-bottom: 110px">
@@ -702,27 +721,26 @@ details[open] .plus{transform:rotate(45deg)}
 <h1 class="h2" style="font-size: clamp(40px, 5vw, 64px)">Book more, pay less per session</h1>
 <p class="lead" style="margin-top: 16px; max-width: 620px">Buy a pack of sessions now and book each one whenever it suits you. The more sessions you take, the more you save.</p>
 <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px">
-<span class="savechip">3 sessions · save {{ discLabel.d3 }}</span><span class="savechip">5 sessions · save {{ discLabel.d5 }}</span><span class="savechip">10 sessions · save {{ discLabel.d10 }}</span>
+<sc-for list="{{ saveChips }}" as="sc" hint-placeholder-count="4"><span class="savechip">{{ sc }}</span></sc-for>
 </div>
 </div></section>
 <section style="padding: 48px 0 110px"><div class="wrap" style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
 <aside class="frail" aria-label="Filters">
 <div class="fgroup">
 <p class="fhead">Number of sessions</p>
-<div class="fopts">
-<sc-for list="{{ fCount }}" as="o" hint-placeholder-count="4"><label class="{{ o.cls }}"><input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}"><span>{{ o.label }}</span></label></sc-for>
+<div class="fopts" role="radiogroup" aria-label="Number of sessions">
+<sc-for list="{{ fCount }}" as="o" hint-placeholder-count="4"><button class="{{ o.cls }}" role="radio" aria-checked="{{ o.on }}" onClick="{{ o.pick }}"><span class="rdot"></span><span class="fname">{{ o.name }}<small>{{ o.sub }}</small></span></button></sc-for>
 </div>
 </div>
-<sc-if value="{{ anyFilter }}" hint-placeholder-val="{{ false }}"><button class="link" onClick="{{ clearFilters }}" style="min-height: 44px">Clear all filters</button></sc-if>
 </aside>
 <div style="flex: 999 1 600px; min-width: 0">
-<p style="margin: 0 0 20px; font-size: 14px; color: #A89C8B" aria-live="polite">{{ resultLabel }}</p>
+<div class="phead" aria-live="polite"><h2 class="ttl">{{ packHead.name }}</h2><p>{{ packHead.sub }}</p></div>
 <div class="pgrid">
-<sc-for list="{{ catalog }}" as="c" hint-placeholder-count="6">
-<article class="pcard">
-<div class="pimg"><img src="{{ c.img }}" alt="" style="width: 100%; height: 100%; object-fit: cover"><sc-if value="{{ c.hasSave }}" hint-placeholder-val="{{ false }}"><span class="savetag">Save {{ c.savePct }}</span></sc-if></div>
+<sc-for list="{{ catalog }}" as="c" hint-placeholder-count="3">
+<article class="{{ c.cls }}">
+<div class="pimg"><img src="{{ c.img }}" alt="" style="width: 100%; height: 100%; object-fit: cover"><sc-if value="{{ c.hasSave }}" hint-placeholder-val="{{ false }}"><span class="savetag">Save {{ c.savePct }}</span></sc-if><sc-if value="{{ c.pop }}" hint-placeholder-val="{{ false }}"><span class="poptag">Most popular</span></sc-if></div>
 <div style="padding: 24px 24px 0">
-<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><h2 class="ttl" style="margin: 0; font-size: 28px; font-weight: 700; color: #FFFFFF">{{ c.tier }}</h2><span style="font-size: 13px; color: #A89C8B">{{ c.svc }}</span></div>
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><h2 class="ttl" style="margin: 0; font-size: 24px; font-weight: 700; color: #FFFFFF; line-height: 1.15">{{ c.svc }}</h2></div>
 </div>
 <div class="pprice">
 <p style="margin: 0; font-size: 13px; color: #A89C8B">{{ c.countLabel }}</p>
@@ -737,8 +755,7 @@ details[open] .plus{transform:rotate(45deg)}
 </article>
 </sc-for>
 </div>
-<sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}"><div class="ph" style="text-align: center">No packages match these filters. <button class="link" onClick="{{ clearFilters }}" style="font-size: 15px">Clear filters</button></div></sc-if>
-<p style="margin: 28px 0 0; font-size: 13px; color: #8C8172">Each session is one hour of recording with up to 60 minutes of raw material. Sessions are valid for {{ validDays }} days from purchase. Extras are added when you book each session.</p>
+<p style="margin: 28px 0 0; font-size: 13px; color: #8C8172">Each session is one hour of recording with up to 60 minutes of raw material. With Recording Only and Recording + Live Edit, you leave with your files the moment your session ends. With Recording + Pro Edit, your edited episode follows after post-production. Sessions are valid for {{ validDays }} days from purchase ({{ longValid }} days for Full Season). Extras are added when you book each session.</p>
 </div>
 </div></section>
 </sc-if>
@@ -749,16 +766,16 @@ details[open] .plus{transform:rotate(45deg)}
 <div style="display: flex; flex-wrap: wrap; gap: 32px; margin-top: 40px; align-items: stretch">
 <div class="zoom" style="flex: 999 1 520px; min-height: 380px; position: relative; border-radius: 24px; border: 1px solid rgba(241,234,223,0.08)"><img src="{{ pd.img }}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></div>
 <div class="wz mpad" style="flex: 1 1 380px; padding: 36px; display: flex; flex-direction: column; gap: 18px">
-<div><p class="lbl" style="margin: 0 0 6px">{{ pd.svc }}</p><h1 class="ttl" style="margin: 0; font-size: 44px; font-weight: 700; color: #FFFFFF; line-height: 1">{{ pd.tier }}</h1></div>
+<div><p class="lbl" style="margin: 0 0 6px">Session package</p><h1 class="ttl" style="margin: 0; font-size: 44px; font-weight: 700; color: #FFFFFF; line-height: 1">{{ pd.tier }}</h1></div>
 <div><p style="margin: 0 0 10px; font-size: 13px; color: #A89C8B">Number of sessions</p>
 <div class="segs" role="radiogroup" aria-label="Number of sessions"><sc-for list="{{ pd.counts }}" as="k" hint-placeholder-count="4"><button class="{{ k.cls }}" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}">{{ k.label }}<sc-if value="{{ k.hasSave }}" hint-placeholder-val="{{ false }}"><small>save {{ k.save }}</small></sc-if></button></sc-for></div>
 </div>
 <div style="padding: 20px; border-radius: 16px; background: #0E0C0A; border: 1px solid rgba(241,234,223,0.07)">
-<p style="margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px"><sc-if value="{{ pd.hasSave }}" hint-placeholder-val="{{ false }}"><s style="font-size: 17px; color: #7D7365">{{ pd.full }}</s></sc-if><span class="ttl" style="font-size: 38px; font-weight: 700; color: #FFFFFF">{{ pd.total }}</span></p>
+<p style="margin: 0 0 8px; font-size: 13px; color: #A89C8B">{{ pd.countLabel }}</p><p style="margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px"><sc-if value="{{ pd.hasSave }}" hint-placeholder-val="{{ false }}"><s style="font-size: 17px; color: #7D7365">{{ pd.full }}</s></sc-if><span class="ttl" style="font-size: 38px; font-weight: 700; color: #FFFFFF">{{ pd.total }}</span></p>
 <p style="margin: 6px 0 0; font-size: 14px; color: #E2B872">{{ pd.per }}<sc-if value="{{ pd.hasSave }}" hint-placeholder-val="{{ false }}"> · you save {{ pd.saved }}</sc-if></p>
 </div>
 <button class="btn-gold btn-lg" onClick="{{ pd.buy }}">Purchase Now</button>
-<p style="margin: 0; font-size: 13px; color: #8C8172; text-align: center">Valid {{ validDays }} days · book each session whenever you like</p>
+<p style="margin: 0; font-size: 13px; color: #8C8172; text-align: center">Valid {{ pd.valid }} days · book each session whenever you like</p>
 </div>
 </div>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 32px">
@@ -767,7 +784,7 @@ details[open] .plus{transform:rotate(45deg)}
 <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: #DCD3C4; line-height: 1.5">
 <li style="display: flex; gap: 12px"><span class="num">1</span>Buy the package — your sessions are added to your account.</li>
 <li style="display: flex; gap: 12px"><span class="num">2</span>Sign in and book each session when you're ready.</li>
-<li style="display: flex; gap: 12px"><span class="num">3</span>Reschedule free up to 24 hours before. [CONFIRM POLICY]</li>
+<li style="display: flex; gap: 12px"><span class="num">3</span>Reschedule free up to 48 hours before your session.</li>
 </ol></div>
 </div>
 </div></section>
@@ -822,7 +839,7 @@ details[open] .plus{transform:rotate(45deg)}
 
 <!-- SERVICE -->
 <sc-if value="{{ st.service }}" hint-placeholder-val="{{ true }}">
-<p class="lead" style="font-size: 15px; margin-bottom: 22px">Every service includes the setup, an operator, 3 cameras and 4 mics. Prices are per hour.</p>
+<p class="lead" style="font-size: 15px; margin-bottom: 22px">Every service includes the setup, an operator, 3 cameras and 2 microphones. Prices are per hour.</p>
 <div style="display: flex; flex-direction: column; gap: 12px">
 <sc-for list="{{ pkgs }}" as="p" hint-placeholder-count="3">
 <button class="{{ p.optCls }}" onClick="{{ p.pick }}" aria-pressed="{{ p.on }}">
@@ -839,11 +856,11 @@ details[open] .plus{transform:rotate(45deg)}
 <sc-if value="{{ st.bundle }}" hint-placeholder-val="{{ false }}">
 <div style="display: flex; gap: 18px; align-items: center; flex-wrap: wrap">
 <div style="width: 140px; height: 96px; border-radius: 14px; overflow: hidden; flex-shrink: 0"><img src="{{ bq.img }}" alt="" style="width: 100%; height: 100%; object-fit: cover"></div>
-<div><p class="lbl" style="margin: 0 0 4px">{{ bq.svc }}</p><p class="ttl" style="margin: 0; font-size: 30px; font-weight: 700; color: #FFFFFF">{{ bq.tier }}</p></div>
+<div><p class="lbl" style="margin: 0 0 4px">Your package</p><p class="ttl" style="margin: 0; font-size: 30px; font-weight: 700; color: #FFFFFF">{{ bq.tier }}</p></div>
 </div>
 <p style="margin: 26px 0 10px; font-size: 13px; color: #A89C8B">Number of sessions</p>
 <div class="segs"><sc-for list="{{ bq.counts }}" as="k" hint-placeholder-count="4"><button class="{{ k.cls }}" onClick="{{ k.pick }}" aria-pressed="{{ k.on }}">{{ k.label }}<sc-if value="{{ k.hasSave }}" hint-placeholder-val="{{ false }}"><small>save {{ k.save }}</small></sc-if></button></sc-for></div>
-<div class="xrow" style="margin-top: 22px; flex-wrap: wrap"><div><p style="margin: 0; font-size: 15px; color: #FFFFFF">{{ bq.countLabel }} · {{ bq.per }}</p><p style="margin: 4px 0 0; font-size: 13px; color: #A89C8B">Valid {{ validDays }} days · one hour of recording each</p></div><sc-if value="{{ bq.hasSave }}" hint-placeholder-val="{{ false }}"><span class="savechip">You save {{ bq.saved }}</span></sc-if></div>
+<div class="xrow" style="margin-top: 22px; flex-wrap: wrap"><div><p style="margin: 0; font-size: 15px; color: #FFFFFF">{{ bq.countLabel }} · {{ bq.per }}</p><p style="margin: 4px 0 0; font-size: 13px; color: #A89C8B">Valid {{ bq.valid }} days · one hour of recording each</p></div><sc-if value="{{ bq.hasSave }}" hint-placeholder-val="{{ false }}"><span class="savechip">You save {{ bq.saved }}</span></sc-if></div>
 <div class="xrow" style="margin-top: 14px"><p style="margin: 0; font-size: 14px; line-height: 1.6; color: #DCD3C4">Your sessions are added to your account as credits. When you book each one, you choose the setup, any extras, and the date and time.</p></div>
 <p class="lbl" style="margin-top: 26px">Included in each session</p>
 <ul class="chk"><sc-for list="{{ bq.inc }}" as="li" hint-placeholder-count="2"><li>{{ li }}</li></sc-for></ul>

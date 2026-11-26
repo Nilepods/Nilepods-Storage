@@ -9,6 +9,8 @@ import { adminClient } from './admin.ts';
 import { BOOKINGS_INBOX, SENDER, SITE_URL } from './config.ts';
 
 const SERVICES: Record<string, string> = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit' };
+const PACKS: Record<number, string> = { 3: 'Pilot', 5: 'Series', 10: 'Season', 20: 'Full Season' };
+const validDays = (n: number) => (n >= 20 ? 180 : 90);
 const SETUPS: Record<string, string> = { s1: 'Setup 1', s2: 'Setup 2', s3: 'Setup 3', s4: 'Setup 4', s5: 'Setup 5', s6: 'Setup 6', s7: 'Setup 7' };
 
 const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
@@ -71,9 +73,9 @@ export async function sendBookingEmails(ref: string, kind: 'new' | 'rescheduled'
         : `Hi ${esc(b.first_name)}, your session is booked. We can't wait to see you at the studio.`;
       footnote = (cash && !paid ? 'Please pay at the studio on the day. ' : '') + 'Please arrive 10 minutes early. Need a different time? Sign in at My account to move your session (up to 48 hours before it starts). To cancel, reply to this email.';
     } else {
-      rows = [['Order', esc(o.ref)], ['Package', esc(`${SERVICES[o.service] ?? o.service} × ${o.sessions} sessions`)], ['Total', payLine]];
-      subjectWhat = `${o.sessions}-session package`;
-      intro = `Hi ${esc(o.first_name)}, your ${o.sessions}-session package is ready. To book a session with it, sign in at My account with this email and book as usual: the session hour is covered by your package. Valid for 90 days.`;
+      rows = [['Order', esc(o.ref)], ['Package', esc(`${PACKS[o.sessions] ? PACKS[o.sessions] + ' · ' : ''}${SERVICES[o.service] ?? o.service} · ${o.sessions} sessions`)], ['Valid for', `${validDays(o.sessions)} days`], ['Total', payLine]];
+      subjectWhat = `${PACKS[o.sessions] ?? o.sessions + '-session'} package`;
+      intro = `Hi ${esc(o.first_name)}, your ${o.sessions}-session package is ready. To book a session with it, sign in at My account with this email and book as usual: the session hour is covered by your package. Valid for ${validDays(o.sessions)} days.`;
       footnote = (cash && !paid ? 'Please pay at the studio. ' : '') + 'Questions? Just reply to this email.';
     }
 

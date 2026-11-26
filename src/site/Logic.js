@@ -33,7 +33,7 @@ function pageFromUrl() {
   if (!p || PAGES.indexOf(p) < 0) return { screen: 'home' };
   var s = { screen: p === 'confirm' ? 'home' : p };
   if (p === 'legal') s.legal = ['privacy', 'terms', 'refund'].indexOf(qs.get('doc')) >= 0 ? qs.get('doc') : 'privacy';
-  if (p === 'pkgDetail') s.detail = { tier: ['rec', 'mix', 'pro'].indexOf(qs.get('tier')) >= 0 ? qs.get('tier') : 'mix', count: [1, 3, 5, 10].indexOf(+qs.get('n')) >= 0 ? +qs.get('n') : 3 };
+  if (p === 'pkgDetail') s.detail = { tier: ['rec', 'mix', 'pro'].indexOf(qs.get('tier')) >= 0 ? qs.get('tier') : 'mix', count: [3, 5, 10, 20].indexOf(+qs.get('n')) >= 0 ? +qs.get('n') : 3 };
   if (p === 'book') { s.w = 1; s.mode = 'session'; }
   return s;
 }
@@ -48,7 +48,7 @@ export default class Logic extends DCLogic {
       mode: 'session', w: 1, svc: 'mix', setup: null, people: 1,
       ex: { hour: 0, cam: 0, mic: 0, photo: 0 }, monthOff: 0, dateKey: null, start: null,
       bTier: 'mix', bCount: 3,
-      fSvc: [], fCount: [], detail: { tier: 'mix', count: 3 }, carIdx: 0,
+      fSvc: [], pkCount: 5, detail: { tier: 'mix', count: 3 }, carIdx: 0,
       info: { first: '', last: '', email: '', phone: '', wa: false, pw: '' }, showErr: false, editInfo: false,
       method: 'card', card: { holder: '', num: '', exp: '', cvc: '' }, agreed: false, paying: false, useCredit: true,
       bookings: [], credits: [], last: null, signedIn: false, acctEmail: '', menu: false, toast: '',
@@ -125,7 +125,7 @@ export default class Logic extends DCLogic {
       var pk = self.pkgData();
       var credits = (res.data || []).map(function (o) {
         var P = pk.filter(function (p) { return p.id === o.service; })[0] || { name: o.service, tier: '' };
-        return { id: o.ref, svc: o.service, tier: P.tier, name: P.name, count: o.sessions, left: o.remaining,
+        return { id: o.ref, svc: o.service, tier: P.tier, name: P.name, pack: self.packName(o.sessions), count: o.sessions, left: o.remaining,
           expires: self.shortDate(new Date(o.expires_at)), unpaid: o.payment_status !== 'paid' };
       });
       self.setState({ credits: credits.reverse() });
@@ -180,14 +180,14 @@ export default class Logic extends DCLogic {
   img() { return { hero: '/images/f6b9c2ee7028884a47a15ded2f51d19c.jpg', s2: '/images/d8c0cf460707998f2db0c832d04b3efa.jpg', win: '/images/af9913323450fa5d63be56608814e9f8.jpg', mics: '/images/f581ffd019d17d8bd60d3ad415345ac9.jpg', shelves: '/images/aaf9baac82ee885ac1f32de79de265ad.jpg', frames: '/images/cb531de9b27e823b4dfd14bf775f7b49.jpg' }; }
   pkgData() {
     return [
-      { id: 'rec', tier: 'Basic', name: 'Recording Only', price: 1150, blurb: 'Record in a fully equipped setup and take your raw files home.',
-        inc: ['1 hour of recording', 'Raw audio and video files delivered'],
-        items: ['Fully equipped studio setup', 'Professional operator, 3 cameras & 4 microphones', 'Professional audio recording', 'Raw audio and video files delivered'] },
-      { id: 'mix', tier: 'Plus', name: 'Recording + Live Edit', price: 1450, badge: 'Live-mixed', blurb: 'Leave the studio with a live-mixed episode, switched and edited as you record.',
-        inc: ['1 hour of recording', 'Live-mixed episode delivered'],
-        items: ['Everything in Recording Only', 'Live video switching and editing', 'Synced cameras and audio', 'Live-mixed episode delivered'] },
-      { id: 'pro', tier: 'Pro', name: 'Recording + Pro Edit', price: 1950, blurb: 'A dedicated podcast editor takes your episode through full post-production.',
-        inc: ['1 hour of recording', 'Full post-production editing'],
+      { id: 'rec', tier: 'Recording Only', name: 'Recording Only', price: 1150, blurb: 'Record in a fully equipped setup and take your raw files home.',
+        inc: ['1 hour of recording', '3 cameras & 2 microphones', 'Raw audio and video files delivered right after your session'],
+        items: ['Fully equipped studio setup', 'Professional operator, 3 cameras & 2 microphones', 'Professional audio recording', 'Raw audio and video files delivered right after your session'] },
+      { id: 'mix', tier: 'Recording + Live Edit', name: 'Recording + Live Edit', price: 1450, badge: 'Live-mixed', blurb: 'Leave the studio with a live-mixed episode, switched and edited as you record.',
+        inc: ['1 hour of recording', '3 cameras & 2 microphones', 'Live-mixed episode delivered right after your session'],
+        items: ['Everything in Recording Only', 'Live video switching and editing', 'Synced cameras and audio', 'Live-mixed episode delivered right after your session'] },
+      { id: 'pro', tier: 'Recording + Pro Edit', name: 'Recording + Pro Edit', price: 1950, blurb: 'A dedicated podcast editor takes your episode through full post-production.',
+        inc: ['1 hour of recording', '3 cameras & 2 microphones', 'Full post-production editing'],
         items: ['Everything in Recording Only', 'Dedicated podcast editor', 'Full post-production editing', '2 revision rounds', '14-day raw footage backup'] }
     ];
   }
@@ -210,7 +210,11 @@ export default class Logic extends DCLogic {
         desc: 'Brown velvet and lace curtains, a warm lamp and a single armchair — cosy and intimate.' }
     ];
   }
-  disc() { return { 1: 0, 3: 0.05, 5: 0.10, 10: 0.15 }; }
+  disc() { return { 3: 0.05, 5: 0.10, 10: 0.15, 20: 0.20 }; }
+  // Pack sizes and names. Full Season (20) is valid 180 days, the others 90.
+  validFor(n) { return n >= 20 ? 180 : 90; }
+  packName(n) { return { 3: 'Pilot', 5: 'Series', 10: 'Season', 20: 'Full Season' }[n] || ''; }
+  packLabel(n) { return this.packName(n) + ' · ' + n + ' sessions'; }
   validDays() { return 90; }
   extraData(rate) {
     return [
@@ -326,7 +330,7 @@ export default class Logic extends DCLogic {
     var lines = [], total = 0, extrasNames = [], BP = null;
     if (isBundle) {
       BP = this.bundlePrice(P, S.bCount);
-      lines.push({ k: P.tier + ' · ' + S.bCount + (S.bCount === 1 ? ' session' : ' sessions'), v: self.money(BP.full) });
+      lines.push({ k: self.packName(S.bCount) + ' · ' + P.tier + ' · ' + S.bCount + ' sessions', v: self.money(BP.full) });
       if (BP.saved) lines.push({ k: 'Package saving (' + BP.pct + '%)', v: '−' + self.money(BP.saved) });
       total = BP.total;
     } else {
@@ -361,27 +365,19 @@ export default class Logic extends DCLogic {
     });
 
     // ----- catalog -----
-    var counts = [1, 3, 5, 10];
-    var all = [];
-    pk.forEach(function (p) { counts.forEach(function (n) { all.push({ p: p, n: n, kind: 'Video' }); }); });
-    all.push({ p: { id: 'audio', tier: 'Sound Studio', name: 'Audio only', price: 1000, inc: ['1 hour in the soundproof audio room'] }, n: 1, kind: 'Audio', audio: true });
-    var filtered = all.filter(function (c) {
-      return (S.fSvc.length === 0 || S.fSvc.indexOf(c.kind) >= 0) && (S.fCount.length === 0 || S.fCount.indexOf(c.n) >= 0);
-    });
-    var catImg = { rec: '/images/dd85524628dcc9ee4b96e61cac0a9b34.jpg', mix: IM.hero, pro: '/images/113ecd6e6a3d2de8944e3757f1945c32.jpg', audio: IM.mics };
-    var catalog = filtered.map(function (c) {
-      var bp = self.bundlePrice(c.p, c.n);
-      return { tier: c.p.tier, svc: c.p.name, img: catImg[c.p.id], inc: c.p.inc,
-        countLabel: c.n === 1 ? '1 session' : c.n + ' sessions',
+    var counts = [3, 5, 10, 20];
+    var catImg = { rec: '/images/dd85524628dcc9ee4b96e61cac0a9b34.jpg', mix: IM.hero, pro: '/images/113ecd6e6a3d2de8944e3757f1945c32.jpg' };
+    var pkN = counts.indexOf(S.pkCount) >= 0 ? S.pkCount : 5;
+    var catalog = pk.map(function (p) {
+      var bp = self.bundlePrice(p, pkN), pop = p.id === 'mix';
+      return { tier: p.tier, svc: p.name, img: catImg[p.id], inc: p.inc, pop: pop, cls: 'pcard' + (pop ? ' pop' : ''),
+        countLabel: self.packLabel(pkN),
         hasSave: bp.saved > 0, savePct: bp.pct + '%', full: self.money(bp.full), total: self.money(bp.total),
-        per: c.n === 1 ? (c.audio ? '[CONFIRM PRICE]' : 'Single session') : self.money(bp.per) + ' per session',
-        buyLabel: c.audio ? 'Ask us' : 'Purchase Now',
-        details: c.audio ? function () { self.go('audio'); } : function () { self.go('pkgDetail', { detail: { tier: c.p.id, count: c.n } }); },
-        buy: c.audio ? function () { self.go('contact'); } : function () { self.startBundle(c.p.id, c.n); } };
+        per: self.money(bp.per) + ' per session', buyLabel: 'Purchase Now',
+        details: function () { self.go('pkgDetail', { detail: { tier: p.id, count: pkN } }); },
+        buy: function () { self.startBundle(p.id, pkN); } };
     });
-    var toggleIn = function (arr, v) { return arr.indexOf(v) >= 0 ? arr.filter(function (x) { return x !== v; }) : arr.concat([v]); };
-    var fService = ['Audio', 'Video'].map(function (v) { var on = S.fSvc.indexOf(v) >= 0; return { label: v, on: on, cls: 'fchk' + (on ? ' on' : ''), toggle: function () { self.setState({ fSvc: toggleIn(S.fSvc, v) }); } }; });
-    var fCount = counts.map(function (v) { var on = S.fCount.indexOf(v) >= 0; return { label: v === 1 ? '1 session' : v + ' sessions', on: on, cls: 'fchk' + (on ? ' on' : ''), toggle: function () { self.setState({ fCount: toggleIn(S.fCount, v) }); } }; });
+    var fCount = counts.map(function (v) { var on = pkN === v; return { name: self.packName(v), sub: v + ' sessions', save: 'save ' + Math.round(self.disc()[v] * 100) + '%', on: on, cls: 'frad' + (on ? ' on' : ''), pick: function () { self.setState({ pkCount: v }); } }; });
     var D = this.disc();
 
     // ----- details -----
@@ -392,7 +388,7 @@ export default class Logic extends DCLogic {
     var pd = { tier: DP.tier, svc: DP.name, img: catImg[DP.id], items: DP.items,
       counts: segFor(DP, S.detail.count, function (n) { self.setState({ detail: { tier: S.detail.tier, count: n } }); }),
       hasSave: dbp.saved > 0, full: self.money(dbp.full), total: self.money(dbp.total), saved: self.money(dbp.saved),
-      per: S.detail.count === 1 ? 'Single session' : self.money(dbp.per) + ' per session',
+      per: self.money(dbp.per) + ' per session', countLabel: self.packLabel(S.detail.count), valid: String(self.validFor(S.detail.count)),
       buy: function () { self.startBundle(S.detail.tier, S.detail.count); } };
 
     // ----- setups carousel -----
@@ -505,10 +501,10 @@ export default class Logic extends DCLogic {
       var payLabelRow = usingCredit ? ('Package credit' + (needsPay ? ' + extras ' + (S.method === 'cash' ? 'at the studio' : 'by card') + ' (' + self.money(total) + ')' : '')) : (S.method === 'cash' ? 'Pay at the studio' : 'Card (Paymob)');
       if (isBundle) {
         payload = { kind: 'package', service: P.id, sessions: S.bCount, info: info, payment: S.method };
-        draft = { kind: 'bundle', email: email, headline: 'Package confirmed', kicker: 'Package', big: P.tier + ' · ' + S.bCount + (S.bCount === 1 ? ' session' : ' sessions'),
-          sub: 'Valid for ' + validDays + ' days', totalLabel: self.money(total), svc: P.id,
+        draft = { kind: 'bundle', email: email, headline: 'Package confirmed', kicker: 'Package', big: self.packName(S.bCount) + ' · ' + P.tier + ' · ' + S.bCount + ' sessions',
+          sub: 'Valid for ' + self.validFor(S.bCount) + ' days', totalLabel: self.money(total), svc: P.id,
           rows: [{ k: 'Service', v: P.name }, { k: 'Per session', v: self.money(BP.per) }, { k: 'Name', v: name }, { k: 'Payment', v: S.method === 'cash' ? 'Pay at the studio' : 'Card (Paymob)' }],
-          note: 'Sign in at My account with ' + email + ' to book your ' + (S.bCount === 1 ? 'session' : S.bCount + ' sessions') + ' with this package. Valid for ' + validDays + ' days.' };
+          note: 'Sign in at My account with ' + email + ' to book your ' + (S.bCount === 1 ? 'session' : S.bCount + ' sessions') + ' with this package. Valid for ' + self.validFor(S.bCount) + ' days.' };
       } else {
         payload = { kind: 'session', service: S.svc, setup: S.setup, date: isoDate(date), start: S.start, people: S.people, extras: S.ex, info: info,
           payment: needsPay ? S.method : 'cash', credit: usingCredit ? credit.id : undefined };
@@ -561,15 +557,15 @@ export default class Logic extends DCLogic {
     // ----- side panel -----
     var q;
     if (isBundle) {
-      q = { img: catImg[P.id], label: 'Your package', title: P.tier + ' · ' + P.name, meta: S.bCount + (S.bCount === 1 ? ' session' : ' sessions') + ' · ' + self.money(BP.per) + ' each',
+      q = { img: catImg[P.id], label: 'Your package', title: self.packName(S.bCount) + ' · ' + P.tier, meta: S.bCount + ' sessions · ' + self.money(BP.per) + ' each',
         whenK: 'How it works', when: 'After you buy, sign in at My account and book each session yourself — the studio hour is covered by your package.', lines: lines, total: self.money(total), onsite: S.method === 'cash' && cur === 'pay',
-        foot: 'Valid ' + validDays + ' days. Book each session whenever you like — extras are added per session.' };
+        foot: 'Valid ' + self.validFor(S.bCount) + ' days. Book each session whenever you like — extras are added per session.' };
     } else {
       q = { img: SET ? SET.img : IM.hero, label: 'Your session', title: P.name,
         meta: (SET ? SET.n : 'Setup not chosen') + ' · ' + S.people + (S.people === 1 ? ' person' : ' people') + ' · ' + hoursText,
         whenK: 'When', when: date ? self.longDate(date) + (S.start != null ? ' · ' + self.range(S.start, S.start + dur) : ' · pick a time') : 'Pick a date & time',
         lines: lines, total: self.money(total), onsite: S.method === 'cash' && cur === 'pay' && needsPay,
-        foot: 'Free to reschedule up to 24 hours before your session. [CONFIRM POLICY]' };
+        foot: 'Free to reschedule up to 48 hours before your session.' };
     }
 
     // ----- tour: calendar + 15-minute slots (availability set by admin; mocked here) -----
@@ -669,7 +665,7 @@ export default class Logic extends DCLogic {
         } });
     });
     var creditList = S.credits.slice().reverse().map(function (c) {
-      return { title: c.tier + ' · ' + c.name, left: c.left + ' of ' + c.count + (c.count === 1 ? ' session' : ' sessions') + ' left',
+      return { title: (c.pack ? c.pack + ' · ' : '') + c.name, left: c.left + ' of ' + c.count + (c.count === 1 ? ' session' : ' sessions') + ' left',
         expires: 'Valid until ' + c.expires + (c.unpaid ? ' · pay at the studio' : '') + ' · Order ' + c.id,
         canBook: c.left > 0, book: function () { self.startSession({ svc: c.svc, setup: null, w: 2, useCredit: true }); } };
     });
@@ -727,17 +723,17 @@ export default class Logic extends DCLogic {
         { stage: 'Stage 03', t: 'Distribution & Post-Production', d: 'Editing, mastering and the final polish — ready to publish.', img: IM.win }],
       faqs: [{ q: 'What is Nilepods and how can it help me?', a: 'Nilepods is a set of ready-to-record studios with everything you need to shoot, record, edit and distribute your content — from podcasts to masterclasses.' },
         { q: 'What makes Nilepods unique?', a: 'Our equipment is automated, so shooting is simple and fast — and your edit is ready soon after you finish recording.' },
-        { q: 'Do packages save me money?', a: 'Yes — buy 3, 5 or 10 sessions in one package and each session costs less. You book each session whenever you like within ' + validDays + ' days.' },
+        { q: 'Do packages save me money?', a: 'Yes. Pilot (3 sessions) saves 5%, Series (5) saves 10%, Season (10) saves 15% and Full Season (20) saves 20%. Book each session whenever you like within ' + validDays + ' days, or 180 days for Full Season.' },
         { q: 'How can I book a studio?', a: 'Book online in a few minutes — pick a service, a setup and your hours between 3 and 11 PM, then pay online, at the studio, or with a package credit.' }],
       // catalog
-      catalog: catalog, noResults: catalog.length === 0, fService: fService, fCount: fCount,
-      anyFilter: S.fSvc.length + S.fCount.length > 0, clearFilters: function () { self.setState({ fSvc: [], fCount: [] }); },
-      resultLabel: catalog.length === 1 ? '1 package' : catalog.length + ' packages',
-      discLabel: { d3: Math.round(D[3] * 100) + '%', d5: Math.round(D[5] * 100) + '%', d10: Math.round(D[10] * 100) + '%' },
+      catalog: catalog, fCount: fCount,
+      saveChips: counts.map(function (n) { return self.packName(n) + ' · ' + n + ' sessions · save ' + Math.round(D[n] * 100) + '%'; }),
+      maxSave: Math.round(D[20] * 100) + '%', longValid: '180',
+      packHead: { name: self.packName(pkN), sub: pkN + ' sessions · save ' + Math.round(D[pkN] * 100) + '% · valid ' + self.validFor(pkN) + ' days' },
       validDays: String(validDays), pd: pd,
       bq: isBundle ? { tier: P.tier, svc: P.name, img: catImg[P.id], inc: P.inc,
         counts: segFor(P, S.bCount, function (n) { self.setState({ bCount: n }); }),
-        countLabel: S.bCount === 1 ? '1 session' : S.bCount + ' sessions', per: self.money(BP.per) + ' per session',
+        countLabel: self.packLabel(S.bCount), valid: String(self.validFor(S.bCount)), per: self.money(BP.per) + ' per session',
         hasSave: BP.saved > 0, saved: self.money(BP.saved) } : { tier: '', svc: '', img: IM.hero, inc: [], counts: [], countLabel: '', per: '', hasSave: false, saved: '' },
       // contact / tour / account
       cf: S.cf, onC: { name: fC('name'), phone: fC('phone'), email: fC('email'), msg: fC('msg') },
@@ -803,7 +799,7 @@ export default class Logic extends DCLogic {
       err: { firstBad: E.first, lastBad: E.last, emailBad: E.email, pwBad: !!E.pw, phoneBad: !!E.phone, phoneCls: 'inp' + (E.phone ? ' bad' : ''),
         firstCls: 'inp' + (E.first ? ' bad' : ''), lastCls: 'inp' + (E.last ? ' bad' : ''), emailCls: 'inp' + (E.email ? ' bad' : ''), pwCls: 'inp' + (E.pw ? ' bad' : '') },
       canCredit: !isBundle && !!credit, useCredit: S.useCredit, toggleCredit: function () { self.setState({ useCredit: !S.useCredit }); },
-      creditNote: credit ? credit.tier + ' package · ' + credit.left + ' left · covers the first hour' : '',
+      creditNote: credit ? (credit.pack ? credit.pack + ' · ' : '') + credit.name + ' · ' + credit.left + ' left · covers the first hour' : '',
       needsPay: needsPay, noPay: !needsPay || usingCredit,
       showSummary: needsPay && !usingCredit, // full order summary before paying (credit bookings show their own breakdown)
       // Breakdown shown instead of payment options when a package credit is used.
