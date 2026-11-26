@@ -20,6 +20,7 @@ const FRIENDLY: Record<string, string> = {
   package_not_active: 'Your package is not active yet.',
   wrong_service: 'Your package is for a different service. Pick that service to use it.',
   not_your_package: 'Sign in with the email you bought the package with, and use that email in your booking.',
+  session_expired: 'Your sign-in has expired. Please sign in again at My account, then book.',
 };
 
 function cors(origin: string | null) {
@@ -103,7 +104,9 @@ Deno.serve(async (req) => {
       await db.rpc('record_payment', { p_ref: ref, p_success: false, p_amount_cents: 0, p_paymob_order_id: null, p_paymob_transaction_id: null });
       return reply({ error: FRIENDLY[code] ?? 'Could not use your package. Please try again.', code }, 400, origin);
     };
-    if (!signedIn || signedIn !== email.toLowerCase()) return await fail('not_your_package');
+    // A login whose account no longer exists (deleted) or has expired: ask to sign in again.
+    if (!signedIn) return await fail('session_expired');
+    if (signedIn !== email.toLowerCase()) return await fail('not_your_package');
     const { data: newTotal, error: cErr } = await db.rpc('apply_package_credit', { p_booking_ref: ref, p_package_ref: str(b.credit, 20), p_email: signedIn });
     if (cErr) return await fail(cErr.message);
     total = Number(newTotal);

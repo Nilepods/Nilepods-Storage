@@ -83,6 +83,14 @@ export default class Logic extends DCLogic {
   }
   onSession(session, event) {
     var self = this, email = session && session.user && session.user.email;
+    // A saved login can outlive its account (e.g. deleted by staff). Check once on load and sign out if so.
+    if (event === 'INITIAL' && email && supabase) {
+      supabase.auth.getUser().then(function (r) {
+        if (r.error && /not exist|not found|invalid/i.test(r.error.message || '')) {
+          authSignOut().then(function () { self.setState({ signedIn: false, bookings: [], credits: [], acctEmail: '' }); self.showToast('Please sign in again.'); });
+        }
+      });
+    }
     if (event === 'PASSWORD_RECOVERY') this.setState({ screen: 'account', showPwPanel: true, pwReset: true });
     if (!email) { this._recorded = null; this.setState({ signedIn: false, bookings: [], credits: [] }); return; }
     if (window.location.search.indexOf('account=') >= 0) window.history.replaceState(null, '', window.location.pathname);
@@ -534,6 +542,7 @@ export default class Logic extends DCLogic {
       }).catch(function (err) {
         var s = { paying: false };
         if (err.code === 'slot_taken' || err.code === 'in_the_past') { s.start = null; s.w = 5; }
+        if (err.code === 'session_expired') { authSignOut().catch(function () {}); s.signedIn = false; s.screen = 'account'; }
         self.setState(s);
         self.showToast(err.message);
         if (err.code === 'slot_taken') self.loadBusy();
