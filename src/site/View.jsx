@@ -1745,64 +1745,64 @@ export default function View(v) {
                               </span>
                             </div>
                           </>) : null}
-                          {v.needsPay ? (<>
-                            <p className="lbl">
-                              {"Payment method"}
-                            </p>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px" }}>
-                              {(v.payMethods || []).map((m, m_i31) => (<Fragment key={m_i31}>
-                                <button className={m.cls} onClick={m.pick} aria-pressed={m.on} style={{ alignItems: "center", textAlign: "center", padding: "20px 14px" }}>
-                                  <span style={{ fontSize: "16px", fontWeight: "600", color: "#FFFFFF" }}>
-                                    {m.label}
-                                  </span>
-                                  <span style={{ fontSize: "12px", color: "#A89C8B" }}>
-                                    {m.sub}
-                                  </span>
-                                </button>
-                              </Fragment>))}
-                            </div>
-                            <p style={{ margin: "12px 0 0", fontSize: "13px", color: "#A89C8B", textAlign: "center" }}>
-                              {v.payHelp}
-                            </p>
-                            {v.payOnline ? (<>
-                              <div style={{ marginTop: "22px", display: "flex", flexDirection: "column", gap: "18px" }}>
-                                <div className="field">
-                                  <label htmlFor="p-holder">
-                                    {"Name on card"}
-                                  </label>
-                                  <input id="p-holder" className="inp" value={v.card.holder} onChange={v.onP.holder} autoComplete="cc-name" />
-                                </div>
-                                <div className="field">
-                                  <label htmlFor="p-num">
-                                    {"Card number"}
-                                  </label>
-                                  <input id="p-num" className="inp" inputMode="numeric" value={v.card.num} onChange={v.onP.num} autoComplete="cc-number" placeholder="1234 5678 9012 3456" />
-                                </div>
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "18px" }}>
-                                  <div className="field">
-                                    <label htmlFor="p-exp">
-                                      {"Expiry"}
-                                    </label>
-                                    <input id="p-exp" className="inp" inputMode="numeric" value={v.card.exp} onChange={v.onP.exp} autoComplete="cc-exp" placeholder="MM/YY" />
-                                  </div>
-                                  <div className="field">
-                                    <label htmlFor="p-cvc">
-                                      {"CVC"}
-                                    </label>
-                                    <input id="p-cvc" className="inp" inputMode="numeric" value={v.card.cvc} onChange={v.onP.cvc} autoComplete="cc-csc" placeholder="123" />
-                                  </div>
-                                </div>
-                                <p style={{ margin: "0", display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "#8C8172" }}>
-                                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                    <rect x="5" y="11" width="14" height="9" rx="2" />
-                                    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-                                  </svg>
-                                  {"Prototype — no real payment is taken."}
-                                </p>
-                              </div>
-                            </>) : null}
-                          </>) : null}
                         </div>
+                      </>) : null}
+                      {v.needsPay ? (<>
+                        <p className="lbl">
+                          {"Payment method"}
+                        </p>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px" }}>
+                          {(v.payMethods || []).map((m, m_i31) => (<Fragment key={m_i31}>
+                            <button className={m.cls} onClick={m.pick} aria-pressed={m.on} style={{ alignItems: "center", textAlign: "center", padding: "20px 14px" }}>
+                              <span style={{ fontSize: "16px", fontWeight: "600", color: "#FFFFFF" }}>
+                                {m.label}
+                              </span>
+                              <span style={{ fontSize: "12px", color: "#A89C8B" }}>
+                                {m.sub}
+                              </span>
+                            </button>
+                          </Fragment>))}
+                        </div>
+                        <p style={{ margin: "12px 0 0", fontSize: "13px", color: "#A89C8B", textAlign: "center" }}>
+                          {v.payHelp}
+                        </p>
+                        {v.payOnline ? (<>
+                          <div style={{ marginTop: "22px", display: "flex", flexDirection: "column", gap: "18px" }}>
+                            <div className="field">
+                              <label htmlFor="p-holder">
+                                {"Name on card"}
+                              </label>
+                              <input id="p-holder" className="inp" value={v.card.holder} onChange={v.onP.holder} autoComplete="cc-name" />
+                            </div>
+                            <div className="field">
+                              <label htmlFor="p-num">
+                                {"Card number"}
+                              </label>
+                              <input id="p-num" className="inp" inputMode="numeric" value={v.card.num} onChange={v.onP.num} autoComplete="cc-number" placeholder="1234 5678 9012 3456" />
+                            </div>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "18px" }}>
+                              <div className="field">
+                                <label htmlFor="p-exp">
+                                  {"Expiry"}
+                                </label>
+                                <input id="p-exp" className="inp" inputMode="numeric" value={v.card.exp} onChange={v.onP.exp} autoComplete="cc-exp" placeholder="MM/YY" />
+                              </div>
+                              <div className="field">
+                                <label htmlFor="p-cvc">
+                                  {"CVC"}
+                                </label>
+                                <input id="p-cvc" className="inp" inputMode="numeric" value={v.card.cvc} onChange={v.onP.cvc} autoComplete="cc-csc" placeholder="123" />
+                              </div>
+                            </div>
+                            <p style={{ margin: "0", display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "#8C8172" }}>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <rect x="5" y="11" width="14" height="9" rx="2" />
+                                <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                              </svg>
+                              {"Prototype — no real payment is taken."}
+                            </p>
+                          </div>
+                        </>) : null}
                       </>) : null}
                       <label className="chkbox" style={{ marginTop: "22px" }}>
                         <input type="checkbox" checked={v.agreed} onChange={v.toggleAgree} />
