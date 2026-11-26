@@ -1,6 +1,6 @@
 // State and behaviour for this page. Converted from design/Main.dc.html; safe to edit.
 import DCLogic from '../lib/DCLogic.jsx';
-import { loadBusySlots, startCheckout, getPaymentStatus, isoDate } from '../lib/booking.js';
+import { loadBusySlots, startCheckout, getPaymentStatus, isoDate, forwardPaymobResult } from '../lib/booking.js';
 import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut, signInWithPassword, signUpWithPassword, sendPasswordReset, setPassword, saveProfile } from '../lib/auth.js';
 import { supabase } from '../lib/supabase.js';
 
@@ -137,6 +137,8 @@ export default class Logic extends DCLogic {
   checkPaymentReturn() {
     var self = this, params = new URLSearchParams(window.location.search), ref = params.get('payment');
     if (!ref) return;
+    // Paymob's redirect carries a signed result; pass it on so the server can confirm right away.
+    if (params.get('hmac') && params.get('id')) forwardPaymobResult(window.location.search);
     window.history.replaceState(null, '', window.location.pathname);
     var draft = null, wizard = null;
     try { draft = JSON.parse(sessionStorage.getItem('np_pending') || 'null'); wizard = JSON.parse(sessionStorage.getItem('np_wizard') || 'null'); } catch (e) { /* ignore */ }
@@ -557,7 +559,7 @@ export default class Logic extends DCLogic {
     var q;
     if (isBundle) {
       q = { img: catImg[P.id], label: 'Your package', title: P.tier + ' · ' + P.name, meta: S.bCount + (S.bCount === 1 ? ' session' : ' sessions') + ' · ' + self.money(BP.per) + ' each',
-        whenK: 'How it works', when: 'After you pay, our team contacts you to schedule each session — setup, extras, date and time.', lines: lines, total: self.money(total), onsite: S.method === 'cash' && cur === 'pay',
+        whenK: 'How it works', when: 'After you buy, sign in at My account and book each session yourself — the studio hour is covered by your package.', lines: lines, total: self.money(total), onsite: S.method === 'cash' && cur === 'pay',
         foot: 'Valid ' + validDays + ' days. Book each session whenever you like — extras are added per session.' };
     } else {
       q = { img: SET ? SET.img : IM.hero, label: 'Your session', title: P.name,
@@ -748,13 +750,14 @@ export default class Logic extends DCLogic {
       canCredit: !isBundle && !!credit, useCredit: S.useCredit, toggleCredit: function () { self.setState({ useCredit: !S.useCredit }); },
       creditNote: credit ? credit.tier + ' package · ' + credit.left + ' left · covers the first hour' : '',
       needsPay: needsPay, noPay: !needsPay || usingCredit,
+      showSummary: needsPay && !usingCredit, // full order summary before paying (credit bookings show their own breakdown)
       // Breakdown shown instead of payment options when a package credit is used.
       creditPayTitle: usingCredit && needsPay ? '1 hour is deducted from your package. Only the extras are paid:' : 'Nothing to pay: 1 hour is deducted from your package',
       creditLines: lines.map(function (l) { var covered = l.v === 'Package credit';
         return { k: l.k, v: covered ? 'Covered by package credit' : l.v, cls: covered ? 'pill-ok' : '' }; }),
       hasCreditDue: usingCredit && needsPay, creditDue: self.money(total), creditDueLabel: 'Extras to pay',
       // Card only, on Paymob's hosted checkout. Card details are never entered on this site.
-      payMethods: [{ id: 'card', label: 'Card', sub: 'Visa · Mastercard · Meeza' }, { id: 'cash', label: 'At the studio', sub: 'Pay cash on the day' }].map(function (m) {
+      payMethods: [{ id: 'card', label: 'Card', sub: 'Visa · Mastercard · Meeza' }, { id: 'cash', label: 'At the studio', sub: isBundle ? 'Pay cash at the studio' : 'Pay cash on the day' }].map(function (m) {
         return { label: m.label, sub: m.sub, on: S.method === m.id, cls: 'opt' + (S.method === m.id ? ' on' : ''), pick: function () { self.setState({ method: m.id }); } }; }),
       payOnline: false,
       payHelp: usingCredit

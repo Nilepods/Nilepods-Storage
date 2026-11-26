@@ -26,33 +26,59 @@ function safeEqual(a: string, b: string) {
   return r === 0;
 }
 
+// Paymob's browser redirect carries the same signed fields as query parameters
+// (with "order" instead of "order.id"). The site forwards them here as a backup,
+// so a booking is confirmed even if the server-to-server callback is late or missing.
+function objFromQuery(q: URLSearchParams) {
+  const o: any = { order: { id: q.get('order') }, source_data: {} };
+  for (const f of HMAC_FIELDS) {
+    if (f === 'order.id') continue;
+    const v = q.get(f);
+    if (f.startsWith('source_data.')) o.source_data[f.slice(12)] = v; else o[f] = v;
+  }
+  for (const b of ['success', 'pending', 'is_refunded', 'is_voided']) o[b] = o[b] === 'true' ? true : o[b] === 'false' ? false : o[b];
+  return o;
+}
+
+const CORS = { 'Access-Control-Allow-Origin': '*' };
+
 Deno.serve(async (req) => {
-  if (req.method !== 'POST') return new Response('ok');
+  const url = new URL(req.url);
+  const received = (url.searchParams.get('hmac') ?? '').toLowerCase();
+  let obj: any;
+  if (req.method === 'GET') {
+    if (!received || !url.searchParams.get('id')) return new Response('ok', { headers: CORS });
+    obj = objFromQuery(url.searchParams);
+    // Only the signed Paymob order id is used to find the booking (looked up below).
+  } else if (req.method === 'POST') {
+    let body: any;
+    try { body = await req.json(); } catch { return new Response('bad request', { status: 400 }); }
+    if (body?.type !== 'TRANSACTION' || !body.obj) return new Response('ignored');
+    obj = body.obj;
+  } else {
+    return new Response('ok', { headers: CORS });
+  }
 
-  const received = (new URL(req.url).searchParams.get('hmac') ?? '').toLowerCase();
-  let body: any;
-  try { body = await req.json(); } catch { return new Response('bad request', { status: 400 }); }
-  if (body?.type !== 'TRANSACTION' || !body.obj) return new Response('ignored');
-
-  const obj = body.obj;
   const message = HMAC_FIELDS.map((f) => { const v = get(obj, f); return v == null ? '' : String(v); }).join('');
   const expected = await hmacHex(Deno.env.get('PAYMOB_HMAC_SECRET') ?? '', message);
   if (!received || !safeEqual(expected, received)) {
-    console.warn('Rejected Paymob callback with bad HMAC', obj?.id);
-    return new Response('invalid signature', { status: 401 });
+    console.warn('Rejected Paymob', req.method, 'with bad HMAC', obj?.id);
+    return new Response('invalid signature', { status: 401, headers: CORS });
   }
 
   // Refunds, voids and still-pending transactions are not booking confirmations.
-  if (obj.pending || obj.is_refunded || obj.is_voided) return new Response('noted');
+  if (obj.pending || obj.is_refunded || obj.is_voided) return new Response('noted', { headers: CORS });
 
   const db = adminClient();
-  let ref: string | null = obj.order?.merchant_order_id ?? obj.special_reference ?? null;
-  if (!ref && obj.order?.id) {
+  // The signed order id is the trusted link to our booking; the reference fields are a fallback.
+  let ref: string | null = null;
+  if (obj.order?.id) {
     for (const table of ['bookings', 'package_orders']) {
-      const { data } = await db.from(table).select('ref').eq('paymob_order_id', obj.order.id).maybeSingle();
+      const { data } = await db.from(table).select('ref').eq('paymob_order_id', Number(obj.order.id)).maybeSingle();
       if (data?.ref) { ref = data.ref; break; }
     }
   }
+  if (!ref) ref = obj.order?.merchant_order_id ?? obj.special_reference ?? null;
   if (!ref) {
     console.error('Paymob callback without a known reference', obj.id, obj.order?.id);
     return new Response('unknown order');
@@ -66,7 +92,7 @@ Deno.serve(async (req) => {
     console.error('record_payment failed', ref, error.message);
     return new Response('error', { status: 500 });
   }
-  console.log('Paymob callback', ref, data);
+  console.log('Paymob', req.method === 'GET' ? 'redirect' : 'callback', ref, data);
   if (data === 'confirmed' || data === 'paid_slot_lost' || data === 'amount_mismatch') {
     // deno-lint-ignore no-explicit-any
     const rt = (globalThis as any).EdgeRuntime;

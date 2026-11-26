@@ -43,6 +43,12 @@ export async function startCheckout(payload, accessToken) {
   return body;
 }
 
+// Sends Paymob's signed redirect result to the server (which checks the signature).
+export function forwardPaymobResult(search) {
+  if (!FUNCTIONS_URL) return;
+  fetch(FUNCTIONS_URL + '/paymob-webhook' + search, { method: 'GET' }).catch(function () {});
+}
+
 // Status of one booking / package after returning from Paymob.
 export async function getPaymentStatus(ref) {
   if (!supabase) return null;

@@ -908,6 +908,16 @@ details[open] .plus{transform:rotate(45deg)}
 <!-- PAYMENT -->
 <sc-if value="{{ st.pay }}" hint-placeholder-val="{{ false }}">
 <sc-if value="{{ hasBookingAs }}" hint-placeholder-val="{{ false }}"><p style="margin: 0 0 18px; font-size: 14px; color: #A89C8B">Booking as <strong style="color: #FFFFFF">{{ bookingAs }}</strong> &middot; <button class="link" onClick="{{ editInfo }}">Edit details</button></p></sc-if>
+<sc-if value="{{ showSummary }}" hint-placeholder-val="{{ true }}"><div class="xrow on" style="margin-bottom: 22px; flex-direction: column; align-items: stretch; gap: 10px">
+<p style="margin: 0; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8C8172">{{ q.label }}</p>
+<p style="margin: 0; font-size: 16px; font-weight: 600; color: #FFFFFF">{{ q.title }}</p>
+<p style="margin: 0; font-size: 14px; color: #CFC5B5">{{ q.meta }}</p>
+<p style="margin: 0; font-size: 14px; color: #E2B872">{{ q.when }}</p>
+<div style="margin-top: 6px; padding-top: 10px; border-top: 1px solid rgba(241,234,223,0.12); display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{ q.lines }}" as="ln" hint-placeholder-count="2"><div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px"><span style="color: #CFC5B5">{{ ln.k }}</span><span style="color: #FFFFFF">{{ ln.v }}</span></div></sc-for>
+<div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 2px; font-size: 15px; font-weight: 600"><span style="color: #FFFFFF">Total</span><span style="color: #E2B872">{{ q.total }}</span></div>
+</div>
+</div></sc-if>
 <sc-if value="{{ canCredit }}" hint-placeholder-val="{{ false }}">
 <label class="xrow" style="cursor: pointer; margin-bottom: 22px"><span style="display: flex; gap: 14px; align-items: center"><input type="checkbox" checked="{{ useCredit }}" onChange="{{ toggleCredit }}" style="width: 20px; height: 20px; accent-color: #E2B872; margin: 0"><span><span style="display: block; font-size: 15px; font-weight: 500; color: #FFFFFF">Use 1 package credit</span><span style="display: block; margin-top: 3px; font-size: 13px; color: #A89C8B">{{ creditNote }}</span></span></span></label>
 </sc-if>
@@ -1006,6 +1016,7 @@ details[open] .plus{transform:rotate(45deg)}
 <button onClick="{{ legal.terms }}">Terms &amp; Conditions</button>
 <button onClick="{{ legal.refund }}">Refund &amp; Cancellation</button>
 <button onClick="{{ nav.account }}">My Account</button>
+<a href="/admin/" style="color: inherit; text-decoration: none">Team login</a>
 </nav>
 <p style="margin: 0">© Nilepods · Powered by Capital Studios</p>
 </div>

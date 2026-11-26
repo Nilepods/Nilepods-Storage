@@ -1710,6 +1710,42 @@ export default function View(v) {
                           </button>
                         </p>
                       </>) : null}
+                      {v.showSummary ? (<>
+                        <div className="xrow on" style={{ marginBottom: "22px", flexDirection: "column", alignItems: "stretch", gap: "10px" }}>
+                          <p style={{ margin: "0", fontSize: "11px", letterSpacing: "1.5px", textTransform: "uppercase", color: "#8C8172" }}>
+                            {v.q.label}
+                          </p>
+                          <p style={{ margin: "0", fontSize: "16px", fontWeight: "600", color: "#FFFFFF" }}>
+                            {v.q.title}
+                          </p>
+                          <p style={{ margin: "0", fontSize: "14px", color: "#CFC5B5" }}>
+                            {v.q.meta}
+                          </p>
+                          <p style={{ margin: "0", fontSize: "14px", color: "#E2B872" }}>
+                            {v.q.when}
+                          </p>
+                          <div style={{ marginTop: "6px", paddingTop: "10px", borderTop: "1px solid rgba(241,234,223,0.12)", display: "flex", flexDirection: "column", gap: "8px" }}>
+                            {(v.q.lines || []).map((ln, ln_i30) => (<Fragment key={ln_i30}>
+                              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", fontSize: "14px" }}>
+                                <span style={{ color: "#CFC5B5" }}>
+                                  {ln.k}
+                                </span>
+                                <span style={{ color: "#FFFFFF" }}>
+                                  {ln.v}
+                                </span>
+                              </div>
+                            </Fragment>))}
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", marginTop: "2px", fontSize: "15px", fontWeight: "600" }}>
+                              <span style={{ color: "#FFFFFF" }}>
+                                {"Total"}
+                              </span>
+                              <span style={{ color: "#E2B872" }}>
+                                {v.q.total}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </>) : null}
                       {v.canCredit ? (<>
                         <label className="xrow" style={{ cursor: "pointer", marginBottom: "22px" }}>
                           <span style={{ display: "flex", gap: "14px", alignItems: "center" }}>
@@ -1730,7 +1766,7 @@ export default function View(v) {
                           <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: "600", color: "#FFFFFF" }}>
                             {v.creditPayTitle}
                           </p>
-                          {(v.creditLines || []).map((cl, cl_i30) => (<Fragment key={cl_i30}>
+                          {(v.creditLines || []).map((cl, cl_i31) => (<Fragment key={cl_i31}>
                             <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", fontSize: "14px" }}>
                               <span style={{ color: "#CFC5B5" }}>
                                 {cl.k}
@@ -1757,7 +1793,7 @@ export default function View(v) {
                           {"Payment method"}
                         </p>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px" }}>
-                          {(v.payMethods || []).map((m, m_i31) => (<Fragment key={m_i31}>
+                          {(v.payMethods || []).map((m, m_i32) => (<Fragment key={m_i32}>
                             <button className={m.cls} onClick={m.pick} aria-pressed={m.on} style={{ alignItems: "center", textAlign: "center", padding: "20px 14px" }}>
                               <span style={{ fontSize: "16px", fontWeight: "600", color: "#FFFFFF" }}>
                                 {m.label}
@@ -1913,7 +1949,7 @@ export default function View(v) {
                       {"Your slot in the studio day (3 PM – 11 PM)"}
                     </p>
                     <div className="tl">
-                      {(v.last.cells || []).map((c, c_i32) => (<Fragment key={c_i32}>
+                      {(v.last.cells || []).map((c, c_i33) => (<Fragment key={c_i33}>
                         <div className={c} />
                       </Fragment>))}
                     </div>
@@ -1946,7 +1982,7 @@ export default function View(v) {
                   </div>
                 </>) : null}
                 <div style={{ marginTop: "28px" }}>
-                  {(v.last.rows || []).map((r, r_i33) => (<Fragment key={r_i33}>
+                  {(v.last.rows || []).map((r, r_i34) => (<Fragment key={r_i34}>
                     <div className="row">
                       <span className="k">
                         {r.k}
@@ -2013,6 +2049,9 @@ export default function View(v) {
             <button onClick={v.nav.account}>
               {"My Account"}
             </button>
+            <a href="/admin/" style={{ color: "inherit", textDecoration: "none" }}>
+              {"Team login"}
+            </a>
           </nav>
           <p style={{ margin: "0" }}>
             {"© Nilepods · Powered by Capital Studios"}
