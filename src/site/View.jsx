@@ -257,8 +257,8 @@ export default function View(v) {
             <div className="hs-track" ref={v.setCar} onScroll={v.onCarScroll} onPointerDown={v.dragStart} onPointerMove={v.dragMove} onPointerUp={v.dragEnd} onPointerLeave={v.dragEnd} onPointerCancel={v.dragEnd} data-gap="24">
               {(v.setupList || []).map((su, su_i5) => (<Fragment key={su_i5}>
                 <div className={su.hcls}>
-                  <img src={su.img} alt="" className="hs-bg" draggable="false" aria-hidden="true" />
-                  <img src={su.img} alt={su.alt} className="hs-img" draggable="false" />
+                  <img src={su.bg} alt="" className="hs-bg" draggable="false" aria-hidden="true" />
+                  <img src={su.img} srcSet={su.srcset} sizes="100vw" alt={su.alt} className="hs-img" draggable="false" />
                   <div className="hs-shade" />
                   <div className="hs-info">
                     <div style={{ minWidth: "0" }}>
@@ -379,8 +379,8 @@ export default function View(v) {
           <div className="fs-car" ref={v.setCar} onScroll={v.onCarScroll} onPointerDown={v.dragStart} onPointerMove={v.dragMove} onPointerUp={v.dragEnd} onPointerLeave={v.dragEnd} onPointerCancel={v.dragEnd} data-gap="0">
             {(v.setupList || []).map((su, su_i7) => (<Fragment key={su_i7}>
               <div className="fs-slide">
-                <img src={su.img} alt="" className="fs-bg" draggable="false" aria-hidden="true" />
-                <img src={su.img} alt={su.alt} className="fs-img" draggable="false" />
+                <img src={su.bg} alt="" className="fs-bg" draggable="false" aria-hidden="true" />
+                <img src={su.img} srcSet={su.srcset} sizes="100vw" alt={su.alt} className="fs-img" draggable="false" />
                 <div className="fs-shade" />
                 <div className="fs-top">
                   <p className="fs-n">
@@ -1330,8 +1330,8 @@ export default function View(v) {
             <div className="fs-car" ref={v.setCar} onScroll={v.onCarScroll} onPointerDown={v.dragStart} onPointerMove={v.dragMove} onPointerUp={v.dragEnd} onPointerLeave={v.dragEnd} onPointerCancel={v.dragEnd} data-gap="0">
               {(v.setupList || []).map((su, su_i24) => (<Fragment key={su_i24}>
                 <div className="fs-slide">
-                  <img src={su.img} alt="" className="fs-bg" draggable="false" aria-hidden="true" />
-                  <img src={su.img} alt={su.alt} className="fs-img" draggable="false" />
+                  <img src={su.bg} alt="" className="fs-bg" draggable="false" aria-hidden="true" />
+                  <img src={su.img} srcSet={su.srcset} sizes="100vw" alt={su.alt} className="fs-img" draggable="false" />
                   <div className="fs-shade" />
                   <div className="fs-top">
                     <p className="fs-n">

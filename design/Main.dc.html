@@ -458,7 +458,7 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="hs-track" ref="{{ setCar }}" onScroll="{{ onCarScroll }}" onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" onPointerLeave="{{ dragEnd }}" onPointerCancel="{{ dragEnd }}" data-gap="24">
 <sc-for list="{{ setupList }}" as="su" hint-placeholder-count="2">
 <div class="{{ su.hcls }}">
-<img src="{{ su.img }}" alt="" class="hs-bg" draggable="false" aria-hidden="true"><img src="{{ su.img }}" alt="{{ su.alt }}" class="hs-img" draggable="false">
+<img src="{{ su.bg }}" alt="" class="hs-bg" draggable="false" aria-hidden="true"><img src="{{ su.img }}" srcset="{{ su.srcset }}" sizes="100vw" alt="{{ su.alt }}" class="hs-img" draggable="false">
 <div class="hs-shade"></div>
 <div class="hs-info">
 <div style="min-width: 0"><p class="hs-name">{{ su.name }}</p><p class="hs-meta">Capacity {{ su.cap }}</p></div>
@@ -522,7 +522,7 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="fs-car" ref="{{ setCar }}" onScroll="{{ onCarScroll }}" onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" onPointerLeave="{{ dragEnd }}" onPointerCancel="{{ dragEnd }}" data-gap="0">
 <sc-for list="{{ setupList }}" as="su" hint-placeholder-count="2">
 <div class="fs-slide">
-<img src="{{ su.img }}" alt="" class="fs-bg" draggable="false" aria-hidden="true"><img src="{{ su.img }}" alt="{{ su.alt }}" class="fs-img" draggable="false">
+<img src="{{ su.bg }}" alt="" class="fs-bg" draggable="false" aria-hidden="true"><img src="{{ su.img }}" srcset="{{ su.srcset }}" sizes="100vw" alt="{{ su.alt }}" class="fs-img" draggable="false">
 <div class="fs-shade"></div>
 <div class="fs-top">
 <p class="fs-n">{{ su.n }}</p>
@@ -820,7 +820,7 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="fs-car" ref="{{ setCar }}" onScroll="{{ onCarScroll }}" onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" onPointerLeave="{{ dragEnd }}" onPointerCancel="{{ dragEnd }}" data-gap="0">
 <sc-for list="{{ setupList }}" as="su" hint-placeholder-count="2">
 <div class="fs-slide">
-<img src="{{ su.img }}" alt="" class="fs-bg" draggable="false" aria-hidden="true"><img src="{{ su.img }}" alt="{{ su.alt }}" class="fs-img" draggable="false">
+<img src="{{ su.bg }}" alt="" class="fs-bg" draggable="false" aria-hidden="true"><img src="{{ su.img }}" srcset="{{ su.srcset }}" sizes="100vw" alt="{{ su.alt }}" class="fs-img" draggable="false">
 <div class="fs-shade"></div>
 <div class="fs-top">
 <p class="fs-n">{{ su.n }}</p>

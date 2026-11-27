@@ -220,7 +220,11 @@ export default class Logic extends DCLogic {
         desc: 'Two armchairs in front of softly lit bookshelves, with greenery on the side.' },
       { id: 's7', n: 'Setup 7', name: 'Setup 7', cap: 1, img: B + 'fdcfcc88f60a0534d61a1283ace3c717.jpg', alt: 'Setup 7: an armchair with a green cushion against brown velvet and lace curtains, beside a lamp and a small guitar',
         desc: 'Brown velvet and lace curtains, a warm lamp and a single armchair — cosy and intimate.' }
-    ];
+    ].map(function (s) {
+      // Sharp photos at every screen size: the browser picks 1200, 2400 or 3600 wide. Blurred backdrops use the small one.
+      var base = s.img.replace(/\.jpg$/, '');
+      return Object.assign(s, { srcset: base + '-1200.jpg 1200w, ' + base + '.jpg 2400w, ' + base + '-3600.jpg 3600w', bg: base + '-1200.jpg' });
+    });
   }
   disc() { return { 3: 0.05, 5: 0.10, 10: 0.15, 20: 0.20 }; }
   // Pack sizes and names. Full Season (20) is valid 180 days, the others 90.
@@ -406,7 +410,7 @@ export default class Logic extends DCLogic {
     // ----- setups carousel -----
     var setupList = SU.map(function (s, si) {
       var on = S.setup === s.id;
-      return { hcls: 'hs-card' + (S.carIdx === si ? ' on' : ''), n: s.n, name: s.name, desc: s.desc, cap: String(s.cap), img: s.img, alt: s.alt, on: on,
+      return { hcls: 'hs-card' + (S.carIdx === si ? ' on' : ''), n: s.n, name: s.name, desc: s.desc, cap: String(s.cap), img: s.img, srcset: s.srcset, bg: s.bg, alt: s.alt, on: on,
         cls: 'slide-card' + (on ? ' on' : ''), btnCls: 'btn-sel' + (on ? ' on' : ''), btnLabel: on ? 'Selected ✓' : 'Choose ' + s.n,
         pick: function () { self.setState({ setup: on ? null : s.id, people: Math.min(S.people, s.cap), start: null }); },
         choose: function () { self.setState({ setup: s.id, people: Math.min(S.people, s.cap), start: null, w: S.w + 1, showErr: false, carIdx: 0 }); self.scrollTop(); },
