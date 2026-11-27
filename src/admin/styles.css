@@ -109,3 +109,4 @@ button.trow:hover{background:#17140F}
 .mob{display:flex}
 .grid2{grid-template-columns:1fr}
 }
+.gtag{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:rgba(226,184,114,.14);color:#E2B872;font-size:12px;font-weight:600;vertical-align:1px}

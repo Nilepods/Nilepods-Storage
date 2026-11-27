@@ -94,7 +94,7 @@ export default class Logic extends DCLogic {
       var ex = []; if (r.extra_cameras) ex.push('Extra camera × ' + r.extra_cameras); if (r.extra_mics) ex.push('Extra microphone × ' + r.extra_mics);
       if (r.photographer) ex.push('Session photographer'); if (r.extra_hours) ex.push('Extra hour × ' + r.extra_hours);
       return { id: r.ref, off: off, date: d, key: self.key(d), setup: parseInt(String(r.setup_id).slice(1), 10) || 0, start: a.h, end: e.h || 24, svc: r.service,
-        customer: r.first_name + ' ' + r.last_name, phone: r.phone || '—', email: r.email, people: r.people, extras: ex.length ? ex.join(', ') : 'None',
+        customer: r.first_name + ' ' + r.last_name, phone: r.phone || '—', email: r.email, people: r.people, guests: r.guests || 0, extras: ex.length ? ex.join(', ') : 'None',
         method: r.payment_method || 'card', packageRef: r.package_ref, amount: r.total_egp, status: st, paid: r.payment_status === 'paid', refunded: r.payment_status === 'refunded',
         isTest: r.is_test, createdOff: c.off, createdH: c.h };
     });
@@ -153,7 +153,7 @@ export default class Logic extends DCLogic {
       return { id: b.id, customer: b.customer + (b.isTest ? ' (test)' : ''), setup: 'Setup ' + b.setup, service: sv.name, serviceShort: sv.short,
         time: self.fmtH(b.start) + ' – ' + self.fmtH(b.end), dateShort: self.dayName(b.date, false), dateLong: self.dayName(b.date, true),
         amountLabel: self.money(b.amount), payLabel: pay, payCls: payCls, status: b.status, pillCls: pillCls[b.status] || 'pill p-up',
-        methodLabel: (b.packageRef ? 'Package credit (' + b.packageRef + ')' + (b.amount > 0 ? ' + ' : '') : '') + (b.packageRef && b.amount === 0 ? '' : b.method === 'cash' ? 'At the studio (cash)' : 'Card (Paymob)'), people: String(b.people), extras: b.extras, phone: b.phone, email: b.email, created: self.rel(b.createdOff, b.createdH),
+        methodLabel: (b.packageRef ? 'Package credit (' + b.packageRef + ')' + (b.amount > 0 ? ' + ' : '') : '') + (b.packageRef && b.amount === 0 ? '' : b.method === 'cash' ? 'At the studio (cash)' : 'Card (Paymob)'), people: String(b.people), guests: b.guests ? String(b.guests) : 'None', hasGuests: b.guests > 0, guestTag: b.guests ? '+' + b.guests + (b.guests === 1 ? ' guest' : ' guests') : '', extras: b.extras, phone: b.phone, email: b.email, created: self.rel(b.createdOff, b.createdH),
         open: function () { self.setState({ sel: b.id, mvOpen: false }); } };
     };
     // ---- sign-in ----
@@ -222,7 +222,7 @@ export default class Logic extends DCLogic {
       chart.push({ h: Math.max(2, Math.round(x.v / maxV * 100)), d: x.o === 0 ? 'Today' : String(d2.getDate()), cls: 'bar' + (x.o === 0 ? ' today' : ''), tip: self.dayName(d2) + ': ' + self.money(x.v) }); });
     var chartSum = vals.reduce(function (a, x) { return a + x.v; }, 0);
     var todayB = all.filter(function (b) { return b.off === 0 && b.status !== 'Cancelled'; }).sort(function (a, b) { return a.start - b.start || a.setup - b.setup; });
-    var todayList = todayB.map(function (b) { var x = view(b); return { time: self.fmtH(b.start), customer: x.customer, setup: x.setup, service: x.serviceShort, status: x.status, pillCls: x.pillCls, open: x.open }; });
+    var todayList = todayB.map(function (b) { var x = view(b); return { time: self.fmtH(b.start), customer: x.customer, hasGuests: x.hasGuests, guestTag: x.guestTag, setup: x.setup, service: x.serviceShort, status: x.status, pillCls: x.pillCls, open: x.open }; });
     var svcTotals = ['rec', 'mix', 'pro'].map(function (id) { return { name: SV[id].name, v: sessIn.filter(function (b) { return b.svc === id; }).reduce(function (a, b) { return a + b.amount; }, 0) }; });
     svcTotals.push({ name: 'Packages', v: packMoney });
     var svMax = Math.max.apply(null, svcTotals.map(function (x) { return x.v; }).concat([1]));

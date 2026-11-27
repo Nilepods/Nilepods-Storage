@@ -121,6 +121,7 @@ button.trow:hover{background:#17140F}
 .mob{display:flex}
 .grid2{grid-template-columns:1fr}
 }
+.gtag{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:rgba(226,184,114,.14);color:#E2B872;font-size:12px;font-weight:600;vertical-align:1px}
 </style>
 </helmet>
 <div class="ad" ref="{{ setRoot }}">
@@ -196,7 +197,7 @@ button.trow:hover{background:#17140F}
 <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px"><p class="lbl">Today in the studio</p><button class="btn-ghost" onClick="{{ goSchedule }}" style="min-height: 34px; font-size: 13px">Full schedule</button></div>
 <div class="list" style="margin-top: 8px">
 <sc-for list="{{ todayList }}" as="b" hint-placeholder-count="4">
-<button class="li" onClick="{{ b.open }}"><span class="time">{{ b.time }}</span><span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14px; color: #FFFFFF">{{ b.customer }}</span><span class="muted">{{ b.setup }} · {{ b.service }}</span></span><span class="{{ b.pillCls }}">{{ b.status }}</span></button>
+<button class="li" onClick="{{ b.open }}"><span class="time">{{ b.time }}</span><span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14px; color: #FFFFFF">{{ b.customer }}<sc-if value="{{ b.hasGuests }}" hint-placeholder-val="{{ false }}"><span class="gtag">{{ b.guestTag }}</span></sc-if></span><span class="muted">{{ b.setup }} · {{ b.service }}</span></span><span class="{{ b.pillCls }}">{{ b.status }}</span></button>
 </sc-for>
 <sc-if value="{{ noToday }}" hint-placeholder-val="{{ false }}"><p style="margin: 18px 0 4px; font-size: 14px; color: #8C8172">{{ noTodayMsg }}</p></sc-if>
 </div>
@@ -261,7 +262,7 @@ button.trow:hover{background:#17140F}
 <div class="panel tbox">
 <div class="trow head"><span>Booking</span><span>Customer</span><span>Setup · service</span><span>Date &amp; time</span><span>Amount</span><span>Payment</span><span>Status</span></div>
 <sc-for list="{{ rows }}" as="b" hint-placeholder-count="10">
-<button class="trow" onClick="{{ b.open }}"><span class="muted" style="font-size: 13px">{{ b.id }}</span><span style="color: #FFFFFF">{{ b.customer }}</span><span>{{ b.setup }} · <span class="muted">{{ b.serviceShort }}</span></span><span>{{ b.dateShort }} · <span class="muted">{{ b.time }}</span></span><span style="color: #FFFFFF; font-weight: 500">{{ b.amountLabel }}</span><span class="{{ b.payCls }}" style="font-size: 13px; font-weight: 500">{{ b.payLabel }}</span><span><span class="{{ b.pillCls }}">{{ b.status }}</span></span></button>
+<button class="trow" onClick="{{ b.open }}"><span class="muted" style="font-size: 13px">{{ b.id }}</span><span style="color: #FFFFFF">{{ b.customer }}<sc-if value="{{ b.hasGuests }}" hint-placeholder-val="{{ false }}"><span class="gtag">{{ b.guestTag }}</span></sc-if></span><span>{{ b.setup }} · <span class="muted">{{ b.serviceShort }}</span></span><span>{{ b.dateShort }} · <span class="muted">{{ b.time }}</span></span><span style="color: #FFFFFF; font-weight: 500">{{ b.amountLabel }}</span><span class="{{ b.payCls }}" style="font-size: 13px; font-weight: 500">{{ b.payLabel }}</span><span><span class="{{ b.pillCls }}">{{ b.status }}</span></span></button>
 </sc-for>
 <sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding: 32px; text-align: center; color: #8C8172">No bookings match. <button class="btn-ghost" onClick="{{ clearFilters }}" style="margin-left: 8px; min-height: 36px">Clear filters</button></p></sc-if>
 </div>
@@ -411,6 +412,7 @@ button.trow:hover{background:#17140F}
 <div class="row"><span class="k">Setup</span><span class="v">{{ sel.setup }}</span></div>
 <div class="row"><span class="k">Service</span><span class="v">{{ sel.service }}</span></div>
 <div class="row"><span class="k">People on camera</span><span class="v">{{ sel.people }}</span></div>
+<div class="row"><span class="k">Guests coming along</span><span class="v">{{ sel.guests }}</span></div>
 <div class="row"><span class="k">Extras</span><span class="v">{{ sel.extras }}</span></div>
 <div class="row"><span class="k">Phone</span><span class="v">{{ sel.phone }}</span></div>
 <div class="row"><span class="k">Email</span><span class="v">{{ sel.email }}</span></div>

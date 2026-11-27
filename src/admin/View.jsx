@@ -246,6 +246,11 @@ export default function View(v) {
                         <span style={{ flex: "1", minWidth: "0" }}>
                           <span style={{ display: "block", fontSize: "14px", color: "#FFFFFF" }}>
                             {b.customer}
+                            {b.hasGuests ? (<>
+                              <span className="gtag">
+                                {b.guestTag}
+                              </span>
+                            </>) : null}
                           </span>
                           <span className="muted">
                             {b.setup}{" · "}{b.service}
@@ -448,6 +453,11 @@ export default function View(v) {
                     </span>
                     <span style={{ color: "#FFFFFF" }}>
                       {b.customer}
+                      {b.hasGuests ? (<>
+                        <span className="gtag">
+                          {b.guestTag}
+                        </span>
+                      </>) : null}
                     </span>
                     <span>
                       {b.setup}{" · "}
@@ -1069,6 +1079,14 @@ export default function View(v) {
                 </span>
                 <span className="v">
                   {v.sel.people}
+                </span>
+              </div>
+              <div className="row">
+                <span className="k">
+                  {"Guests coming along"}
+                </span>
+                <span className="v">
+                  {v.sel.guests}
                 </span>
               </div>
               <div className="row">
