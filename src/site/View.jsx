@@ -20,21 +20,41 @@ export default function View(v) {
             <button className="desk navlink" onClick={v.toastArabic} style={{ padding: "8px 4px" }}>
               {"عربي"}
             </button>
-            <button className="iconbtn desk" aria-label="My account" onClick={v.nav.account}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
-              </svg>
-            </button>
+            {v.signedOut ? (<>
+              <button className="iconbtn desk" aria-label="My account" onClick={v.nav.account}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+                </svg>
+              </button>
+            </>) : null}
+            {v.signedIn ? (<>
+              <button className="iconbtn desk acct-on" aria-label={v.acctAria} title={v.acctAria} onClick={v.nav.account}>
+                <span className="acct-av" aria-hidden="true">
+                  {v.acctInitial}
+                </span>
+                <span className="acct-dot" aria-hidden="true" />
+              </button>
+            </>) : null}
             <button className="btn-gold desk" onClick={v.bookNow} style={{ padding: "11px 22px", minHeight: "44px", fontSize: "14px" }}>
               {"Book Session"}
             </button>
-            <button className="iconbtn mob" aria-label="My account" onClick={v.nav.account}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
-              </svg>
-            </button>
+            {v.signedOut ? (<>
+              <button className="iconbtn mob" aria-label="My account" onClick={v.nav.account}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+                </svg>
+              </button>
+            </>) : null}
+            {v.signedIn ? (<>
+              <button className="iconbtn mob acct-on" aria-label={v.acctAria} title={v.acctAria} onClick={v.nav.account}>
+                <span className="acct-av" aria-hidden="true">
+                  {v.acctInitial}
+                </span>
+                <span className="acct-dot" aria-hidden="true" />
+              </button>
+            </>) : null}
             <button className="iconbtn mob" aria-label="Open menu" onClick={v.openMenu}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
                 <path d="M4 7h16M4 12h16M4 17h16" />

@@ -786,6 +786,8 @@ export default class Logic extends DCLogic {
       tcal: tcal, tour: tour,
       sendTour: function () { self.setState({ tourSent: true }); self.scrollTop(); },
       signedIn: S.signedIn, signedOut: !S.signedIn, acctEmail: S.acctEmail,
+      acctInitial: ((S.info && S.info.first) || S.acctEmail || '?').trim().charAt(0).toUpperCase(),
+      acctAria: 'My account (signed in' + (S.acctEmail ? ' as ' + S.acctEmail : '') + ')',
       onAcct: function (e) { self.setState({ acctEmail: e.target.value }); },
       signinBlocked: S.signInBusy || !acctEmailOk || !S.acctPw,
       signInLabel: S.signInBusy ? 'Signing in…' : 'Sign in',
