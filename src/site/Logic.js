@@ -666,12 +666,12 @@ export default class Logic extends DCLogic {
     bySvc.forEach(function (b) { sessCounts[groupOf(b)]++; });
     var sessTabs = [['upcoming', 'Upcoming'], ['past', 'Past'], ['cancelled', 'Cancelled']].map(function (t) {
       var on = S.sessTab === t[0];
-      return { label: t[1] + ' (' + sessCounts[t[0]] + ')', on: on, cls: 'stab' + (on ? ' on' : ''), go: function () { self.setState({ sessTab: t[0], moveRef: null }); } };
+      return { label: t[1] + ' (' + sessCounts[t[0]] + ')', name: t[1], count: String(sessCounts[t[0]]), on: on, cls: 'sseg-b' + (on ? ' on' : ''), go: function () { self.setState({ sessTab: t[0], moveRef: null }); } };
     });
     var svcsUsed = ['rec', 'mix', 'pro'].filter(function (id) { return S.bookings.some(function (b) { return b.svc === id; }); });
-    var sessSvcs = svcsUsed.length > 1 ? [['all', 'All services']].concat(svcsUsed.map(function (id) { return [id, svcNames[id]]; })).map(function (t) {
+    var sessSvcs = svcsUsed.length > 1 ? [['all', 'All']].concat(svcsUsed.map(function (id) { return [id, svcNames[id]]; })).map(function (t) {
       var on = S.sessSvc === t[0];
-      return { label: t[1], on: on, cls: 'fchk' + (on ? ' on' : ''), go: function () { self.setState({ sessSvc: t[0], moveRef: null }); } };
+      return { label: t[1], on: on, cls: 'sfilt-b' + (on ? ' on' : ''), go: function () { self.setState({ sessSvc: t[0], moveRef: null }); } };
     }) : [];
     var shown = bySvc.filter(function (b) { return groupOf(b) === S.sessTab; })
       .sort(function (x, y) { return S.sessTab === 'upcoming' ? x.startsMs - y.startsMs : y.startsMs - x.startsMs; });

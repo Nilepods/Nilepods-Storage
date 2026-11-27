@@ -181,10 +181,20 @@ details[open] .plus{transform:rotate(45deg)}
 .fchk:hover{border-color:rgba(226,184,114,.5)}
 .fchk.on{border-color:#E2B872;color:#fff;background:rgba(226,184,114,.08)}
 .fchk input{width:18px;height:18px;margin:0;accent-color:#E2B872}
-.stabs{display:flex;gap:4px;padding:4px;border-radius:999px;border:1px solid rgba(241,234,223,.12);width:max-content;max-width:100%;overflow-x:auto}
-.stab{min-height:40px;padding:0 18px;border-radius:999px;font-size:14px;color:#CFC5B5;white-space:nowrap}
-.stab.on{background:#E2B872;color:#17120B;font-weight:600}
-.sfilt{display:flex;flex-wrap:wrap;gap:8px}.sfilt .fchk{min-height:36px;font-size:14px}
+/* My sessions: segmented tabs (one outline around the group) and a quiet service filter */
+.sseg{display:inline-flex;align-self:flex-start;gap:2px;padding:4px;border-radius:999px;background:rgba(241,234,223,.04);border:1px solid rgba(241,234,223,.1);max-width:100%;overflow-x:auto;scrollbar-width:none}
+.sseg::-webkit-scrollbar{display:none}
+.sseg-b{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 18px;border:0;border-radius:999px;background:transparent;font-size:14px;font-weight:500;color:#A89C8B;white-space:nowrap;transition:background .2s,color .2s}
+.sseg-b:hover{color:#F1EADF}
+.sseg-b.on{background:#E2B872;color:#17120B;font-weight:600;box-shadow:0 2px 10px rgba(226,184,114,.18)}
+.sseg-n{min-width:22px;height:22px;padding:0 7px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:rgba(241,234,223,.08);color:#CFC5B5}
+.sseg-b.on .sseg-n{background:rgba(23,18,11,.16);color:#17120B}
+.sfilt{display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none}
+.sfilt::-webkit-scrollbar{display:none}
+.sfilt-k{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:#7D7365;margin-right:8px;white-space:nowrap}
+.sfilt-b{min-height:36px;padding:0 14px;border:0;border-radius:999px;background:transparent;font-size:14px;color:#A89C8B;white-space:nowrap;transition:background .2s,color .2s}
+.sfilt-b:hover{color:#F1EADF;background:rgba(241,234,223,.05)}
+.sfilt-b.on{color:#E2B872;background:rgba(226,184,114,.12);font-weight:500}
 .pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .pcard.pop{border-color:rgba(226,184,114,.55);box-shadow:0 0 0 1px rgba(226,184,114,.25),0 24px 60px -30px rgba(226,184,114,.35)}
 .poptag{position:absolute;top:14px;right:14px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#E2B872;background:rgba(14,12,10,.82);border:1px solid rgba(226,184,114,.6);padding:6px 10px;border-radius:999px;backdrop-filter:blur(6px)}

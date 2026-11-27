@@ -950,15 +950,21 @@ export default function View(v) {
                   <p className="lbl" style={{ margin: "0" }}>
                     {"My sessions"}
                   </p>
-                  <div className="stabs" role="tablist" aria-label="Sessions">
+                  <div className="sseg" role="tablist" aria-label="Sessions">
                     {(v.sessTabs || []).map((t, t_i13) => (<Fragment key={t_i13}>
                       <button className={t.cls} role="tab" aria-selected={t.on} onClick={t.go}>
-                        {t.label}
+                        {t.name}
+                        <span className="sseg-n">
+                          {t.count}
+                        </span>
                       </button>
                     </Fragment>))}
                   </div>
                   {v.hasSessSvcs ? (<>
                     <div className="sfilt" role="group" aria-label="Filter by service">
+                      <span className="sfilt-k">
+                        {"Service"}
+                      </span>
                       {(v.sessSvcs || []).map((f, f_i14) => (<Fragment key={f_i14}>
                         <button className={f.cls} aria-pressed={f.on} onClick={f.go}>
                           {f.label}
