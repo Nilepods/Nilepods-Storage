@@ -67,7 +67,7 @@ export async function sendBookingEmails(ref: string, kind: 'new' | 'rescheduled'
       const extras = [b.extra_cameras ? `${b.extra_cameras} extra camera` : '', b.extra_mics ? `${b.extra_mics} extra mic` : '', b.photographer ? 'Photographer' : ''].filter(Boolean).join(', ') || 'None';
       rows = [['Order', esc(b.ref)], ['Date', esc(date)], ['Time', time], ['Service', esc(SERVICES[b.service] ?? b.service)], ['Setup', esc(SETUPS[b.setup_id] ?? b.setup_id)],
         ...(kind === 'rescheduled' && b.previous_starts_at ? [['Previous time', esc(`${cairo(b.previous_starts_at, { weekday: 'short', day: 'numeric', month: 'short' })}, ${hour(b.previous_starts_at)}`)] as [string, string]] : []),
-        ['People on camera', esc(b.people)], ['Extras', esc(extras)], ...(viaPackage ? [['Package', `1 hour from package ${esc(b.package_ref)}`] as [string, string]] : []), ['Total', payLine]];
+        ['People on camera', esc(b.people)], ['Guests coming along', b.guests ? esc(b.guests) : 'None'], ['Extras', esc(extras)], ...(viaPackage ? [['Package', `1 hour from package ${esc(b.package_ref)}`] as [string, string]] : []), ['Total', payLine]];
       subjectWhat = `${cairo(b.starts_at, { weekday: 'short', day: 'numeric', month: 'short' })}, ${hour(b.starts_at)}`;
       intro = kind === 'rescheduled' ? `Hi ${esc(b.first_name)}, your session has been moved to the new time below. See you at the studio.`
         : `Hi ${esc(b.first_name)}, your session is booked. We can't wait to see you at the studio.`;

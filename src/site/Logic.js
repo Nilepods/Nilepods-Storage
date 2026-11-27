@@ -38,14 +38,14 @@ function pageFromUrl() {
   return s;
 }
 
-const WIZARD_KEYS = ['mode', 'svc', 'setup', 'people', 'ex', 'dateKey', 'start', 'bTier', 'bCount', 'info', 'monthOff'];
+const WIZARD_KEYS = ['mode', 'svc', 'setup', 'people', 'guests', 'ex', 'dateKey', 'start', 'bTier', 'bCount', 'info', 'monthOff'];
 
 export default class Logic extends DCLogic {
   constructor(props) {
     super(props);
     this.state = {
       screen: 'home', prevScreen: 'home', hist: [],
-      mode: 'session', w: 1, svc: 'mix', setup: null, people: 1,
+      mode: 'session', w: 1, svc: 'mix', setup: null, people: 1, guests: 0,
       ex: { hour: 0, cam: 0, mic: 0, photo: 0 }, monthOff: 0, dateKey: null, start: null,
       bTier: 'mix', bCount: 3,
       fSvc: [], pkCount: 5, detail: { tier: 'mix', count: 3 }, carIdx: 0,
@@ -191,12 +191,15 @@ export default class Logic extends DCLogic {
     return [
       { id: 'rec', tier: 'Recording Only', name: 'Recording Only', price: 1150, blurb: 'Record in a fully equipped setup and take your raw files home.',
         inc: ['1 hour of recording', '3 cameras & 2 microphones', 'Raw audio and video files delivered right after your session'],
+        brief: ['Fully equipped studio setup', 'Operator, 3 cameras & 2 microphones', 'Professional audio recording', 'Raw files, right after your session'],
         items: ['Fully equipped studio setup', 'Professional operator, 3 cameras & 2 microphones', 'Professional audio recording', 'Raw audio and video files delivered right after your session'] },
       { id: 'mix', tier: 'Recording + Live Edit', name: 'Recording + Live Edit', price: 1450, badge: 'Live-mixed', blurb: 'Leave the studio with a live-mixed episode, switched and edited as you record.',
         inc: ['1 hour of recording', '3 cameras & 2 microphones', 'Live-mixed episode delivered right after your session'],
+        base: true, brief: ['Live video switching and editing', 'Synced cameras and audio', 'Live-mixed episode, right after your session'],
         items: ['Everything in Recording Only', 'Live video switching and editing', 'Synced cameras and audio', 'Live-mixed episode delivered right after your session'] },
       { id: 'pro', tier: 'Recording + Pro Edit', name: 'Recording + Pro Edit', price: 1950, blurb: 'A dedicated podcast editor takes your episode through full post-production.',
         inc: ['1 hour of recording', '3 cameras & 2 microphones', 'Full post-production editing'],
+        base: true, brief: ['Dedicated podcast editor', 'Full post-production editing', '2 revision rounds', '14-day raw footage backup'],
         items: ['Everything in Recording Only', 'Dedicated podcast editor', 'Full post-production editing', '2 revision rounds', '14-day raw footage backup'] }
     ];
   }
@@ -364,7 +367,7 @@ export default class Logic extends DCLogic {
 
     var pkgs = pk.map(function (p) {
       var on = S.svc === p.id, cr = creditsFor(p.id);
-      return { name: p.name, priceLabel: p.price.toLocaleString('en-US'), blurb: p.blurb, items: p.items,
+      return { name: p.name, priceLabel: p.price.toLocaleString('en-US'), blurb: p.blurb, items: p.items, brief: p.brief || p.items, base: !!p.base,
         featured: !!p.badge, badge: p.badge || '', on: on,
         cardCls: 'card pkg lift' + (p.badge ? ' featured' : ''), btnCls: p.badge ? 'btn-gold' : 'btn-ghost',
         optCls: 'opt' + (on ? ' on' : ''), radio: 'radio' + (on ? ' on' : ''),
@@ -468,7 +471,7 @@ export default class Logic extends DCLogic {
     var profileOk = S.signedIn && !!I.first.trim() && !!I.last.trim();
     var steps = (isBundle ? ['bundle', 'info', 'pay'] : ['service', 'setup', 'people', 'extras', 'time', 'info', 'pay'])
       .filter(function (t) { return t !== 'info' || !profileOk || S.editInfo; });
-    var titleMap = { service: 'Choose a service', bundle: 'Your package', setup: isBundle ? 'Your preferred setup' : 'Choose your setup', people: 'Who is on camera?', extras: 'Add extras', time: 'Pick a date & time', info: 'Your information', pay: 'Review & pay' };
+    var titleMap = { service: 'Choose a service', bundle: 'Your package', setup: isBundle ? 'Your preferred setup' : 'Choose your setup', people: "Who's coming?", extras: 'Add extras', time: 'Pick a date & time', info: 'Your information', pay: 'Review & pay' };
     var backMap = { service: 'Back', bundle: 'Back', setup: isBundle ? 'Back to package' : 'Back to service', people: 'Back to setup', extras: 'Back to people', time: 'Back to extras', info: isBundle ? 'Back to package' : 'Back to date & time', pay: steps.indexOf('info') >= 0 ? 'Back to your information' : isBundle ? 'Back to package' : 'Back to date & time' };
     var cur = steps[Math.min(S.w, steps.length) - 1];
     var st = {}; ['service', 'bundle', 'setup', 'people', 'extras', 'time', 'info', 'pay'].forEach(function (k) { st[k] = cur === k; });
@@ -515,13 +518,13 @@ export default class Logic extends DCLogic {
           rows: [{ k: 'Service', v: P.name }, { k: 'Per session', v: self.money(BP.per) }, { k: 'Name', v: name }, { k: 'Payment', v: S.method === 'cash' ? 'Pay at the studio' : 'Card (Paymob)' }],
           note: 'Sign in at My account with ' + email + ' to book your ' + (S.bCount === 1 ? 'session' : S.bCount + ' sessions') + ' with this package. Valid for ' + self.validFor(S.bCount) + ' days.' };
       } else {
-        payload = { kind: 'session', service: S.svc, setup: S.setup, date: isoDate(date), start: S.start, people: S.people, extras: S.ex, info: info,
+        payload = { kind: 'session', service: S.svc, setup: S.setup, date: isoDate(date), start: S.start, people: S.people, guests: S.guests || 0, extras: S.ex, info: info,
           payment: needsPay ? S.method : 'cash', credit: usingCredit ? credit.id : undefined };
         var b = { kind: 'session', key: S.dateKey, setup: S.setup, start: S.start, end: S.start + dur, pkgName: P.name,
           setupLabel: SET.n, dateLabel: self.longDate(date), timeLabel: self.range(S.start, S.start + dur), totalLabel: self.money(total) };
         draft = { kind: 'session', email: email, headline: "You're booked!", kicker: 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
           totalLabel: self.money(total), start: b.start, end: b.end, booking: b,
-          rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: payLabelRow }],
+          rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Guests coming along', v: S.guests ? String(S.guests) : 'None' }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: payLabelRow }],
           note: 'Your hours are locked in ' + SET.n + '. Please arrive 10 minutes early.' };
       }
       if (acct === 'created' || acct === 'unconfirmed') draft.note = 'We sent a confirmation email to ' + email + '. Tap the link in it to activate your account, then sign in with your email and password to see your bookings. ' + draft.note;
@@ -824,6 +827,9 @@ export default class Logic extends DCLogic {
       setupName: SET ? SET.n : 'Your setup', setupCap: String(cap),
       people: String(S.people), peopleMin: S.people <= 1, peopleMax: S.people >= cap,
       peopleDown: function () { self.setState({ people: Math.max(1, S.people - 1) }); },
+      guests: String(S.guests || 0), guestsMin: !S.guests, guestsMax: (S.guests || 0) >= 2, guestMaxLabel: '2 guests',
+      guestsDown: function () { self.setState({ guests: Math.max(0, (S.guests || 0) - 1) }); },
+      guestsUp: function () { self.setState({ guests: Math.min(2, (S.guests || 0) + 1) }); },
       peopleUp: function () { self.setState({ people: Math.min(cap, S.people + 1) }); },
       extraList: extraList, durLabel: hoursText,
       cal: cal, hasDate: !!date, noDate: !date, dateLong: date ? self.longDate(date) : '',

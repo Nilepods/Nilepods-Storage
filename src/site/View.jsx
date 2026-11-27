@@ -6,11 +6,8 @@ export default function View(v) {
     <div className="np-root" ref={v.setRoot}>
       <header className="hdr">
         <div className="wrap" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px", paddingTop: "12px", paddingBottom: "12px" }}>
-          <button aria-label="Nilepods home" onClick={v.nav.home} className="ttl" style={{ display: "flex", alignItems: "center", fontSize: "30px", fontWeight: "600", letterSpacing: "-0.5px", lineHeight: "1", color: "#FFFFFF", minHeight: "44px" }}>
-            {"nile"}
-            <span style={{ background: "#FFFFFF", color: "#0E0C0A", padding: "2px 6px 4px", marginLeft: "1px", borderRadius: "3px" }}>
-              {"pods"}
-            </span>
+          <button aria-label="Nilepods home" onClick={v.nav.home} className="ttl" style={{ display: "flex", alignItems: "center", fontWeight: "600", letterSpacing: "-0.5px", lineHeight: "1", color: "#FFFFFF", minHeight: "44px" }}>
+            <img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style={{ height: "36px", width: "auto", display: "block" }} />
           </button>
           <nav aria-label="Main" className="desk" style={{ display: "flex", flexWrap: "wrap", gap: "6px 26px" }}>
             {(v.navItems || []).map((n, n_i0) => (<Fragment key={n_i0}>
@@ -61,11 +58,8 @@ export default function View(v) {
       {v.menuOpen ? (<>
         <div className="mmenu" role="dialog" aria-label="Menu">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-            <button onClick={v.nav.home} className="ttl" style={{ display: "flex", alignItems: "center", fontSize: "28px", fontWeight: "600", color: "#FFFFFF", minHeight: "44px" }}>
-              {"nile"}
-              <span style={{ background: "#FFFFFF", color: "#0E0C0A", padding: "2px 6px 4px", marginLeft: "1px", borderRadius: "3px" }}>
-                {"pods"}
-              </span>
+            <button onClick={v.nav.home} className="ttl" style={{ display: "flex", alignItems: "center", fontWeight: "600", color: "#FFFFFF", minHeight: "44px" }}>
+              <img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style={{ height: "34px", width: "auto", display: "block" }} />
             </button>
             <button className="iconbtn" aria-label="Close menu" onClick={v.closeMenu}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
@@ -218,7 +212,7 @@ export default function View(v) {
               </Fragment>))}
             </div>
             <p style={{ margin: "28px 0 0", fontSize: "13px", color: "#9A8E7D", textAlign: "center" }}>
-              {"Prices are per hour of studio time. Save with 3, 5 or 10-session packages."}
+              {"Prices are per hour of recording."}
             </p>
           </div>
         </section>
@@ -359,11 +353,8 @@ export default function View(v) {
         <section style={{ paddingBottom: "100px" }}>
           <div className="wrap">
             <div style={{ textAlign: "center", padding: "80px 24px", borderRadius: "28px", background: "radial-gradient(ellipse at 50% 0%, rgba(226,184,114,0.18) 0%, rgba(226,184,114,0) 60%), #15120E", border: "1px solid rgba(241,234,223,0.08)" }}>
-              <p className="ttl" style={{ margin: "0", display: "inline-flex", alignItems: "center", fontSize: "44px", fontWeight: "600", letterSpacing: "-0.5px", lineHeight: "1", color: "#FFFFFF" }}>
-                {"nile"}
-                <span style={{ background: "#FFFFFF", color: "#0E0C0A", padding: "3px 8px 6px", marginLeft: "2px", borderRadius: "4px" }}>
-                  {"pods"}
-                </span>
+              <p className="ttl" style={{ margin: "0", display: "inline-flex", alignItems: "center", fontWeight: "600", letterSpacing: "-0.5px", lineHeight: "1", color: "#FFFFFF" }}>
+                <img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style={{ height: "53px", width: "auto", display: "block" }} />
               </p>
               <p style={{ margin: "14px 0 0", fontSize: "14px", letterSpacing: "2px", textTransform: "uppercase", color: "#A89C8B" }}>
                 {"Powered by NileStudios"}
@@ -397,11 +388,6 @@ export default function View(v) {
                   </p>
                   <p className="fs-cap">
                     {"Capacity | "}{su.cap}
-                  </p>
-                </div>
-                <div className="fs-bot">
-                  <p className="fs-desc">
-                    {su.desc}
                   </p>
                   <button className="fs-choose" onClick={su.book}>
                     {"Book "}{su.n}
@@ -1230,9 +1216,6 @@ export default function View(v) {
                   </article>
                 </Fragment>))}
               </div>
-              <p style={{ margin: "28px 0 0", fontSize: "13px", color: "#8C8172" }}>
-                {"Each session is one hour of recording with up to 60 minutes of raw material. With Recording Only and Recording + Live Edit, you leave with your files the moment your session ends. With Recording + Pro Edit, your edited episode follows after post-production. Sessions are valid for "}{v.validDays}{" days from purchase ("}{v.longValid}{" days for Full Season). Extras are added when you book each session."}
-              </p>
             </div>
           </div>
         </section>
@@ -1357,13 +1340,8 @@ export default function View(v) {
                     <p className="fs-cap">
                       {"Capacity | "}{su.cap}
                     </p>
-                  </div>
-                  <div className="fs-bot">
-                    <p className="fs-desc">
-                      {su.desc}
-                    </p>
                     <button className="fs-choose" onClick={su.choose}>
-                      {"Choose"}
+                      {"Choose "}{su.n}
                     </button>
                   </div>
                 </div>
@@ -1457,7 +1435,12 @@ export default function View(v) {
                               </span>
                             </span>
                             <span className="svc-inc">
-                              {(p.items || []).map((li, li_i28) => (<Fragment key={li_i28}>
+                              {p.base ? (<>
+                                <span className="svc-base">
+                                  {"Everything in Recording Only, plus"}
+                                </span>
+                              </>) : null}
+                              {(p.brief || []).map((li, li_i28) => (<Fragment key={li_i28}>
                                 <span className="svc-li">
                                   {li}
                                 </span>
@@ -1533,25 +1516,48 @@ export default function View(v) {
                       </ul>
                     </>) : null}
                     {v.st.people ? (<>
-                      <div className="xrow" style={{ padding: "28px" }}>
-                        <div>
-                          <p style={{ margin: "0", fontSize: "17px", fontWeight: "500", color: "#FFFFFF" }}>
-                            {"People on camera"}
-                          </p>
-                          <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#A89C8B" }}>
-                            {v.setupName}{" seats up to "}{v.setupCap}{"."}
-                          </p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        <div className="xrow" style={{ padding: "28px" }}>
+                          <div>
+                            <p style={{ margin: "0", fontSize: "17px", fontWeight: "500", color: "#FFFFFF" }}>
+                              {"People on camera"}
+                            </p>
+                            <p style={{ margin: "6px 0 0", fontSize: "13px", lineHeight: "1.5", color: "#A89C8B" }}>
+                              {"Everyone who will appear in the recording. "}{v.setupName}{" seats up to "}{v.setupCap}{"."}
+                            </p>
+                          </div>
+                          <div className="qty">
+                            <button className="qb" aria-label="Fewer people" onClick={v.peopleDown} disabled={v.peopleMin}>
+                              {"−"}
+                            </button>
+                            <span className="qv" aria-live="polite">
+                              {v.people}
+                            </span>
+                            <button className="qb" aria-label="More people" onClick={v.peopleUp} disabled={v.peopleMax}>
+                              {"+"}
+                            </button>
+                          </div>
                         </div>
-                        <div className="qty">
-                          <button className="qb" aria-label="Fewer people" onClick={v.peopleDown} disabled={v.peopleMin}>
-                            {"−"}
-                          </button>
-                          <span className="qv" aria-live="polite">
-                            {v.people}
-                          </span>
-                          <button className="qb" aria-label="More people" onClick={v.peopleUp} disabled={v.peopleMax}>
-                            {"+"}
-                          </button>
+                        <div className="xrow" style={{ padding: "28px" }}>
+                          <div>
+                            <p style={{ margin: "0", fontSize: "17px", fontWeight: "500", color: "#FFFFFF" }}>
+                              {"Guests coming along"}
+                            </p>
+                            <p style={{ margin: "6px 0 0", fontSize: "13px", lineHeight: "1.5", color: "#A89C8B" }}>
+                              {"Friends, family or team joining you who won't be on camera. Up to "}{v.guestMaxLabel}{"."}
+                            </p>
+                          </div>
+                          <div className="qty">
+                            <button className="qb" aria-label="Fewer guests" onClick={v.guestsDown} disabled={v.guestsMin}>
+                              {"−"}
+                            </button>
+                            <span className="qv" aria-live="polite">
+                              {v.guests}
+                            </span>
+                            <button className="qb" aria-label="More guests" onClick={v.guestsUp} disabled={v.guestsMax}>
+                              {"+"}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </>) : null}
@@ -2085,9 +2091,26 @@ export default function View(v) {
           </div>
         </section>
       </>) : null}
-      <footer className="foot" style={{ borderTop: "1px solid rgba(241,234,223,0.08)" }}>
-        <div className="wrap" style={{ paddingTop: "40px", paddingBottom: "40px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "24px", fontSize: "14px", color: "#A89C8B" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <footer className="foot">
+        <div className="wrap foot-in">
+          <button className="foot-logo" aria-label="Nilepods home" onClick={v.nav.home}>
+            <img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style={{ height: "31px", width: "auto", display: "block" }} />
+          </button>
+          <nav className="foot-legal" aria-label="Legal">
+            <button onClick={v.legal.privacy}>
+              {"Privacy Policy"}
+            </button>
+            <button onClick={v.legal.terms}>
+              {"Terms & Conditions"}
+            </button>
+            <button onClick={v.legal.refund}>
+              {"Refund & Cancellation"}
+            </button>
+            <button onClick={v.nav.account}>
+              {"My Account"}
+            </button>
+          </nav>
+          <div className="foot-soc">
             <button className="iconbtn" aria-label="Facebook" onClick={v.social.fb}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H6.5v3.5H9V21h3.5v-8.5H15l.5-3.5h-3V7a1 1 0 0 1 1-1H15z" />
@@ -2107,25 +2130,12 @@ export default function View(v) {
               </svg>
             </button>
           </div>
-          <nav aria-label="Legal" style={{ display: "flex", flexWrap: "wrap", gap: "8px 24px" }}>
-            <button onClick={v.legal.privacy}>
-              {"Privacy Policy"}
-            </button>
-            <button onClick={v.legal.terms}>
-              {"Terms & Conditions"}
-            </button>
-            <button onClick={v.legal.refund}>
-              {"Refund & Cancellation"}
-            </button>
-            <button onClick={v.nav.account}>
-              {"My Account"}
-            </button>
-            <a href="/admin/" style={{ color: "inherit", textDecoration: "none" }}>
+          <div className="foot-rule" />
+          <p className="foot-copy">
+            {"© Nilepods · Powered by Capital Studios · "}
+            <a href="/admin/" style={{ color: "inherit" }}>
               {"Team login"}
             </a>
-          </nav>
-          <p style={{ margin: "0" }}>
-            {"© Nilepods · Powered by Capital Studios"}
           </p>
         </div>
       </footer>

@@ -8,11 +8,8 @@ export default function View(v) {
         <div className="login">
           <div className="panel" style={{ width: "100%", maxWidth: "420px", padding: "40px 32px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", textAlign: "center" }}>
-              <p className="ttl" style={{ margin: "0", display: "inline-flex", alignItems: "center", fontSize: "34px", fontWeight: "600", letterSpacing: "-0.5px", lineHeight: "1", color: "#FFFFFF" }}>
-                {"nile"}
-                <span style={{ background: "#FFFFFF", color: "#0E0C0A", padding: "2px 7px 5px", marginLeft: "1px", borderRadius: "4px" }}>
-                  {"pods"}
-                </span>
+              <p className="ttl" style={{ margin: "0", display: "inline-flex", alignItems: "center", fontWeight: "600", letterSpacing: "-0.5px", lineHeight: "1", color: "#FFFFFF" }}>
+                <img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style={{ height: "41px", width: "auto", display: "block" }} />
               </p>
               <p className="lbl" style={{ color: "#E2B872" }}>
                 {"Studio admin"}
@@ -63,11 +60,8 @@ export default function View(v) {
       {v.loggedIn ? (<>
         <header className="top">
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-            <p className="ttl" style={{ margin: "0", display: "inline-flex", alignItems: "center", fontSize: "26px", fontWeight: "600", letterSpacing: "-0.5px", lineHeight: "1", color: "#FFFFFF" }}>
-              {"nile"}
-              <span style={{ background: "#FFFFFF", color: "#0E0C0A", padding: "2px 6px 4px", marginLeft: "1px", borderRadius: "3px" }}>
-                {"pods"}
-              </span>
+            <p className="ttl" style={{ margin: "0", display: "inline-flex", alignItems: "center", fontWeight: "600", letterSpacing: "-0.5px", lineHeight: "1", color: "#FFFFFF" }}>
+              <img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style={{ height: "31px", width: "auto", display: "block" }} />
             </p>
             <span className="pill p-in desk">
               {"Admin"}

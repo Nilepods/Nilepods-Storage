@@ -16,7 +16,7 @@ a{color:#E2B872;text-decoration:none}a:hover{color:#F4D9A6}
 button{font:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
 button:disabled{cursor:not-allowed}
 :focus-visible{outline:2px solid #E2B872;outline-offset:3px}
-.np-root{height:100vh;overflow-y:auto;overflow-x:hidden;font-family:Poppins,system-ui,sans-serif;color:#F1EADF;background:#0E0C0A}
+.np-root{height:100vh;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;font-family:Poppins,system-ui,sans-serif;color:#F1EADF;background:#0E0C0A}
 .wrap{max-width:1240px;margin:0 auto;padding:0 24px;box-sizing:border-box;width:100%}
 .ttl{font-family:'Titillium Web',sans-serif}
 .eyebrow{margin:0 0 14px;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#E2B872}
@@ -104,6 +104,17 @@ textarea.inp{min-height:130px;resize:vertical}
 .tll{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;font-size:11px;color:#8C8172;margin-top:8px}
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;background:#F1EADF;color:#17120B;font-size:14px;font-weight:500;padding:14px 22px;border-radius:999px;box-shadow:0 20px 50px rgba(0,0,0,.5);max-width:calc(100% - 48px);text-align:center}
 .ph{border:1px dashed rgba(226,184,114,.45);border-radius:16px;padding:28px;color:#CFC5B5;font-size:15px;line-height:1.7;background:rgba(226,184,114,.04)}
+.np-root>*{flex-shrink:0}
+.foot{margin-top:auto;border-top:1px solid rgba(241,234,223,.08);background:#0B0A08}
+.foot-in{padding-top:48px;padding-bottom:28px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.foot .foot-logo{display:flex;align-items:center;font-family:'Titillium Web',sans-serif;font-size:26px;font-weight:600;letter-spacing:-.5px;line-height:1;color:#fff}
+.foot .foot-logo span{background:#fff;color:#0E0C0A;padding:2px 6px 4px;margin-left:1px;border-radius:3px}
+.foot-legal{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:26px}
+.foot-legal button{min-height:40px;padding:0 18px;position:relative}
+.foot-legal button+button::before{content:'';position:absolute;left:-2px;top:50%;width:3px;height:3px;border-radius:50%;background:rgba(241,234,223,.25);transform:translateY(-50%)}
+.foot-soc{display:flex;justify-content:center;gap:12px;margin-top:22px}
+.foot-rule{width:100%;height:1px;background:rgba(241,234,223,.06);margin-top:36px}
+.foot-copy{margin:22px 0 0;font-size:13px;color:#7D7365}
 .foot a,.foot button{color:#A89C8B;font-size:14px}.foot a:hover,.foot button:hover{color:#E2B872}
 details summary{list-style:none;cursor:pointer}details summary::-webkit-details-marker{display:none}
 details[open] .plus{transform:rotate(45deg)}
@@ -246,15 +257,15 @@ details[open] .plus{transform:rotate(45deg)}
 .fs-car::-webkit-scrollbar{display:none}
 .fs-slide{flex:0 0 100%;height:100%;position:relative;scroll-snap-align:start;overflow:hidden}
 .fs-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.fs-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,6,.72) 0%,rgba(10,8,6,.15) 32%,rgba(10,8,6,.1) 60%,rgba(10,8,6,.85) 100%)}
-.fs-top{position:absolute;left:0;right:0;top:72px;text-align:center;padding:0 24px}
-.fs-n{margin:0;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:clamp(64px,11vw,140px);line-height:.95;letter-spacing:-2px;color:rgba(255,255,255,.9)}
+.fs-shade{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 58% 70% at 50% 58%,rgba(10,8,6,0) 40%,rgba(10,8,6,.5) 78%,rgba(10,8,6,.82) 100%),linear-gradient(180deg,rgba(10,8,6,.62) 0%,rgba(10,8,6,0) 30%,rgba(10,8,6,0) 82%,rgba(10,8,6,.5) 100%)}
+.fs-top{position:absolute;left:0;right:0;top:64px;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px}
+.fs-n{margin:0;font-family:'Titillium Web',sans-serif;font-weight:700;font-size:clamp(40px,4.4vw,60px);line-height:1;letter-spacing:-.5px;color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.45)}
 .fs-name{margin:8px 0 0;font-family:'Titillium Web',sans-serif;font-weight:600;font-size:clamp(20px,2.4vw,28px);color:#E2B872}
-.fs-cap{margin:8px 0 0;font-size:16px;color:#F1EADF}
+.fs-cap{margin:8px 0 0;font-size:16px;color:#F1EADF;text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .fs-bot{position:absolute;left:0;right:0;bottom:64px;display:flex;flex-direction:column;align-items:center;gap:18px;padding:0 24px}
 .fs-desc{margin:0;max-width:520px;text-align:center;font-size:15px;line-height:1.6;color:#DCD3C4}
-.fs-choose{width:min(380px,100%);min-height:52px;border-radius:999px;border:1.5px solid rgba(255,255,255,.85);color:#fff;font-size:17px;font-weight:500;background:rgba(14,12,10,.25);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:all .2s}
-.fs-choose:hover{background:#E2B872;border-color:#E2B872;color:#17120B}
+.fs-choose{margin-top:20px;min-width:240px;min-height:52px;padding:0 34px;border-radius:999px;border:1px solid rgba(226,184,114,.55);background:rgba(226,184,114,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-size:16px;font-weight:600;letter-spacing:.3px;transition:all .25s;pointer-events:auto}
+.fs-choose:hover{background:#E2B872;border-color:#E2B872;color:#17120B;transform:translateY(-1px)}
 .fs-more{display:flex;align-items:center;justify-content:center;border:1px dashed rgba(226,184,114,.45);background:rgba(226,184,114,.04);box-sizing:border-box}
 .fs-head{position:absolute;top:16px;left:20px;right:20px;display:flex;align-items:center;gap:12px;pointer-events:none}
 .fs-head .fs-back{pointer-events:auto;background:rgba(14,12,10,.55);backdrop-filter:blur(6px)}
@@ -265,17 +276,22 @@ details[open] .plus{transform:rotate(45deg)}
 .fs-dots{position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:center;gap:4px}
 @media (max-width:860px){
 .fs{height:calc(100vh - 69px)}
-.fs-top{top:76px}
-.fs-bot{bottom:56px}
+.fs-top{top:68px}
+.fs-choose{min-width:220px;min-height:48px;margin-top:16px}
 .fs-arrow{width:48px;height:48px}
+.foot-in{padding-top:40px}
+.foot-legal{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:340px;margin-top:22px}
+.foot-legal button{padding:0 8px}
+.foot-legal button+button::before{display:none}
 .fs-arrow.l{left:4px}.fs-arrow.r{right:4px}
 }
 .backbar{position:sticky;top:69px;z-index:25;height:0}
 .backbar .wrap{padding-top:16px}
 .backpill{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px 0 12px;border-radius:999px;background:rgba(14,12,10,.62);border:1px solid rgba(241,234,223,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:#F1EADF;font-size:14px;font-weight:500;letter-spacing:.2px;box-shadow:0 10px 30px -12px rgba(0,0,0,.7);transition:all .2s}
 .backpill:hover{border-color:#E2B872;color:#E2B872}
-.svc-inc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 22px;width:100%;box-sizing:border-box;margin-top:10px;padding:14px 0 0 36px;border-top:1px solid rgba(241,234,223,.07)}
+.svc-inc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px;width:100%;box-sizing:border-box;margin-top:10px;padding:14px 0 0 36px;border-top:1px solid rgba(241,234,223,.07)}
 .svc-li{position:relative;padding-left:18px;font-size:13.5px;line-height:1.45;color:#CFC5B5}
+.svc-base{grid-column:1/-1;font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:#E2B872}
 .svc-li::before{content:"";position:absolute;left:2px;top:4px;width:4px;height:8px;border:solid #E2B872;border-width:0 1.6px 1.6px 0;transform:rotate(45deg)}
 .opt.on .svc-li{color:#F1EADF}
 .tslots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
@@ -312,7 +328,7 @@ details[open] .plus{transform:rotate(45deg)}
 .fs-bg{display:block;position:absolute;inset:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;filter:blur(26px) brightness(.45);transform:none;pointer-events:none}
 .hs-img{position:relative;inset:auto;display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;transform:none !important}
 .hs-shade{display:none}
-.fs-img{object-fit:contain;top:150px;height:calc(100% - 330px)}
+.fs-img{object-fit:contain;top:210px;height:calc(100% - 260px)}
 .hs-track{padding:0 6%;gap:12px}
 .hs-card{flex-basis:88%;height:auto;min-height:0;background:#14110D;border-radius:18px}
 .hs-info{position:static;padding:16px 18px 18px;flex-direction:column;align-items:stretch;gap:14px}
@@ -340,7 +356,7 @@ details[open] .plus{transform:rotate(45deg)}
 
 <header class="hdr">
 <div class="wrap" style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 12px; padding-bottom: 12px">
-<button aria-label="Nilepods home" onClick="{{ nav.home }}" class="ttl" style="display: flex; align-items: center; font-size: 30px; font-weight: 600; letter-spacing: -0.5px; line-height: 1; color: #FFFFFF; min-height: 44px">nile<span style="background: #FFFFFF; color: #0E0C0A; padding: 2px 6px 4px; margin-left: 1px; border-radius: 3px">pods</span></button>
+<button aria-label="Nilepods home" onClick="{{ nav.home }}" class="ttl" style="display: flex; align-items: center; font-weight: 600; letter-spacing: -0.5px; line-height: 1; color: #FFFFFF; min-height: 44px"><img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style="height: 36px; width: auto; display: block"></button>
 <nav aria-label="Main" class="desk" style="display: flex; flex-wrap: wrap; gap: 6px 26px">
 <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
 <button class="{{ n.cls }}" onClick="{{ n.go }}">{{ n.label }}</button>
@@ -362,7 +378,7 @@ details[open] .plus{transform:rotate(45deg)}
 <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
 <div class="mmenu" role="dialog" aria-label="Menu">
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px">
-<button onClick="{{ nav.home }}" class="ttl" style="display: flex; align-items: center; font-size: 28px; font-weight: 600; color: #FFFFFF; min-height: 44px">nile<span style="background: #FFFFFF; color: #0E0C0A; padding: 2px 6px 4px; margin-left: 1px; border-radius: 3px">pods</span></button>
+<button onClick="{{ nav.home }}" class="ttl" style="display: flex; align-items: center; font-weight: 600; color: #FFFFFF; min-height: 44px"><img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style="height: 34px; width: auto; display: block"></button>
 <button class="iconbtn" aria-label="Close menu" onClick="{{ closeMenu }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
 </div>
 <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
@@ -416,7 +432,7 @@ details[open] .plus{transform:rotate(45deg)}
 </article>
 </sc-for>
 </div>
-<p style="margin: 28px 0 0; font-size: 13px; color: #9A8E7D; text-align: center">Prices are per hour of studio time. Save with 3, 5 or 10-session packages.</p>
+<p style="margin: 28px 0 0; font-size: 13px; color: #9A8E7D; text-align: center">Prices are per hour of recording.</p>
 </div>
 </section>
 
@@ -488,7 +504,7 @@ details[open] .plus{transform:rotate(45deg)}
 <section style="padding-bottom: 100px">
 <div class="wrap">
 <div style="text-align: center; padding: 80px 24px; border-radius: 28px; background: radial-gradient(ellipse at 50% 0%, rgba(226,184,114,0.18) 0%, rgba(226,184,114,0) 60%), #15120E; border: 1px solid rgba(241,234,223,0.08)">
-<p class="ttl" style="margin: 0; display: inline-flex; align-items: center; font-size: 44px; font-weight: 600; letter-spacing: -0.5px; line-height: 1; color: #FFFFFF">nile<span style="background: #FFFFFF; color: #0E0C0A; padding: 3px 8px 6px; margin-left: 2px; border-radius: 4px">pods</span></p>
+<p class="ttl" style="margin: 0; display: inline-flex; align-items: center; font-weight: 600; letter-spacing: -0.5px; line-height: 1; color: #FFFFFF"><img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style="height: 53px; width: auto; display: block"></p>
 <p style="margin: 14px 0 0; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: #A89C8B">Powered by NileStudios</p>
 <h2 class="ttl" style="margin: 36px auto 0; max-width: 620px; font-size: clamp(30px, 4vw, 48px); line-height: 1.1; font-weight: 700; color: #FFFFFF">See the studios before you book</h2>
 <div style="margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px">
@@ -511,9 +527,6 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="fs-top">
 <p class="fs-n">{{ su.n }}</p>
 <p class="fs-cap">Capacity | {{ su.cap }}</p>
-</div>
-<div class="fs-bot">
-<p class="fs-desc">{{ su.desc }}</p>
 <button class="fs-choose" onClick="{{ su.book }}">Book {{ su.n }}</button>
 </div>
 </div>
@@ -766,7 +779,6 @@ details[open] .plus{transform:rotate(45deg)}
 </article>
 </sc-for>
 </div>
-<p style="margin: 28px 0 0; font-size: 13px; color: #8C8172">Each session is one hour of recording with up to 60 minutes of raw material. With Recording Only and Recording + Live Edit, you leave with your files the moment your session ends. With Recording + Pro Edit, your edited episode follows after post-production. Sessions are valid for {{ validDays }} days from purchase ({{ longValid }} days for Full Season). Extras are added when you book each session.</p>
 </div>
 </div></section>
 </sc-if>
@@ -813,10 +825,7 @@ details[open] .plus{transform:rotate(45deg)}
 <div class="fs-top">
 <p class="fs-n">{{ su.n }}</p>
 <p class="fs-cap">Capacity | {{ su.cap }}</p>
-</div>
-<div class="fs-bot">
-<p class="fs-desc">{{ su.desc }}</p>
-<button class="fs-choose" onClick="{{ su.choose }}">Choose</button>
+<button class="fs-choose" onClick="{{ su.choose }}">Choose {{ su.n }}</button>
 </div>
 </div>
 </sc-for>
@@ -856,7 +865,7 @@ details[open] .plus{transform:rotate(45deg)}
 <button class="{{ p.optCls }}" onClick="{{ p.pick }}" aria-pressed="{{ p.on }}">
 <span style="display: flex; align-items: center; gap: 14px; width: 100%"><span class="{{ p.radio }}"></span><span class="ttl" style="font-size: 21px; font-weight: 600; color: #FFFFFF; white-space: nowrap">{{ p.name }}</span></span>
 <span style="padding-left: 36px; white-space: nowrap"><span class="ttl" style="font-size: 22px; font-weight: 700; color: #E2B872">{{ p.priceLabel }}</span><span style="font-size: 13px; color: #A89C8B"> EGP / hour</span></span>
-<span class="svc-inc"><sc-for list="{{ p.items }}" as="li" hint-placeholder-count="4"><span class="svc-li">{{ li }}</span></sc-for></span>
+<span class="svc-inc"><sc-if value="{{ p.base }}" hint-placeholder-val="{{ false }}"><span class="svc-base">Everything in Recording Only, plus</span></sc-if><sc-for list="{{ p.brief }}" as="li" hint-placeholder-count="4"><span class="svc-li">{{ li }}</span></sc-for></span>
 <sc-if value="{{ p.hasCredit }}" hint-placeholder-val="{{ false }}"><span class="creditchip" style="margin-left: 36px">{{ p.creditLabel }}</span></sc-if>
 </button>
 </sc-for>
@@ -879,9 +888,15 @@ details[open] .plus{transform:rotate(45deg)}
 
 <!-- PEOPLE -->
 <sc-if value="{{ st.people }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
 <div class="xrow" style="padding: 28px">
-<div><p style="margin: 0; font-size: 17px; font-weight: 500; color: #FFFFFF">People on camera</p><p style="margin: 6px 0 0; font-size: 13px; color: #A89C8B">{{ setupName }} seats up to {{ setupCap }}.</p></div>
+<div><p style="margin: 0; font-size: 17px; font-weight: 500; color: #FFFFFF">People on camera</p><p style="margin: 6px 0 0; font-size: 13px; line-height: 1.5; color: #A89C8B">Everyone who will appear in the recording. {{ setupName }} seats up to {{ setupCap }}.</p></div>
 <div class="qty"><button class="qb" aria-label="Fewer people" onClick="{{ peopleDown }}" disabled="{{ peopleMin }}">−</button><span class="qv" aria-live="polite">{{ people }}</span><button class="qb" aria-label="More people" onClick="{{ peopleUp }}" disabled="{{ peopleMax }}">+</button></div>
+</div>
+<div class="xrow" style="padding: 28px">
+<div><p style="margin: 0; font-size: 17px; font-weight: 500; color: #FFFFFF">Guests coming along</p><p style="margin: 6px 0 0; font-size: 13px; line-height: 1.5; color: #A89C8B">Friends, family or team joining you who won't be on camera. Up to {{ guestMaxLabel }}.</p></div>
+<div class="qty"><button class="qb" aria-label="Fewer guests" onClick="{{ guestsDown }}" disabled="{{ guestsMin }}">−</button><span class="qv" aria-live="polite">{{ guests }}</span><button class="qb" aria-label="More guests" onClick="{{ guestsUp }}" disabled="{{ guestsMax }}">+</button></div>
+</div>
 </div>
 </sc-if>
 
@@ -1040,23 +1055,24 @@ details[open] .plus{transform:rotate(45deg)}
 </div></section>
 </sc-if>
 
-<!-- ============ FOOTER ============ -->
-<footer class="foot" style="border-top: 1px solid rgba(241,234,223,0.08)">
-<div class="wrap" style="padding-top: 40px; padding-bottom: 40px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; font-size: 14px; color: #A89C8B">
-<div style="display: flex; align-items: center; gap: 10px">
-<button class="iconbtn" aria-label="Facebook" onClick="{{ social.fb }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H6.5v3.5H9V21h3.5v-8.5H15l.5-3.5h-3V7a1 1 0 0 1 1-1H15z"></path></svg></button>
-<button class="iconbtn" aria-label="Instagram" onClick="{{ social.ig }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.6"></circle></svg></button>
-<button class="iconbtn" aria-label="Location" onClick="{{ nav.contact }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></button>
-</div>
-<nav aria-label="Legal" style="display: flex; flex-wrap: wrap; gap: 8px 24px">
+<footer class="foot">
+<div class="wrap foot-in">
+<button class="foot-logo" aria-label="Nilepods home" onClick="{{ nav.home }}"><img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style="height: 31px; width: auto; display: block"></button>
+<nav class="foot-legal" aria-label="Legal">
 <button onClick="{{ legal.privacy }}">Privacy Policy</button>
 <button onClick="{{ legal.terms }}">Terms &amp; Conditions</button>
 <button onClick="{{ legal.refund }}">Refund &amp; Cancellation</button>
 <button onClick="{{ nav.account }}">My Account</button>
-<a href="/admin/" style="color: inherit; text-decoration: none">Team login</a>
 </nav>
-<p style="margin: 0">© Nilepods · Powered by Capital Studios</p>
+<div class="foot-soc">
+<button class="iconbtn" aria-label="Facebook" onClick="{{ social.fb }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H6.5v3.5H9V21h3.5v-8.5H15l.5-3.5h-3V7a1 1 0 0 1 1-1H15z"></path></svg></button>
+<button class="iconbtn" aria-label="Instagram" onClick="{{ social.ig }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.6"></circle></svg></button>
+<button class="iconbtn" aria-label="Location" onClick="{{ nav.contact }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></button>
 </div>
+<div class="foot-rule"></div>
+<p class="foot-copy">© Nilepods · Powered by Capital Studios · <a href="/admin/" style="color: inherit">Team login</a></p>
+</div>
+</footer>
 </footer>
 
 <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
@@ -1070,7 +1086,7 @@ class Component extends DCLogic {
     super(props);
     this.state = {
       screen: 'home', prevScreen: 'home', hist: [],
-      mode: 'session', w: 1, svc: 'mix', setup: null, people: 1,
+      mode: 'session', w: 1, svc: 'mix', setup: null, people: 1, guests: 0,
       ex: { hour: 0, cam: 0, mic: 0, photo: 0 }, monthOff: 0, dateKey: null, start: null,
       bTier: 'mix', bCount: 3,
       fSvc: [], fCount: [], detail: { tier: 'mix', count: 3 }, carIdx: 0,
@@ -1256,7 +1272,7 @@ class Component extends DCLogic {
 
     var pkgs = pk.map(function (p) {
       var on = S.svc === p.id, cr = creditsFor(p.id);
-      return { name: p.name, priceLabel: p.price.toLocaleString('en-US'), blurb: p.blurb, items: p.items,
+      return { name: p.name, priceLabel: p.price.toLocaleString('en-US'), blurb: p.blurb, items: p.items, brief: p.brief || p.items, base: !!p.base,
         featured: !!p.badge, badge: p.badge || '', on: on,
         cardCls: 'card pkg lift' + (p.badge ? ' featured' : ''), btnCls: p.badge ? 'btn-gold' : 'btn-ghost',
         optCls: 'opt' + (on ? ' on' : ''), radio: 'radio' + (on ? ' on' : ''),
@@ -1365,7 +1381,7 @@ class Component extends DCLogic {
 
     // ----- wizard -----
     var steps = isBundle ? ['bundle', 'info', 'pay'] : ['service', 'setup', 'people', 'extras', 'time', 'info', 'pay'];
-    var titleMap = { service: 'Choose a service', bundle: 'Your package', setup: isBundle ? 'Your preferred setup' : 'Choose your setup', people: 'Who is on camera?', extras: 'Add extras', time: 'Pick a date & time', info: 'Your information', pay: 'Review & pay' };
+    var titleMap = { service: 'Choose a service', bundle: 'Your package', setup: isBundle ? 'Your preferred setup' : 'Choose your setup', people: 'Who\'s coming?', extras: 'Add extras', time: 'Pick a date & time', info: 'Your information', pay: 'Review & pay' };
     var backMap = { service: 'Back', bundle: 'Back', setup: isBundle ? 'Back to package' : 'Back to service', people: 'Back to setup', extras: 'Back to people', time: 'Back to extras', info: isBundle ? 'Back to package' : 'Back to date & time', pay: 'Back to your information' };
     var cur = steps[S.w - 1];
     var st = {}; ['service', 'bundle', 'setup', 'people', 'extras', 'time', 'info', 'pay'].forEach(function (k) { st[k] = cur === k; });
@@ -1401,7 +1417,7 @@ class Component extends DCLogic {
           if (usingCredit) credits = S.credits.map(function (c) { return c.id === credit.id ? Object.assign({}, c, { left: c.left - 1 }) : c; });
           var ls = { kind: 'session', ref: ref, email: email, headline: "You're booked!", kicker: 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
             totalLabel: self.money(total), payState: payState, payCls: payCls, start: b.start, end: b.end,
-            rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: method }],
+            rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Guests coming along', v: S.guests ? String(S.guests) : 'None' }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: method }],
             note: 'Your hours are now locked in ' + SET.n + ' — book the same day again and you will see them taken.' };
           self.setState(Object.assign(base, { bookings: S.bookings.concat([b]), credits: credits, last: ls }));
         }
@@ -1578,6 +1594,9 @@ class Component extends DCLogic {
       people: String(S.people), peopleMin: S.people <= 1, peopleMax: S.people >= cap,
       peopleDown: function () { self.setState({ people: Math.max(1, S.people - 1) }); },
       peopleUp: function () { self.setState({ people: Math.min(cap, S.people + 1) }); },
+      guests: String(S.guests || 0), guestsMin: !S.guests, guestsMax: (S.guests || 0) >= 2, guestMaxLabel: '2 guests',
+      guestsDown: function () { self.setState({ guests: Math.max(0, (S.guests || 0) - 1) }); },
+      guestsUp: function () { self.setState({ guests: Math.min(2, (S.guests || 0) + 1) }); },
       extraList: extraList, durLabel: hoursText,
       cal: cal, hasDate: !!date, noDate: !date, dateLong: date ? self.longDate(date) : '',
       slotList: slotList, noSlots: !!date && freeCount === 0,

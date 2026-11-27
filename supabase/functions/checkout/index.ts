@@ -78,6 +78,8 @@ Deno.serve(async (req) => {
       return reply({ error: FRIENDLY[error.message] ?? 'We could not create this booking. Please check the details.', code: error.message }, 400, origin);
     }
     ({ ref, total_egp: total } = data as { ref: string; total_egp: number });
+    const guests = Math.min(2, Math.max(0, int(b.guests ?? 0) || 0));
+    if (guests) await db.from('bookings').update({ guests }).eq('ref', ref);
     itemName = `${SERVICE_NAMES[b.service] ?? 'Studio session'} ${b.date} ${b.start}:00`;
     table = 'bookings';
   } else if (b.kind === 'package') {
