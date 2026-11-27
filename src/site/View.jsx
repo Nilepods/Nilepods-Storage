@@ -2119,9 +2119,6 @@ export default function View(v) {
       </>) : null}
       <footer className="foot">
         <div className="wrap foot-in">
-          <button className="foot-logo" aria-label="Nilepods home" onClick={v.nav.home}>
-            <img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style={{ height: "31px", width: "auto", display: "block" }} />
-          </button>
           <nav className="foot-legal" aria-label="Legal">
             <button onClick={v.legal.privacy}>
               {"Privacy Policy"}

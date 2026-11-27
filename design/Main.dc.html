@@ -114,7 +114,7 @@ textarea.inp{min-height:130px;resize:vertical}
 .foot-in{padding-top:48px;padding-bottom:28px;display:flex;flex-direction:column;align-items:center;text-align:center}
 .foot .foot-logo{display:flex;align-items:center;font-family:'Titillium Web',sans-serif;font-size:26px;font-weight:600;letter-spacing:-.5px;line-height:1;color:#fff}
 .foot .foot-logo span{background:#fff;color:#0E0C0A;padding:2px 6px 4px;margin-left:1px;border-radius:3px}
-.foot-legal{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:26px}
+.foot-legal{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:0}
 .foot-legal button{min-height:40px;padding:0 18px;position:relative}
 .foot-legal button+button::before{content:'';position:absolute;left:-2px;top:50%;width:3px;height:3px;border-radius:50%;background:rgba(241,234,223,.25);transform:translateY(-50%)}
 .foot-soc{display:flex;justify-content:center;gap:12px;margin-top:22px}
@@ -295,7 +295,7 @@ details[open] .plus{transform:rotate(45deg)}
 .fs-choose{min-width:220px;min-height:48px;margin-top:16px}
 .fs-arrow{width:48px;height:48px}
 .foot-in{padding-top:40px}
-.foot-legal{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:340px;margin-top:22px}
+.foot-legal{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:340px;margin-top:0}
 .foot-legal button{padding:0 8px}
 .foot-legal button+button::before{display:none}
 .fs-arrow.l{left:4px}.fs-arrow.r{right:4px}
@@ -1072,7 +1072,6 @@ details[open] .plus{transform:rotate(45deg)}
 
 <footer class="foot">
 <div class="wrap foot-in">
-<button class="foot-logo" aria-label="Nilepods home" onClick="{{ nav.home }}"><img src="/images/nilepods-logo.svg" alt="Nilepods" draggable="false" style="height: 31px; width: auto; display: block"></button>
 <nav class="foot-legal" aria-label="Legal">
 <button onClick="{{ legal.privacy }}">Privacy Policy</button>
 <button onClick="{{ legal.terms }}">Terms &amp; Conditions</button>
