@@ -96,7 +96,8 @@ textarea.inp{min-height:130px;resize:vertical}
 .acct-on{position:relative}
 .acct-av{width:32px;height:32px;border-radius:50%;background:#E2B872;color:#17120B;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;line-height:1;transition:transform .2s}
 .acct-on:hover .acct-av{transform:scale(1.06)}
-.acct-dot{position:absolute;right:5px;bottom:5px;width:10px;height:10px;border-radius:50%;background:#4CC38A;border:2px solid #0E0C0A}
+.acct-av{position:relative}
+.acct-dot{position:absolute;width:12px;height:12px;left:calc(50% + 11.3px - 6px);top:calc(50% + 11.3px - 6px);border-radius:50%;background:radial-gradient(circle at 35% 30%,#5FD39A 0%,#1F9D5C 45%,#0E6B3B 100%);border:2px solid #0E0C0A;box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 -1px 2px rgba(0,0,0,.35),inset 0 1px 1px rgba(255,255,255,.35)}
 .foot{margin-top:auto;border-top:1px solid rgba(241,234,223,.08);background:#0B0A08}
 .foot-in{padding-top:48px;padding-bottom:28px;display:flex;flex-direction:column;align-items:center;text-align:center}
 .foot .foot-logo{display:flex;align-items:center;font-family:'Titillium Web',sans-serif;font-size:26px;font-weight:600;letter-spacing:-.5px;line-height:1;color:#fff}

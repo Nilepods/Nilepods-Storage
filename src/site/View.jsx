@@ -32,8 +32,8 @@ export default function View(v) {
               <button className="iconbtn desk acct-on" aria-label={v.acctAria} title={v.acctAria} onClick={v.nav.account}>
                 <span className="acct-av" aria-hidden="true">
                   {v.acctInitial}
+                  <span className="acct-dot" />
                 </span>
-                <span className="acct-dot" aria-hidden="true" />
               </button>
             </>) : null}
             <button className="btn-gold desk" onClick={v.bookNow} style={{ padding: "11px 22px", minHeight: "44px", fontSize: "14px" }}>
@@ -51,8 +51,8 @@ export default function View(v) {
               <button className="iconbtn mob acct-on" aria-label={v.acctAria} title={v.acctAria} onClick={v.nav.account}>
                 <span className="acct-av" aria-hidden="true">
                   {v.acctInitial}
+                  <span className="acct-dot" />
                 </span>
-                <span className="acct-dot" aria-hidden="true" />
               </button>
             </>) : null}
             <button className="iconbtn mob" aria-label="Open menu" onClick={v.openMenu}>
