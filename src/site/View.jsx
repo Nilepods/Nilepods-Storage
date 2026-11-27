@@ -946,7 +946,7 @@ export default function View(v) {
                 </div>
               </>) : null}
               {v.hasBookings ? (<>
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "4px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginBottom: "20px" }}>
                   <p className="lbl" style={{ margin: "0" }}>
                     {"My sessions"}
                   </p>

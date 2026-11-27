@@ -710,7 +710,7 @@ details[open] .plus{transform:rotate(45deg)}
 </sc-for>
 </div>
 </sc-if>
-<sc-if value="{{ hasBookings }}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 4px">
+<sc-if value="{{ hasBookings }}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px">
 <p class="lbl" style="margin: 0">My sessions</p>
 <div class="sseg" role="tablist" aria-label="Sessions"><sc-for list="{{ sessTabs }}" as="t" hint-placeholder-count="3"><button class="{{ t.cls }}" role="tab" aria-selected="{{ t.on }}" onClick="{{ t.go }}">{{ t.name }}<span class="sseg-n">{{ t.count }}</span></button></sc-for></div>
 <sc-if value="{{ hasSessSvcs }}" hint-placeholder-val="{{ false }}"><div class="sfilt" role="group" aria-label="Filter by service"><span class="sfilt-k">Service</span><sc-for list="{{ sessSvcs }}" as="f" hint-placeholder-count="3"><button class="{{ f.cls }}" aria-pressed="{{ f.on }}" onClick="{{ f.go }}">{{ f.label }}</button></sc-for></div></sc-if>
