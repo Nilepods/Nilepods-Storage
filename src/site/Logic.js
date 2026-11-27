@@ -206,20 +206,20 @@ export default class Logic extends DCLogic {
   setupData() {
     var im = this.img(), B = '/images/';
     return [
-      { id: 's1', n: 'Setup 1', name: 'Setup 1', cap: 1, img: B + '208c4f23dfdfe4243df4a86635203f37.jpg', alt: 'Setup 1: a beige armchair beside a wooden shelf with a rope lamp, a palm and an alarm clock',
-        desc: 'A soft armchair, a warm rope lamp and a tall palm against a dark wall — made for one voice.' },
-      { id: 's2', n: 'Setup 2', name: 'Setup 2', cap: 1, img: B + '038dec353b5bd702311097efb1b9228d.jpg', alt: 'Setup 2: an armchair in front of a deep green velvet curtain between a table lamp and a floor lamp',
+      { id: 's1', n: 'Setup 1', name: 'Setup 1', cap: 1, img: B + 'setup-1.jpg', alt: 'Setup 1: an armchair in front of a deep green velvet curtain between a table lamp and a floor lamp',
         desc: 'Deep green velvet, two warm lamps and a single armchair — made for one-person content.' },
-      { id: 's3', n: 'Setup 3', name: 'Setup 3', cap: 2, img: B + '113ecd6e6a3d2de8944e3757f1945c32.jpg', alt: 'Setup 3: a round wooden table with two mesh chairs in front of lit shelves and a green-lit plant',
+      { id: 's2', n: 'Setup 2', name: 'Setup 2', cap: 2, img: B + 'setup-2.jpg', alt: 'Setup 2: a round wooden table with two mesh chairs in front of lit shelves and a green-lit plant',
         desc: 'A round wooden table, two studio chairs and glowing shelves behind — built for conversations.' },
-      { id: 's4', n: 'Setup 4', name: 'Setup 4', cap: 1, img: B + '2ac233ffaa36829ee7a6988f671bcf5f.jpg', alt: 'Setup 4: a single mesh chair across a wooden table, with a bookshelf, a small guitar and a plant',
-        desc: 'One chair across the table, framed by dark curtains and a lit shelf — for solo takes and talking-head videos.' },
-      { id: 's5', n: 'Setup 5', name: 'Setup 5', cap: 2, img: B + 'dd85524628dcc9ee4b96e61cac0a9b34.jpg', alt: 'Setup 5: two beige armchairs facing a side table with a lamp, in front of a blue velvet curtain',
+      { id: 's3', n: 'Setup 3', name: 'Setup 3', cap: 1, img: B + 'setup-3.jpg', alt: 'Setup 3: an armchair with a green cushion against brown velvet and lace curtains, beside a lamp and a small guitar',
+        desc: 'Brown velvet and lace curtains, a warm lamp and a single armchair — cosy and intimate.' },
+      { id: 's4', n: 'Setup 4', name: 'Setup 4', cap: 2, img: B + 'setup-4.jpg', alt: 'Setup 4: two beige armchairs facing a side table with a lamp, in front of a blue velvet curtain',
         desc: 'Two armchairs, a lamp-lit side table and a rich blue velvet backdrop.' },
-      { id: 's6', n: 'Setup 6', name: 'Setup 6', cap: 2, img: B + 'b898d02d75c253e89b08c320c1cad962.jpg', alt: 'Setup 6: two beige armchairs in front of lit bookshelves with a tall plant',
+      { id: 's5', n: 'Setup 5', name: 'Setup 5', cap: 2, img: B + 'setup-5.jpg', alt: 'Setup 5: two beige armchairs in front of lit bookshelves with a tall plant',
         desc: 'Two armchairs in front of softly lit bookshelves, with greenery on the side.' },
-      { id: 's7', n: 'Setup 7', name: 'Setup 7', cap: 1, img: B + 'fdcfcc88f60a0534d61a1283ace3c717.jpg', alt: 'Setup 7: an armchair with a green cushion against brown velvet and lace curtains, beside a lamp and a small guitar',
-        desc: 'Brown velvet and lace curtains, a warm lamp and a single armchair — cosy and intimate.' }
+      { id: 's6', n: 'Setup 6', name: 'Setup 6', cap: 1, img: B + 'setup-6.jpg', alt: 'Setup 6: a beige armchair beside a wooden shelf with a rope lamp, a palm and an alarm clock',
+        desc: 'A soft armchair, a warm rope lamp and a tall palm against a dark wall — made for one voice.' },
+      { id: 's7', n: 'Setup 7', name: 'Setup 7', cap: 1, img: B + 'setup-7.jpg', alt: 'Setup 7: a single mesh chair across a wooden table, with a bookshelf, a small guitar and a plant',
+        desc: 'One chair across the table, framed by dark curtains and a lit shelf — for solo takes and talking-head videos.' }
     ].map(function (s) {
       // Sharp photos at every screen size: the browser picks 1200, 2400 or 3600 wide. Blurred backdrops use the small one.
       var base = s.img.replace(/\.jpg$/, '');
