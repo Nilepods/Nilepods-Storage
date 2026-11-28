@@ -18,14 +18,14 @@ const STATUS_LABELS = {
 
 // Wizard fields kept while the customer is on Paymob's page, so a failed payment can be retried.
 // Free pilot ("Auditions"): the weekly recording slot and the rules applicants agree to. Edit freely.
-const AUDITION_SLOT = 'one set day and hour each week, which we confirm when your show is accepted';
+const AUDITION_SLOT = 'Sundays and Tuesdays, 3 to 4 PM';
 const AUDITION_RULES = [
   ['Exactly three hosts', 'Every pilot is a podcast with three people on camera, no more and no less. All three must come on pilot day.'],
   ['Published on our channel', 'Your episode is edited and published on the Nilepods YouTube channel. We decide the title, thumbnail and release date.'],
   ['Nilepods owns the footage', 'All footage and the published episode belong to Nilepods. You do not get the raw files or the right to publish the episode elsewhere.'],
   ['Sharing on your own socials', 'You may share clips and the episode link on your own social media for promotion, following the guidelines and brand outline we give you.'],
   ['Our content guidelines', 'No hate speech, harassment, illegal content or paid promotion. We can stop a recording or decline to publish an episode that breaks the guidelines.'],
-  ['One pilot, on our schedule', 'Pilots are recorded only on our pilot day and hour. If you miss your slot, we may give it to another show.'],
+  ['One pilot, on our schedule', 'Pilots are recorded only on pilot days (Sundays and Tuesdays, 3 to 4 PM). If you miss your slot, we may give it to another show.'],
 ];
 const PAGES = ['home', 'packages', 'pkgDetail', 'studios', 'cyclorama', 'audio', 'auditions', 'contact', 'tour', 'account', 'legal', 'book', 'confirm'];
 
