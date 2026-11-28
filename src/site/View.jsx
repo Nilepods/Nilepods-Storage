@@ -455,7 +455,7 @@ export default function View(v) {
         <section className="sec" style={{ paddingTop: "0" }}>
           <div className="wrap">
             <div className="cyc-stage">
-              <img src="/images/cyclorama.jpg" alt="The Nilepods cyclorama studio: a seamless white cyc under studio lights" draggable="false" />
+              <img src="/images/cyclorama.jpg" srcSet="/images/cyclorama-1200.jpg 1200w, /images/cyclorama.jpg 2400w, /images/cyclorama-3600.jpg 3600w" sizes="(max-width: 1280px) 100vw, 1200px" alt="The Nilepods cyclorama studio: a seamless white cyc under studio lights" draggable="false" />
               <p className="cyc-tag">
                 <i />
                 {"Our cyclorama studio"}
