@@ -49,6 +49,7 @@ button:disabled{cursor:not-allowed}
 .ph-window{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.55) 60%,rgba(14,12,10,.75) 100%),url(/_blob/af9913323450fa5d63be56608814e9f8)}
 .ph-mics{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.55) 60%,rgba(14,12,10,.75) 100%),url(/_blob/f581ffd019d17d8bd60d3ad415345ac9)}
 .ph-shelves{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.6) 60%,rgba(14,12,10,.8) 100%),url(/_blob/aaf9baac82ee885ac1f32de79de265ad)}
+.ph-cyc{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.55) 60%,rgba(14,12,10,.75) 100%),url(/images/dbb9d7a45edeb5ada673fe30d9f5ad14.jpg)}
 .ph-frames{background-image:linear-gradient(0deg,#0E0C0A 0%,rgba(14,12,10,.6) 60%,rgba(14,12,10,.8) 100%),url(/_blob/cb531de9b27e823b4dfd14bf775f7b49)}
 .pitch{background-image:linear-gradient(90deg,rgba(10,8,6,.92) 0%,rgba(10,8,6,.7) 50%,rgba(10,8,6,.3) 100%),url(/_blob/af9913323450fa5d63be56608814e9f8);background-size:cover;background-position:center;border-radius:28px;padding:96px 64px;border:1px solid rgba(241,234,223,.08)}
 .hdr{position:sticky;top:0;z-index:30;background:rgba(14,12,10,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(241,234,223,.08)}
@@ -199,6 +200,9 @@ details[open] .plus{transform:rotate(45deg)}
 .cyc-tag{position:absolute;top:18px;left:18px;margin:0;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(14,12,10,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:#F1EADF}
 .cyc-tag i{width:7px;height:7px;border-radius:50%;background:#E2B872}
 .cyc-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:22px}
+.cyc-chips{list-style:none;margin:0 0 20px;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.cyc-chip{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 18px 0 6px;border-radius:999px;border:1px solid rgba(241,234,223,.12);background:#15120E;font-size:14px;font-weight:500;color:#F1EADF;white-space:nowrap}
+.cyc-chip-i{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:rgba(226,184,114,.12);color:#E2B872;flex-shrink:0}
 .cyc-svcs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
 .cyc-svc{display:flex;flex-direction:column;gap:14px;padding:26px}
 .cyc-svc-list{display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid rgba(241,234,223,.08);flex:1}
@@ -209,7 +213,7 @@ details[open] .plus{transform:rotate(45deg)}
 .cyc-step h3{margin:16px 0 6px;font-size:18px;font-weight:600;color:#FFFFFF}
 .cyc-step p{margin:0;font-size:14px;line-height:1.6;color:#A89C8B}
 @media (max-width:1000px){.cyc-svcs{grid-template-columns:1fr 1fr}}
-@media (max-width:640px){.cyc-stage{border-radius:16px}.cyc-svcs{grid-template-columns:1fr}.cyc-steps{grid-template-columns:1fr 1fr}.cyc-step{padding:20px}}
+@media (max-width:640px){.cyc-chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cyc-chip{font-size:13px;gap:8px;padding:0 10px 0 5px;white-space:normal;line-height:1.25}.cyc-chip-i{width:28px;height:28px}.cyc-stage{border-radius:16px}.cyc-svcs{grid-template-columns:1fr}.cyc-steps{grid-template-columns:1fr 1fr}.cyc-step{padding:20px}}
 .savechip{display:inline-flex;align-items:center;font-size:13px;font-weight:500;color:#E2B872;padding:8px 14px;border-radius:999px;border:1px solid rgba(226,184,114,.4);background:rgba(226,184,114,.06);white-space:nowrap}
 .creditchip{display:inline-flex;font-size:12px;font-weight:600;color:#17120B;background:#8FCB9B;padding:4px 10px;border-radius:999px}
 .frail{flex:1 1 200px;position:sticky;top:100px;display:flex;flex-direction:column;gap:28px}
@@ -582,30 +586,17 @@ details[open] .plus{transform:rotate(45deg)}
 
 <!-- ============ CYCLORAMA ============ -->
 <sc-if value="{{ is.cyclorama }}" hint-placeholder-val="{{ false }}">
-<section class="page-hero"><div class="wrap"><p class="eyebrow">Cyclorama</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Cyclorama studio</h1><p class="lead" style="margin-top: 18px; max-width: 600px; color: #DCD3C4">A seamless white cyclorama for video, podcasts on camera and photo shoots. Book it for 2 hours or more.</p></div></section>
+<section class="page-hero ph-cyc"><div class="wrap"><p class="eyebrow">Cyclorama</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Cyclorama studio</h1><p class="lead" style="margin-top: 18px; max-width: 600px; color: #DCD3C4">A seamless white cyclorama for video, podcasts on camera and photo shoots.</p></div></section>
 <section class="sec" style="padding-top: 0"><div class="wrap">
+<ul class="cyc-chips" aria-label="Services in the cyclorama"><li class="cyc-chip"><span class="cyc-chip-i" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></span>Photo shoot</li><li class="cyc-chip"><span class="cyc-chip-i" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg></span>Recording Only</li><li class="cyc-chip"><span class="cyc-chip-i" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><path d="M10 9l5 2-5 2z"></path><path d="M8 21h8"></path></svg></span>Recording + Live Edit</li><li class="cyc-chip"><span class="cyc-chip-i" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M8.6 7.6L20 18"></path><path d="M8.6 16.4L20 6"></path></svg></span>Recording + Pro Edit</li></ul>
 <div class="cyc-stage"><img src="/images/cyclorama.jpg" srcset="/images/cyclorama-1200.jpg 1200w, /images/cyclorama.jpg 2400w, /images/cyclorama-3600.jpg 3600w" sizes="(max-width: 1280px) 100vw, 1200px" alt="The Nilepods cyclorama studio: a seamless white cyc under studio lights" draggable="false"><p class="cyc-tag"><i></i>Our cyclorama studio</p></div>
-<div class="cyc-bar"><div><p class="lbl" style="margin-bottom: 6px">White cyclorama</p><p style="margin: 0; font-size: 18px; color: #FFFFFF">From 2 hours · open 3 to 11 PM, Saturday to Thursday</p></div><button class="btn-gold" onClick="{{ cycBook }}">Book the cyclorama</button></div>
-</div></section>
-<section class="sec" style="padding-top: 20px"><div class="wrap">
-<div style="margin-bottom: 30px"><p class="eyebrow">Services</p><h2 class="h2">What you can book</h2><p class="lead" style="margin-top: 12px; max-width: 620px">Recording services come with an operator, 3 cameras and 2 microphones. The photo shoot is the space and the lighting, for your own crew. Prices are per hour, with a 2-hour minimum.</p></div>
-<div class="cyc-svcs">
-<sc-for list="{{ cycSvcs }}" as="p" hint-placeholder-count="4">
-<div class="card static cyc-svc">
-<p class="ttl" style="margin: 0; font-size: 21px; font-weight: 600; color: #FFFFFF">{{ p.name }}</p>
-<p style="margin: 0"><span class="ttl" style="font-size: 30px; font-weight: 700; color: #E2B872">{{ p.priceLabel }}</span><span style="font-size: 13px; color: #A89C8B"> EGP / hour</span></p>
-<p style="margin: 0; font-size: 13px; color: #8C8172">{{ p.minLabel }}</p>
-<div class="cyc-svc-list"><sc-for list="{{ p.items }}" as="li" hint-placeholder-count="4"><span>{{ li }}</span></sc-for></div>
-<button class="btn-ghost" onClick="{{ p.book }}">Book {{ p.name }}</button>
-</div>
-</sc-for>
-</div>
+<div class="cyc-bar"><div><p class="lbl" style="margin-bottom: 6px">White cyclorama</p><p style="margin: 0; font-size: 18px; color: #FFFFFF">Photo shoots from 2 hours · recording by the hour</p></div><button class="btn-gold" onClick="{{ cycBook }}">Book the cyclorama</button></div>
 </div></section>
 <section class="sec" style="padding-top: 20px"><div class="wrap">
 <div style="text-align: center; margin-bottom: 34px"><p class="eyebrow">How it works</p><h2 class="h2">Booking the cyclorama</h2></div>
 <div class="cyc-steps">
 <div class="card static cyc-step"><p class="ttl cyc-n">01</p><h3>Choose a service</h3><p>Record with our crew and cameras, or book a photo shoot with just the space and lighting.</p></div>
-<div class="card static cyc-step"><p class="ttl cyc-n">02</p><h3>Choose your time</h3><p>Pick a date and start time. Bookings are 2 hours minimum; add more hours if you need them.</p></div>
+<div class="card static cyc-step"><p class="ttl cyc-n">02</p><h3>Choose your time</h3><p>Pick a date and start time. Photo shoots are 2 hours minimum; add more hours if you need them.</p></div>
 <div class="card static cyc-step"><p class="ttl cyc-n">03</p><h3>Your details</h3><p>Tell us who is coming, then pay online or at the studio.</p></div>
 <div class="card static cyc-step"><p class="ttl cyc-n">04</p><h3>Shoot</h3><p>The cyc is lit and ready when you arrive.</p></div>
 </div>
@@ -1050,7 +1041,7 @@ details[open] .plus{transform:rotate(45deg)}
 
 <!-- PAYMENT -->
 <sc-if value="{{ st.pay }}" hint-placeholder-val="{{ false }}">
-<sc-if value="{{ hasBookingAs }}" hint-placeholder-val="{{ false }}"><p style="margin: 0 0 18px; font-size: 14px; color: #A89C8B">Booking as <strong style="color: #FFFFFF">{{ bookingAs }}</strong> &middot; <button class="link" onClick="{{ editInfo }}">Edit details</button></p></sc-if>
+<sc-if value="{{ hasBookingAs }}" hint-placeholder-val="{{ false }}"><p style="margin: 0 0 18px; font-size: 14px; color: #A89C8B">Booking as <strong style="color: #FFFFFF">{{ bookingAs }}</strong> · <button class="link" onClick="{{ editInfo }}">Edit details</button></p></sc-if>
 <sc-if value="{{ showSummary }}" hint-placeholder-val="{{ true }}"><div class="xrow on" style="margin-bottom: 22px; flex-direction: column; align-items: stretch; gap: 10px">
 <p style="margin: 0; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8C8172">{{ q.label }}</p>
 <p style="margin: 0; font-size: 16px; font-weight: 600; color: #FFFFFF">{{ q.title }}</p>

@@ -439,7 +439,7 @@ export default function View(v) {
         </section>
       </>) : null}
       {v.is.cyclorama ? (<>
-        <section className="page-hero">
+        <section className="page-hero ph-cyc">
           <div className="wrap">
             <p className="eyebrow">
               {"Cyclorama"}
@@ -448,12 +448,54 @@ export default function View(v) {
               {"Cyclorama studio"}
             </h1>
             <p className="lead" style={{ marginTop: "18px", maxWidth: "600px", color: "#DCD3C4" }}>
-              {"A seamless white cyclorama for video, podcasts on camera and photo shoots. Book it for 2 hours or more."}
+              {"A seamless white cyclorama for video, podcasts on camera and photo shoots."}
             </p>
           </div>
         </section>
         <section className="sec" style={{ paddingTop: "0" }}>
           <div className="wrap">
+            <ul className="cyc-chips" aria-label="Services in the cyclorama">
+              <li className="cyc-chip">
+                <span className="cyc-chip-i" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+                    <circle cx="12" cy="13" r="3.5" />
+                  </svg>
+                </span>
+                {"Photo shoot"}
+              </li>
+              <li className="cyc-chip">
+                <span className="cyc-chip-i" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="9" y="3" width="6" height="11" rx="3" />
+                    <path d="M5 11a7 7 0 0 0 14 0" />
+                    <path d="M12 18v3" />
+                  </svg>
+                </span>
+                {"Recording Only"}
+              </li>
+              <li className="cyc-chip">
+                <span className="cyc-chip-i" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="5" width="18" height="12" rx="2" />
+                    <path d="M10 9l5 2-5 2z" />
+                    <path d="M8 21h8" />
+                  </svg>
+                </span>
+                {"Recording + Live Edit"}
+              </li>
+              <li className="cyc-chip">
+                <span className="cyc-chip-i" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="6" cy="6" r="3" />
+                    <circle cx="6" cy="18" r="3" />
+                    <path d="M8.6 7.6L20 18" />
+                    <path d="M8.6 16.4L20 6" />
+                  </svg>
+                </span>
+                {"Recording + Pro Edit"}
+              </li>
+            </ul>
             <div className="cyc-stage">
               <img src="/images/cyclorama.jpg" srcSet="/images/cyclorama-1200.jpg 1200w, /images/cyclorama.jpg 2400w, /images/cyclorama-3600.jpg 3600w" sizes="(max-width: 1280px) 100vw, 1200px" alt="The Nilepods cyclorama studio: a seamless white cyc under studio lights" draggable="false" />
               <p className="cyc-tag">
@@ -467,57 +509,12 @@ export default function View(v) {
                   {"White cyclorama"}
                 </p>
                 <p style={{ margin: "0", fontSize: "18px", color: "#FFFFFF" }}>
-                  {"From 2 hours · open 3 to 11 PM, Saturday to Thursday"}
+                  {"Photo shoots from 2 hours · recording by the hour"}
                 </p>
               </div>
               <button className="btn-gold" onClick={v.cycBook}>
                 {"Book the cyclorama"}
               </button>
-            </div>
-          </div>
-        </section>
-        <section className="sec" style={{ paddingTop: "20px" }}>
-          <div className="wrap">
-            <div style={{ marginBottom: "30px" }}>
-              <p className="eyebrow">
-                {"Services"}
-              </p>
-              <h2 className="h2">
-                {"What you can book"}
-              </h2>
-              <p className="lead" style={{ marginTop: "12px", maxWidth: "620px" }}>
-                {"Recording services come with an operator, 3 cameras and 2 microphones. The photo shoot is the space and the lighting, for your own crew. Prices are per hour, with a 2-hour minimum."}
-              </p>
-            </div>
-            <div className="cyc-svcs">
-              {(v.cycSvcs || []).map((p, p_i9) => (<Fragment key={p_i9}>
-                <div className="card static cyc-svc">
-                  <p className="ttl" style={{ margin: "0", fontSize: "21px", fontWeight: "600", color: "#FFFFFF" }}>
-                    {p.name}
-                  </p>
-                  <p style={{ margin: "0" }}>
-                    <span className="ttl" style={{ fontSize: "30px", fontWeight: "700", color: "#E2B872" }}>
-                      {p.priceLabel}
-                    </span>
-                    <span style={{ fontSize: "13px", color: "#A89C8B" }}>
-                      {" EGP / hour"}
-                    </span>
-                  </p>
-                  <p style={{ margin: "0", fontSize: "13px", color: "#8C8172" }}>
-                    {p.minLabel}
-                  </p>
-                  <div className="cyc-svc-list">
-                    {(p.items || []).map((li, li_i10) => (<Fragment key={li_i10}>
-                      <span>
-                        {li}
-                      </span>
-                    </Fragment>))}
-                  </div>
-                  <button className="btn-ghost" onClick={p.book}>
-                    {"Book "}{p.name}
-                  </button>
-                </div>
-              </Fragment>))}
             </div>
           </div>
         </section>
@@ -551,7 +548,7 @@ export default function View(v) {
                   {"Choose your time"}
                 </h3>
                 <p>
-                  {"Pick a date and start time. Bookings are 2 hours minimum; add more hours if you need them."}
+                  {"Pick a date and start time. Photo shoots are 2 hours minimum; add more hours if you need them."}
                 </p>
               </div>
               <div className="card static cyc-step">
@@ -709,7 +706,7 @@ export default function View(v) {
               </p>
             </div>
             <div className="aud-rules">
-              {(v.aud.rules || []).map((r, r_i11) => (<Fragment key={r_i11}>
+              {(v.aud.rules || []).map((r, r_i9) => (<Fragment key={r_i9}>
                 <div className="card static aud-rule">
                   <b>
                     {r.n}
@@ -1032,7 +1029,7 @@ export default function View(v) {
                       </span>
                     </div>
                     <div className="cal">
-                      {(v.tcal.cells || []).map((c, c_i12) => (<Fragment key={c_i12}>
+                      {(v.tcal.cells || []).map((c, c_i10) => (<Fragment key={c_i10}>
                         <button className={c.cls} onClick={c.pick} disabled={c.dis} aria-label={c.aria}>
                           {c.label}
                         </button>
@@ -1058,7 +1055,7 @@ export default function View(v) {
                         </p>
                       </div>
                       <div className="tslots" role="list">
-                        {(v.tour.slots || []).map((t, t_i13) => (<Fragment key={t_i13}>
+                        {(v.tour.slots || []).map((t, t_i11) => (<Fragment key={t_i11}>
                           <button className={t.cls} onClick={t.pick} disabled={t.disabled} aria-pressed={t.on} aria-label={t.aria}>
                             {t.label}
                           </button>
@@ -1195,7 +1192,7 @@ export default function View(v) {
                   {"My packages"}
                 </p>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px", marginBottom: "36px" }}>
-                  {(v.creditList || []).map((c, c_i14) => (<Fragment key={c_i14}>
+                  {(v.creditList || []).map((c, c_i12) => (<Fragment key={c_i12}>
                     <div className="wz" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "10px" }}>
                       <p className="ttl" style={{ margin: "0", fontSize: "22px", fontWeight: "600", color: "#FFFFFF" }}>
                         {c.title}
@@ -1221,7 +1218,7 @@ export default function View(v) {
                     {"My sessions"}
                   </p>
                   <div className="sseg" role="tablist" aria-label="Sessions">
-                    {(v.sessTabs || []).map((t, t_i15) => (<Fragment key={t_i15}>
+                    {(v.sessTabs || []).map((t, t_i13) => (<Fragment key={t_i13}>
                       <button className={t.cls} role="tab" aria-selected={t.on} onClick={t.go}>
                         {t.name}
                         <span className="sseg-n">
@@ -1235,7 +1232,7 @@ export default function View(v) {
                       <span className="sfilt-k">
                         {"Service"}
                       </span>
-                      {(v.sessSvcs || []).map((f, f_i16) => (<Fragment key={f_i16}>
+                      {(v.sessSvcs || []).map((f, f_i14) => (<Fragment key={f_i14}>
                         <button className={f.cls} aria-pressed={f.on} onClick={f.go}>
                           {f.label}
                         </button>
@@ -1265,7 +1262,7 @@ export default function View(v) {
                 </div>
               </>) : null}
               <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                {(v.bookingList || []).map((b, b_i17) => (<Fragment key={b_i17}>
+                {(v.bookingList || []).map((b, b_i15) => (<Fragment key={b_i15}>
                   <div className={b.cardCls} style={{ padding: "24px 28px" }}>
                     <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "16px", alignItems: "flex-start" }}>
                       <div className="cxdim">
@@ -1294,7 +1291,7 @@ export default function View(v) {
                     {b.full ? (<>
                       <div className="cxdim" style={{ marginTop: "22px" }}>
                         <div className="tl">
-                          {(b.cells || []).map((c, c_i18) => (<Fragment key={c_i18}>
+                          {(b.cells || []).map((c, c_i16) => (<Fragment key={c_i16}>
                             <div className={c} />
                           </Fragment>))}
                         </div>
@@ -1358,7 +1355,7 @@ export default function View(v) {
                           </p>
                         </>) : null}
                         <div className="slots" role="list">
-                          {(b.moveSlots || []).map((s, s_i19) => (<Fragment key={s_i19}>
+                          {(b.moveSlots || []).map((s, s_i17) => (<Fragment key={s_i17}>
                             <button className={s.cls} onClick={s.pick} aria-pressed={s.on}>
                               <span className="t">
                                 {s.label}
@@ -1409,7 +1406,7 @@ export default function View(v) {
               {"Buy a pack of sessions now and book each one whenever it suits you. The more sessions you take, the more you save."}
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "26px" }}>
-              {(v.saveChips || []).map((sc, sc_i20) => (<Fragment key={sc_i20}>
+              {(v.saveChips || []).map((sc, sc_i18) => (<Fragment key={sc_i18}>
                 <span className="savechip">
                   {sc}
                 </span>
@@ -1425,7 +1422,7 @@ export default function View(v) {
                   {"Number of sessions"}
                 </p>
                 <div className="fopts" role="radiogroup" aria-label="Number of sessions">
-                  {(v.fCount || []).map((o, o_i21) => (<Fragment key={o_i21}>
+                  {(v.fCount || []).map((o, o_i19) => (<Fragment key={o_i19}>
                     <button className={o.cls} role="radio" aria-checked={o.on} onClick={o.pick}>
                       <span className="rdot" />
                       <span className="fname">
@@ -1449,7 +1446,7 @@ export default function View(v) {
                 </p>
               </div>
               <div className="pgrid">
-                {(v.catalog || []).map((c, c_i22) => (<Fragment key={c_i22}>
+                {(v.catalog || []).map((c, c_i20) => (<Fragment key={c_i20}>
                   <article className={c.cls}>
                     <div className="pimg">
                       <img src={c.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -1494,7 +1491,7 @@ export default function View(v) {
                         {"Included for each session:"}
                       </p>
                       <ul className="chk">
-                        {(c.inc || []).map((li, li_i23) => (<Fragment key={li_i23}>
+                        {(c.inc || []).map((li, li_i21) => (<Fragment key={li_i21}>
                           <li>
                             {li}
                           </li>
@@ -1537,7 +1534,7 @@ export default function View(v) {
                     {"Number of sessions"}
                   </p>
                   <div className="segs" role="radiogroup" aria-label="Number of sessions">
-                    {(v.pd.counts || []).map((k, k_i24) => (<Fragment key={k_i24}>
+                    {(v.pd.counts || []).map((k, k_i22) => (<Fragment key={k_i22}>
                       <button className={k.cls} onClick={k.pick} aria-pressed={k.on}>
                         {k.label}
                         {k.hasSave ? (<>
@@ -1584,7 +1581,7 @@ export default function View(v) {
                   {"What's included in each session"}
                 </p>
                 <ul className="chk">
-                  {(v.pd.items || []).map((li, li_i25) => (<Fragment key={li_i25}>
+                  {(v.pd.items || []).map((li, li_i23) => (<Fragment key={li_i23}>
                     <li>
                       {li}
                     </li>
@@ -1624,7 +1621,7 @@ export default function View(v) {
         {v.st.setup ? (<>
           <section className="fs" aria-label="Choose your setup">
             <div className="fs-car" ref={v.setCar} onScroll={v.onCarScroll} onPointerDown={v.dragStart} onPointerMove={v.dragMove} onPointerUp={v.dragEnd} onPointerLeave={v.dragEnd} onPointerCancel={v.dragEnd} data-gap="0">
-              {(v.setupList || []).map((su, su_i26) => (<Fragment key={su_i26}>
+              {(v.setupList || []).map((su, su_i24) => (<Fragment key={su_i24}>
                 <div className="fs-slide">
                   <img src={su.bg} alt="" className="fs-bg" draggable="false" aria-hidden="true" />
                   <img src={su.img} srcSet={su.srcset} sizes="100vw" alt={su.alt} className="fs-img" draggable="false" />
@@ -1664,7 +1661,7 @@ export default function View(v) {
               </svg>
             </button>
             <div className="fs-dots">
-              {(v.carDots || []).map((d, d_i27) => (<Fragment key={d_i27}>
+              {(v.carDots || []).map((d, d_i25) => (<Fragment key={d_i25}>
                 <button className={d.cls} aria-label={d.label} onClick={d.go} />
               </Fragment>))}
             </div>
@@ -1704,7 +1701,7 @@ export default function View(v) {
                     </div>
                   </div>
                   <div className={v.wz.progCls} aria-hidden="true">
-                    {(v.progBars || []).map((pb, pb_i28) => (<Fragment key={pb_i28}>
+                    {(v.progBars || []).map((pb, pb_i26) => (<Fragment key={pb_i26}>
                       <i className={pb} />
                     </Fragment>))}
                   </div>
@@ -1714,7 +1711,7 @@ export default function View(v) {
                         {v.svcLead}
                       </p>
                       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                        {(v.pkgs || []).map((p, p_i29) => (<Fragment key={p_i29}>
+                        {(v.pkgs || []).map((p, p_i27) => (<Fragment key={p_i27}>
                           <button className={p.optCls} onClick={p.pick} aria-pressed={p.on}>
                             <span style={{ display: "flex", alignItems: "center", gap: "14px", width: "100%" }}>
                               <span className={p.radio} />
@@ -1736,7 +1733,7 @@ export default function View(v) {
                                   {"Everything in Recording Only, plus"}
                                 </span>
                               </>) : null}
-                              {(p.brief || []).map((li, li_i30) => (<Fragment key={li_i30}>
+                              {(p.brief || []).map((li, li_i28) => (<Fragment key={li_i28}>
                                 <span className="svc-li">
                                   {li}
                                 </span>
@@ -1769,7 +1766,7 @@ export default function View(v) {
                         {"Number of sessions"}
                       </p>
                       <div className="segs">
-                        {(v.bq.counts || []).map((k, k_i31) => (<Fragment key={k_i31}>
+                        {(v.bq.counts || []).map((k, k_i29) => (<Fragment key={k_i29}>
                           <button className={k.cls} onClick={k.pick} aria-pressed={k.on}>
                             {k.label}
                             {k.hasSave ? (<>
@@ -1804,7 +1801,7 @@ export default function View(v) {
                         {"Included in each session"}
                       </p>
                       <ul className="chk">
-                        {(v.bq.inc || []).map((li, li_i32) => (<Fragment key={li_i32}>
+                        {(v.bq.inc || []).map((li, li_i30) => (<Fragment key={li_i30}>
                           <li>
                             {li}
                           </li>
@@ -1875,7 +1872,7 @@ export default function View(v) {
                         </p>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                        {(v.extraList || []).map((x, x_i33) => (<Fragment key={x_i33}>
+                        {(v.extraList || []).map((x, x_i31) => (<Fragment key={x_i31}>
                           <div className={x.cls}>
                             <div style={{ minWidth: "0" }}>
                               <p style={{ margin: "0", fontSize: "16px", fontWeight: "500", color: "#FFFFFF" }}>
@@ -1942,7 +1939,7 @@ export default function View(v) {
                         </span>
                       </div>
                       <div className="cal">
-                        {(v.cal.cells || []).map((c, c_i34) => (<Fragment key={c_i34}>
+                        {(v.cal.cells || []).map((c, c_i32) => (<Fragment key={c_i32}>
                           <button className={c.cls} onClick={c.pick} disabled={c.dis} aria-label={c.aria}>
                             {c.label}
                           </button>
@@ -1977,7 +1974,7 @@ export default function View(v) {
                           </div>
                         </div>
                         <div className="slots" role="list" aria-live="polite">
-                          {(v.slotList || []).map((s, s_i35) => (<Fragment key={s_i35}>
+                          {(v.slotList || []).map((s, s_i33) => (<Fragment key={s_i33}>
                             <button className={s.cls} onClick={s.pick} disabled={s.disabled} aria-pressed={s.on}>
                               <span className="t">
                                 {s.label}
@@ -2103,7 +2100,7 @@ export default function View(v) {
                             {v.q.when}
                           </p>
                           <div style={{ marginTop: "6px", paddingTop: "10px", borderTop: "1px solid rgba(241,234,223,0.12)", display: "flex", flexDirection: "column", gap: "8px" }}>
-                            {(v.q.lines || []).map((ln, ln_i36) => (<Fragment key={ln_i36}>
+                            {(v.q.lines || []).map((ln, ln_i34) => (<Fragment key={ln_i34}>
                               <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", fontSize: "14px" }}>
                                 <span style={{ color: "#CFC5B5" }}>
                                   {ln.k}
@@ -2144,7 +2141,7 @@ export default function View(v) {
                           <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: "600", color: "#FFFFFF" }}>
                             {v.creditPayTitle}
                           </p>
-                          {(v.creditLines || []).map((cl, cl_i37) => (<Fragment key={cl_i37}>
+                          {(v.creditLines || []).map((cl, cl_i35) => (<Fragment key={cl_i35}>
                             <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", fontSize: "14px" }}>
                               <span style={{ color: "#CFC5B5" }}>
                                 {cl.k}
@@ -2171,7 +2168,7 @@ export default function View(v) {
                           {"Payment method"}
                         </p>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px" }}>
-                          {(v.payMethods || []).map((m, m_i38) => (<Fragment key={m_i38}>
+                          {(v.payMethods || []).map((m, m_i36) => (<Fragment key={m_i36}>
                             <button className={m.cls} onClick={m.pick} aria-pressed={m.on} style={{ alignItems: "center", textAlign: "center", padding: "20px 14px" }}>
                               <span style={{ fontSize: "16px", fontWeight: "600", color: "#FFFFFF" }}>
                                 {m.label}
@@ -2327,7 +2324,7 @@ export default function View(v) {
                       {"Your slot in the studio day (3 PM – 11 PM)"}
                     </p>
                     <div className="tl">
-                      {(v.last.cells || []).map((c, c_i39) => (<Fragment key={c_i39}>
+                      {(v.last.cells || []).map((c, c_i37) => (<Fragment key={c_i37}>
                         <div className={c} />
                       </Fragment>))}
                     </div>
@@ -2360,7 +2357,7 @@ export default function View(v) {
                   </div>
                 </>) : null}
                 <div style={{ marginTop: "28px" }}>
-                  {(v.last.rows || []).map((r, r_i40) => (<Fragment key={r_i40}>
+                  {(v.last.rows || []).map((r, r_i38) => (<Fragment key={r_i38}>
                     <div className="row">
                       <span className="k">
                         {r.k}

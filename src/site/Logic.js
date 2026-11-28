@@ -243,7 +243,7 @@ export default class Logic extends DCLogic {
   packName(n) { return { 3: 'Pilot', 5: 'Series', 10: 'Season', 20: 'Full Season' }[n] || ''; }
   packLabel(n) { return this.packName(n) + ' · ' + n + ' sessions'; }
   validDays() { return 90; }
-  // Cyclorama: its own room, 2-hour minimum. Recording services keep their hourly prices;
+  // Cyclorama: its own room. Photo shoots have a 2-hour minimum; recording is booked by the hour. Recording services keep their hourly prices;
   // the photo shoot is the space and lighting only (no operator or equipment).
   photoSvc() {
     return { id: 'photo', tier: 'Photo shoot', name: 'Photo shoot', price: 1000, blurb: 'The white cyclorama and studio lighting, for your own photographer and gear.',
@@ -252,7 +252,7 @@ export default class Logic extends DCLogic {
       inc: ['The white cyclorama', 'Studio lighting'] };
   }
   allSvcs() { return this.pkgData().concat([this.photoSvc()]); }
-  cycMinHours() { return 2; }
+  cycMinHours(svc) { return svc === 'photo' ? 2 : 1; }
   startCyc(extra) {
     var svc = this.state.svc;
     this.go('book', Object.assign({ mode: 'cyc', w: 1, showErr: false, agreed: false, useCredit: false, start: null,
@@ -352,10 +352,10 @@ export default class Logic extends DCLogic {
     var P = byId(isBundle ? S.bTier : S.svc) || pk[1];
     var SET = isCyc ? null : SU.filter(function (s) { return s.id === S.setup; })[0] || null;
     var cap = SET ? SET.cap : 2;
-    var dur = (isCyc ? this.cycMinHours() : 1) + S.ex.hour;
+    var dur = (isCyc ? this.cycMinHours(S.svc) : 1) + S.ex.hour;
     var hoursText = dur === 1 ? '1 hour' : dur + ' hours';
     // The cyclorama has no add-on equipment: its only extra is more time (up to 8 hours in all).
-    var X = isCyc ? [{ id: 'hour', name: 'Extra hour', price: P.price, basis: 'per hour', max: 6 }] : this.extraData(P.price);
+    var X = isCyc ? [{ id: 'hour', name: 'Extra hour', price: P.price, basis: 'per hour', max: 8 - this.cycMinHours(S.svc) }] : this.extraData(P.price);
     var date = S.dateKey ? this.fromKey(S.dateKey) : null;
     var I = S.info, C = S.card;
     var errs = { first: !I.first.trim(), last: !I.last.trim(), email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(I.email.trim()),
@@ -412,9 +412,9 @@ export default class Logic extends DCLogic {
       return { name: p.name, priceLabel: p.price.toLocaleString('en-US'), blurb: p.blurb, items: p.items, brief: p.brief || p.items, base: !!p.base,
         featured: !!p.badge, badge: p.badge || '', on: on, hasCredit: false, creditLabel: '',
         optCls: 'opt' + (on ? ' on' : ''), radio: 'radio' + (on ? ' on' : ''),
-        minLabel: self.money(p.price * self.cycMinHours()) + ' for the 2-hour minimum',
+        minLabel: p.id === 'photo' ? self.money(p.price * 2) + ' for the 2-hour minimum' : 'Booked by the hour',
         book: function () { self.startCyc({ svc: p.id, w: 2 }); },
-        pick: function () { self.setState({ svc: p.id }); } };
+        pick: function () { var mx = 8 - self.cycMinHours(p.id); self.setState({ svc: p.id, ex: Object.assign({}, self.state.ex, { hour: Math.min(self.state.ex.hour, mx) }) }); } };
     });
 
     // ----- catalog -----
@@ -816,8 +816,8 @@ export default class Logic extends DCLogic {
       navItems: navItems, menuOpen: S.menu,
       openMenu: function () { self.setState({ menu: true }); }, closeMenu: function () { self.setState({ menu: false }); },
       bookNow: bookNow, pkgs: isCyc && S.screen === 'book' ? cycPkgs : pkgs, isCyc: isCyc,
-      svcLead: isCyc ? 'Recording services include an operator, 3 cameras and 2 microphones. The photo shoot is the cyclorama and its lighting only. All prices are per hour, with a 2-hour minimum.' : 'Every service includes the setup, an operator, 3 cameras and 2 microphones. Prices are per hour.',
-      extrasLead: isCyc ? 'Your booking includes 2 hours. Add more time if you need it, up to 8 hours in all.' : '',
+      svcLead: isCyc ? 'Recording services include an operator, 3 cameras and 2 microphones. The photo shoot is the cyclorama and its lighting only. All prices are per hour. Photo shoots have a 2-hour minimum.' : 'Every service includes the setup, an operator, 3 cameras and 2 microphones. Prices are per hour.',
+      extrasLead: isCyc ? (S.svc === 'photo' ? 'Your photo shoot includes 2 hours. Add more time if you need it, up to 8 hours in all.' : 'Your booking includes 1 hour. Add more time if you need it, up to 8 hours in all.') : '',
       cycSvcs: cycPkgs, cycBook: function () { self.startCyc(); },
       bookS1: function () { self.startSession({ setup: 's1' }); }, bookS2: function () { self.startSession({ setup: 's2' }); },
       howSteps: [{ n: '01', t: 'Choose your service', d: 'Pick the service and the setup you want to record in.' }, { n: '02', t: 'Set date & time', d: 'Choose your hours between 3 and 11 PM.' }, { n: '03', t: 'Pay securely', d: 'Online, at the studio, or with a package credit.' }, { n: '04', t: 'Start your shoot', d: 'Walk in, sit down, and hit record.' }],
