@@ -184,6 +184,23 @@ details[open] .plus{transform:rotate(45deg)}
 .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;align-items:center;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(14,12,10,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(241,234,223,.1)}
 }
 .prog.p3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.prog.p5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.cyc-stage{position:relative;width:100%;aspect-ratio:16/10;border-radius:24px;overflow:hidden;background:#1A1712;border:1px solid rgba(241,234,223,.1);box-shadow:0 40px 90px -40px rgba(0,0,0,.85)}
+.cyc-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.cyc-tag{position:absolute;top:18px;left:18px;margin:0;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(14,12,10,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:#F1EADF}
+.cyc-tag i{width:7px;height:7px;border-radius:50%;background:#E2B872}
+.cyc-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:22px}
+.cyc-svcs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.cyc-svc{display:flex;flex-direction:column;gap:14px;padding:26px}
+.cyc-svc-list{display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid rgba(241,234,223,.08);flex:1}
+.cyc-svc-list span{font-size:13px;line-height:1.5;color:#CFC5B5}
+.cyc-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.cyc-step{padding:26px}
+.cyc-step .cyc-n{margin:0;font-size:32px;font-weight:700;color:#E2B872;line-height:1}
+.cyc-step h3{margin:16px 0 6px;font-size:18px;font-weight:600;color:#FFFFFF}
+.cyc-step p{margin:0;font-size:14px;line-height:1.6;color:#A89C8B}
+@media (max-width:1000px){.cyc-svcs{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.cyc-stage{border-radius:16px}.cyc-svcs{grid-template-columns:1fr}.cyc-steps{grid-template-columns:1fr 1fr}.cyc-step{padding:20px}}
 .savechip{display:inline-flex;align-items:center;font-size:13px;font-weight:500;color:#E2B872;padding:8px 14px;border-radius:999px;border:1px solid rgba(226,184,114,.4);background:rgba(226,184,114,.06);white-space:nowrap}
 .creditchip{display:inline-flex;font-size:12px;font-weight:600;color:#17120B;background:#8FCB9B;padding:4px 10px;border-radius:999px}
 .frail{flex:1 1 200px;position:sticky;top:100px;display:flex;flex-direction:column;gap:28px}
@@ -556,10 +573,34 @@ details[open] .plus{transform:rotate(45deg)}
 
 <!-- ============ CYCLORAMA ============ -->
 <sc-if value="{{ is.cyclorama }}" hint-placeholder-val="{{ false }}">
-<section class="page-hero ph-frames"><div class="wrap"><p class="eyebrow">Cyclorama</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Cyclorama studio</h1><p class="lead" style="margin-top: 18px; max-width: 560px; color: #DCD3C4">A seamless backdrop for video shoots, product content and interviews.</p></div></section>
-<section class="sec" style="padding-top: 40px"><div class="wrap" style="display: flex; flex-direction: column; gap: 24px">
-<div class="ph">[CYCLORAMA DETAILS — size, colours, lighting kit, photos and hourly price go here.]</div>
-<div style="display: flex; flex-wrap: wrap; gap: 14px"><button class="btn-gold" onClick="{{ bookNow }}">Book Session</button><button class="btn-ghost" onClick="{{ nav.contact }}">Ask a question</button></div>
+<section class="page-hero"><div class="wrap"><p class="eyebrow">Cyclorama</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Cyclorama studio</h1><p class="lead" style="margin-top: 18px; max-width: 600px; color: #DCD3C4">A seamless white cyclorama for video, podcasts on camera and photo shoots. Book it for 2 hours or more.</p></div></section>
+<section class="sec" style="padding-top: 0"><div class="wrap">
+<div class="cyc-stage"><img src="/images/cyclorama.jpg" alt="The Nilepods cyclorama studio: a seamless white cyc under studio lights" draggable="false"><p class="cyc-tag"><i></i>Our cyclorama studio</p></div>
+<div class="cyc-bar"><div><p class="lbl" style="margin-bottom: 6px">White cyclorama</p><p style="margin: 0; font-size: 18px; color: #FFFFFF">From 2 hours · open 3 to 11 PM, Saturday to Thursday</p></div><button class="btn-gold" onClick="{{ cycBook }}">Book the cyclorama</button></div>
+</div></section>
+<section class="sec" style="padding-top: 20px"><div class="wrap">
+<div style="margin-bottom: 30px"><p class="eyebrow">Services</p><h2 class="h2">What you can book</h2><p class="lead" style="margin-top: 12px; max-width: 620px">Recording services come with an operator, 3 cameras and 2 microphones. The photo shoot is the space and the lighting, for your own crew. Prices are per hour, with a 2-hour minimum.</p></div>
+<div class="cyc-svcs">
+<sc-for list="{{ cycSvcs }}" as="p" hint-placeholder-count="4">
+<div class="card static cyc-svc">
+<p class="ttl" style="margin: 0; font-size: 21px; font-weight: 600; color: #FFFFFF">{{ p.name }}</p>
+<p style="margin: 0"><span class="ttl" style="font-size: 30px; font-weight: 700; color: #E2B872">{{ p.priceLabel }}</span><span style="font-size: 13px; color: #A89C8B"> EGP / hour</span></p>
+<p style="margin: 0; font-size: 13px; color: #8C8172">{{ p.minLabel }}</p>
+<div class="cyc-svc-list"><sc-for list="{{ p.items }}" as="li" hint-placeholder-count="4"><span>{{ li }}</span></sc-for></div>
+<button class="btn-ghost" onClick="{{ p.book }}">Book {{ p.name }}</button>
+</div>
+</sc-for>
+</div>
+</div></section>
+<section class="sec" style="padding-top: 20px"><div class="wrap">
+<div style="text-align: center; margin-bottom: 34px"><p class="eyebrow">How it works</p><h2 class="h2">Booking the cyclorama</h2></div>
+<div class="cyc-steps">
+<div class="card static cyc-step"><p class="ttl cyc-n">01</p><h3>Choose a service</h3><p>Record with our crew and cameras, or book a photo shoot with just the space and lighting.</p></div>
+<div class="card static cyc-step"><p class="ttl cyc-n">02</p><h3>Choose your time</h3><p>Pick a date and start time. Bookings are 2 hours minimum; add more hours if you need them.</p></div>
+<div class="card static cyc-step"><p class="ttl cyc-n">03</p><h3>Your details</h3><p>Tell us who is coming, then pay online or at the studio.</p></div>
+<div class="card static cyc-step"><p class="ttl cyc-n">04</p><h3>Shoot</h3><p>The cyc is lit and ready when you arrive.</p></div>
+</div>
+<div style="display: flex; justify-content: center; margin-top: 40px"><button class="btn-gold" onClick="{{ cycBook }}">Book the cyclorama</button></div>
 </div></section>
 </sc-if>
 
@@ -874,7 +915,7 @@ details[open] .plus{transform:rotate(45deg)}
 
 <!-- SERVICE -->
 <sc-if value="{{ st.service }}" hint-placeholder-val="{{ true }}">
-<p class="lead" style="font-size: 15px; margin-bottom: 22px">Every service includes the setup, an operator, 3 cameras and 2 microphones. Prices are per hour.</p>
+<p class="lead" style="font-size: 15px; margin-bottom: 22px">{{ svcLead }}</p>
 <div style="display: flex; flex-direction: column; gap: 12px">
 <sc-for list="{{ pkgs }}" as="p" hint-placeholder-count="3">
 <button class="{{ p.optCls }}" onClick="{{ p.pick }}" aria-pressed="{{ p.on }}">
@@ -917,6 +958,7 @@ details[open] .plus{transform:rotate(45deg)}
 
 <!-- EXTRAS -->
 <sc-if value="{{ st.extras }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ isCyc }}" hint-placeholder-val="{{ false }}"><p class="lead" style="font-size: 15px; margin: 0 0 18px">{{ extrasLead }}</p></sc-if>
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px"><p style="margin: 0; font-size: 15px; color: #DCD3C4">Booked: <strong style="color: #FFFFFF">{{ durLabel }}</strong></p><p style="margin: 0; font-size: 13px; color: #8C8172">All optional</p></div>
 <div style="display: flex; flex-direction: column; gap: 10px">
 <sc-for list="{{ extraList }}" as="x" hint-placeholder-count="4">

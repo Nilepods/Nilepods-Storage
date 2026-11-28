@@ -107,7 +107,7 @@ export default class Logic extends DCLogic {
     if (!supabase) return;
     supabase.rpc('my_bookings').then(function (res) {
       if (res.error) { console.warn('Could not load bookings', res.error); return; }
-      var pk = self.pkgData(), SU = self.setupData();
+      var pk = self.allSvcs(), SU = self.setupData();
       var byId = function (id) { return pk.filter(function (p) { return p.id === id; })[0] || { name: 'Studio session', tier: '' }; };
       var bookings = [], credits = [];
       (res.data || []).forEach(function (r) {
@@ -118,7 +118,7 @@ export default class Logic extends DCLogic {
           var su = SU.filter(function (x) { return x.id === r.setup_id; })[0];
           bookings.push({ ref: r.ref, status: r.status, svc: r.service, startsMs: new Date(r.starts_at).getTime(), endsMs: new Date(r.ends_at).getTime(),
             key: a.y + '-' + a.m + '-' + a.d, setup: r.setup_id, start: a.h, end: e.h || 24,
-            pkgName: byId(r.service).name, setupLabel: su ? su.n : r.setup_id, dateLabel: self.longDate(d) + ' ' + a.y,
+            pkgName: byId(r.service).name, setupLabel: su ? su.n : r.setup_id === 'cyc' ? 'Cyclorama' : r.setup_id, dateLabel: self.longDate(d) + ' ' + a.y,
             timeLabel: self.range(a.h, e.h || 24), totalLabel: self.money(r.total_egp), statusLabel: st[0], statusCls: st[1],
             // Customers may move a confirmed session themselves until 48 hours before it starts.
             upcoming: r.status === 'confirmed' && new Date(r.starts_at).getTime() > Date.now(),
@@ -232,6 +232,21 @@ export default class Logic extends DCLogic {
   packName(n) { return { 3: 'Pilot', 5: 'Series', 10: 'Season', 20: 'Full Season' }[n] || ''; }
   packLabel(n) { return this.packName(n) + ' · ' + n + ' sessions'; }
   validDays() { return 90; }
+  // Cyclorama: its own room, 2-hour minimum. Recording services keep their hourly prices;
+  // the photo shoot is the space and lighting only (no operator or equipment).
+  photoSvc() {
+    return { id: 'photo', tier: 'Photo shoot', name: 'Photo shoot', price: 1000, blurb: 'The white cyclorama and studio lighting, for your own photographer and gear.',
+      brief: ['The white cyclorama', 'Studio lighting', 'Bring your own camera and crew', 'No operator or recording equipment'],
+      items: ['The white cyclorama', 'Studio lighting', 'Bring your own camera and crew', 'No operator or recording equipment'],
+      inc: ['The white cyclorama', 'Studio lighting'] };
+  }
+  allSvcs() { return this.pkgData().concat([this.photoSvc()]); }
+  cycMinHours() { return 2; }
+  startCyc(extra) {
+    var svc = this.state.svc;
+    this.go('book', Object.assign({ mode: 'cyc', w: 1, showErr: false, agreed: false, useCredit: false, start: null,
+      ex: { hour: 0, cam: 0, mic: 0, photo: 0 }, svc: svc === 'photo' || svc === 'rec' || svc === 'mix' || svc === 'pro' ? svc : 'mix' }, extra || {}));
+  }
   extraData(rate) {
     return [
       { id: 'hour', name: 'Extra hour', price: rate, basis: 'per hour', max: 3 },
@@ -282,7 +297,7 @@ export default class Logic extends DCLogic {
     this.setState(s);
     this.scrollTop(anchor);
   }
-  startSession(extra) { this.go('book', Object.assign({ mode: 'session', w: 1, showErr: false, agreed: false, useCredit: true }, extra || {})); }
+  startSession(extra) { var fix = this.state.svc === 'photo' ? { svc: 'mix' } : {}; this.go('book', Object.assign({ mode: 'session', w: 1, showErr: false, agreed: false, useCredit: true, ex: { hour: 0, cam: 0, mic: 0, photo: 0 } }, fix, extra || {})); }
   startBundle(tier, count) { this.go('book', { mode: 'bundle', w: 1, bTier: tier, bCount: count, showErr: false, agreed: false }); }
   goBack() {
     var h = (this.state.hist || []).slice(), p = h.pop();
@@ -320,14 +335,16 @@ export default class Logic extends DCLogic {
   renderVals() {
     var self = this, S = this.state, IM = this.img();
     var pk = this.pkgData(), SU = this.setupData();
-    var byId = function (id) { return pk.filter(function (p) { return p.id === id; })[0]; };
-    var isBundle = S.mode === 'bundle';
-    var P = byId(isBundle ? S.bTier : S.svc);
-    var SET = SU.filter(function (s) { return s.id === S.setup; })[0] || null;
+    var AS = this.allSvcs();
+    var byId = function (id) { return AS.filter(function (p) { return p.id === id; })[0]; };
+    var isBundle = S.mode === 'bundle', isCyc = S.mode === 'cyc';
+    var P = byId(isBundle ? S.bTier : S.svc) || pk[1];
+    var SET = isCyc ? null : SU.filter(function (s) { return s.id === S.setup; })[0] || null;
     var cap = SET ? SET.cap : 2;
-    var dur = 1 + S.ex.hour;
+    var dur = (isCyc ? this.cycMinHours() : 1) + S.ex.hour;
     var hoursText = dur === 1 ? '1 hour' : dur + ' hours';
-    var X = this.extraData(P.price);
+    // The cyclorama has no add-on equipment: its only extra is more time (up to 8 hours in all).
+    var X = isCyc ? [{ id: 'hour', name: 'Extra hour', price: P.price, basis: 'per hour', max: 6 }] : this.extraData(P.price);
     var date = S.dateKey ? this.fromKey(S.dateKey) : null;
     var I = S.info, C = S.card;
     var errs = { first: !I.first.trim(), last: !I.last.trim(), email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(I.email.trim()),
@@ -340,7 +357,7 @@ export default class Logic extends DCLogic {
     var credit = S.credits.filter(function (c) { return c.svc === S.svc && c.left > 0; })[0] || null;
     var creditsFor = function (id) { return S.credits.filter(function (c) { return c.svc === id; }).reduce(function (a, c) { return a + c.left; }, 0); };
     // A package credit covers the first hour; only for signed-in customers (checked again on the server).
-    var usingCredit = !isBundle && S.signedIn && !!credit && S.useCredit;
+    var usingCredit = !isBundle && !isCyc && S.signedIn && !!credit && S.useCredit;
 
     // ----- quote -----
     var lines = [], total = 0, extrasNames = [], BP = null;
@@ -377,6 +394,15 @@ export default class Logic extends DCLogic {
         optCls: 'opt' + (on ? ' on' : ''), radio: 'radio' + (on ? ' on' : ''),
         hasCredit: cr > 0, creditLabel: cr + (cr === 1 ? ' package credit left' : ' package credits left'),
         choose: function () { self.startSession({ svc: p.id, w: 2 }); },
+        pick: function () { self.setState({ svc: p.id }); } };
+    });
+    var cycPkgs = AS.map(function (p) {
+      var on = S.svc === p.id;
+      return { name: p.name, priceLabel: p.price.toLocaleString('en-US'), blurb: p.blurb, items: p.items, brief: p.brief || p.items, base: !!p.base,
+        featured: !!p.badge, badge: p.badge || '', on: on, hasCredit: false, creditLabel: '',
+        optCls: 'opt' + (on ? ' on' : ''), radio: 'radio' + (on ? ' on' : ''),
+        minLabel: self.money(p.price * self.cycMinHours()) + ' for the 2-hour minimum',
+        book: function () { self.startCyc({ svc: p.id, w: 2 }); },
         pick: function () { self.setState({ svc: p.id }); } };
     });
 
@@ -459,7 +485,7 @@ export default class Logic extends DCLogic {
       for (var h = 15; h + dur <= 23; h++) {
         (function (h) {
           var st = 'free';
-          for (var j = h; j < h + dur; j++) { var s1 = self.hourStatus(date, j, S.setup); if (s1 !== 'free') { st = s1; break; } }
+          for (var j = h; j < h + dur; j++) { var s1 = self.hourStatus(date, j, isCyc ? 'cyc' : S.setup); if (s1 !== 'free') { st = s1; break; } }
           var on = S.start === h;
           slotList.push({ label: self.range(h, h + dur), on: on, disabled: st !== 'free',
             cls: 'slot slot-' + (on ? 'selected' : st === 'free' ? 'available' : st),
@@ -473,10 +499,10 @@ export default class Logic extends DCLogic {
     // ----- wizard -----
     // Signed-in customers with a name on file skip "Your information" (they can still edit it).
     var profileOk = S.signedIn && !!I.first.trim() && !!I.last.trim();
-    var steps = (isBundle ? ['bundle', 'info', 'pay'] : ['service', 'setup', 'people', 'extras', 'time', 'info', 'pay'])
+    var steps = (isBundle ? ['bundle', 'info', 'pay'] : isCyc ? ['service', 'extras', 'time', 'info', 'pay'] : ['service', 'setup', 'people', 'extras', 'time', 'info', 'pay'])
       .filter(function (t) { return t !== 'info' || !profileOk || S.editInfo; });
-    var titleMap = { service: 'Choose a service', bundle: 'Your package', setup: isBundle ? 'Your preferred setup' : 'Choose your setup', people: "Who's coming?", extras: 'Add extras', time: 'Pick a date & time', info: 'Your information', pay: 'Review & pay' };
-    var backMap = { service: 'Back', bundle: 'Back', setup: isBundle ? 'Back to package' : 'Back to service', people: 'Back to setup', extras: 'Back to people', time: 'Back to extras', info: isBundle ? 'Back to package' : 'Back to date & time', pay: steps.indexOf('info') >= 0 ? 'Back to your information' : isBundle ? 'Back to package' : 'Back to date & time' };
+    var titleMap = { service: isCyc ? 'Choose a cyclorama service' : 'Choose a service', bundle: 'Your package', setup: isBundle ? 'Your preferred setup' : 'Choose your setup', people: "Who's coming?", extras: 'Add extras', time: 'Pick a date & time', info: 'Your information', pay: 'Review & pay' };
+    var backMap = { service: 'Back', bundle: 'Back', setup: isBundle ? 'Back to package' : 'Back to service', people: 'Back to setup', extras: isCyc ? 'Back to service' : 'Back to people', time: 'Back to extras', info: isBundle ? 'Back to package' : 'Back to date & time', pay: steps.indexOf('info') >= 0 ? 'Back to your information' : isBundle ? 'Back to package' : 'Back to date & time' };
     var cur = steps[Math.min(S.w, steps.length) - 1];
     var st = {}; ['service', 'bundle', 'setup', 'people', 'extras', 'time', 'info', 'pay'].forEach(function (k) { st[k] = cur === k; });
     var progBars = steps.map(function (t, i) { return i + 1 < S.w ? 'on' : i + 1 === S.w ? 'cur' : ''; });
@@ -522,14 +548,15 @@ export default class Logic extends DCLogic {
           rows: [{ k: 'Service', v: P.name }, { k: 'Per session', v: self.money(BP.per) }, { k: 'Name', v: name }, { k: 'Payment', v: S.method === 'cash' ? 'Pay at the studio' : 'Card (Paymob)' }],
           note: 'Sign in at My account with ' + email + ' to book your ' + (S.bCount === 1 ? 'session' : S.bCount + ' sessions') + ' with this package. Valid for ' + self.validFor(S.bCount) + ' days.' };
       } else {
-        payload = { kind: 'session', service: S.svc, setup: S.setup, date: isoDate(date), start: S.start, people: S.people, guests: S.guests || 0, extras: S.ex, info: info,
+        payload = { kind: 'session', service: S.svc, setup: isCyc ? 'cyc' : S.setup, date: isoDate(date), start: S.start, people: isCyc ? 1 : S.people, guests: isCyc ? 0 : S.guests || 0,
+          extras: isCyc ? { hour: S.ex.hour, cam: 0, mic: 0, photo: 0 } : S.ex, info: info,
           payment: needsPay ? S.method : 'cash', credit: usingCredit ? credit.id : undefined };
-        var b = { kind: 'session', key: S.dateKey, setup: S.setup, start: S.start, end: S.start + dur, pkgName: P.name,
-          setupLabel: SET.n, dateLabel: self.longDate(date), timeLabel: self.range(S.start, S.start + dur), totalLabel: self.money(total) };
-        draft = { kind: 'session', email: email, headline: "You're booked!", kicker: 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
+        var b = { kind: 'session', key: S.dateKey, setup: isCyc ? 'cyc' : S.setup, start: S.start, end: S.start + dur, pkgName: P.name,
+          setupLabel: isCyc ? 'Cyclorama' : SET.n, dateLabel: self.longDate(date), timeLabel: self.range(S.start, S.start + dur), totalLabel: self.money(total) };
+        draft = { kind: 'session', email: email, headline: "You're booked!", kicker: isCyc ? 'Your cyclorama session' : 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
           totalLabel: self.money(total), start: b.start, end: b.end, booking: b,
-          rows: [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Guests coming along', v: S.guests ? String(S.guests) : 'None' }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: payLabelRow }],
-          note: 'Your hours are locked in ' + SET.n + '. Please arrive 10 minutes early.' };
+          rows: isCyc ? [{ k: 'Service', v: P.name }, { k: 'Studio', v: 'Cyclorama' }, { k: 'Duration', v: hoursText }, { k: 'Name', v: name }, { k: 'Payment', v: payLabelRow }] : [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Guests coming along', v: S.guests ? String(S.guests) : 'None' }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: payLabelRow }],
+          note: 'Your hours are locked in ' + b.setupLabel + '. Please arrive 10 minutes early.' };
       }
       if (acct === 'created' || acct === 'unconfirmed') draft.note = 'We sent a confirmation email to ' + email + '. Tap the link in it to activate your account, then sign in with your email and password to see your bookings. ' + draft.note;
       var tokenP = usingCredit && supabase ? supabase.auth.getSession().then(function (r) { return r.data.session && r.data.session.access_token; }) : Promise.resolve(null);
@@ -566,7 +593,7 @@ export default class Logic extends DCLogic {
         }
       }
       if (cur === 'pay') { if (!blockedMap.pay) pay(); return; }
-      if (cur === 'service' && S.setup && !isBundle) { self.setW(S.w + 2); return; }
+      if (cur === 'service' && S.setup && !isBundle && !isCyc) { self.setW(S.w + 2); return; }
       if (!blockedMap[cur]) self.setW(S.w + 1);
     };
     var wzBack = function () { if (S.w > 1) self.setW(S.w - 1); else self.goBack(); };
@@ -578,8 +605,8 @@ export default class Logic extends DCLogic {
         whenK: 'How it works', when: 'After you buy, sign in at My account and book each session yourself — the studio hour is covered by your package.', lines: lines, total: self.money(total), onsite: S.method === 'cash' && cur === 'pay',
         foot: 'Valid ' + self.validFor(S.bCount) + ' days. Book each session whenever you like — extras are added per session.' };
     } else {
-      q = { img: SET ? SET.img : IM.hero, label: 'Your session', title: P.name,
-        meta: (SET ? SET.n : 'Setup not chosen') + ' · ' + S.people + (S.people === 1 ? ' person' : ' people') + ' · ' + hoursText,
+      q = { img: isCyc ? '/images/cyclorama.jpg' : SET ? SET.img : IM.hero, label: isCyc ? 'Your cyclorama session' : 'Your session', title: P.name,
+        meta: isCyc ? 'Cyclorama · ' + hoursText + (S.ex.hour ? '' : ' (minimum)') : (SET ? SET.n : 'Setup not chosen') + ' · ' + S.people + (S.people === 1 ? ' person' : ' people') + ' · ' + hoursText,
         whenK: 'When', when: date ? self.longDate(date) + (S.start != null ? ' · ' + self.range(S.start, S.start + dur) : ' · pick a time') : 'Pick a date & time',
         lines: lines, total: self.money(total), onsite: S.method === 'cash' && cur === 'pay' && needsPay,
         foot: 'Free to reschedule up to 48 hours before your session.' };
@@ -660,7 +687,7 @@ export default class Logic extends DCLogic {
       if (b.status === 'completed' || b.status === 'no_show' || (b.endsMs || 0) <= nowMs) return 'past';
       return 'upcoming';
     };
-    var svcNames = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit' };
+    var svcNames = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit', photo: 'Photo shoot' };
     var bySvc = S.bookings.filter(function (b) { return S.sessSvc === 'all' || b.svc === S.sessSvc; });
     var sessCounts = { upcoming: 0, past: 0, cancelled: 0 };
     bySvc.forEach(function (b) { sessCounts[groupOf(b)]++; });
@@ -668,7 +695,7 @@ export default class Logic extends DCLogic {
       var on = S.sessTab === t[0];
       return { label: t[1] + ' (' + sessCounts[t[0]] + ')', name: t[1], count: String(sessCounts[t[0]]), on: on, cls: 'sseg-b' + (on ? ' on' : ''), go: function () { self.setState({ sessTab: t[0], moveRef: null }); } };
     });
-    var svcsUsed = ['rec', 'mix', 'pro'].filter(function (id) { return S.bookings.some(function (b) { return b.svc === id; }); });
+    var svcsUsed = ['rec', 'mix', 'pro', 'photo'].filter(function (id) { return S.bookings.some(function (b) { return b.svc === id; }); });
     var sessSvcs = svcsUsed.length > 1 ? [['all', 'All']].concat(svcsUsed.map(function (id) { return [id, svcNames[id]]; })).map(function (t) {
       var on = S.sessSvc === t[0];
       return { label: t[1], on: on, cls: 'sfilt-b' + (on ? ' on' : ''), go: function () { self.setState({ sessSvc: t[0], moveRef: null }); } };
@@ -755,7 +782,10 @@ export default class Logic extends DCLogic {
       toastArabic: function () { self.setState({ menu: false }); self.showToast('Switches the site to Arabic'); },
       navItems: navItems, menuOpen: S.menu,
       openMenu: function () { self.setState({ menu: true }); }, closeMenu: function () { self.setState({ menu: false }); },
-      bookNow: bookNow, pkgs: pkgs,
+      bookNow: bookNow, pkgs: isCyc && S.screen === 'book' ? cycPkgs : pkgs, isCyc: isCyc,
+      svcLead: isCyc ? 'Recording services include an operator, 3 cameras and 2 microphones. The photo shoot is the cyclorama and its lighting only. All prices are per hour, with a 2-hour minimum.' : 'Every service includes the setup, an operator, 3 cameras and 2 microphones. Prices are per hour.',
+      extrasLead: isCyc ? 'Your booking includes 2 hours. Add more time if you need it, up to 8 hours in all.' : '',
+      cycSvcs: cycPkgs, cycBook: function () { self.startCyc(); },
       bookS1: function () { self.startSession({ setup: 's1' }); }, bookS2: function () { self.startSession({ setup: 's2' }); },
       howSteps: [{ n: '01', t: 'Choose your service', d: 'Pick the service and the setup you want to record in.' }, { n: '02', t: 'Set date & time', d: 'Choose your hours between 3 and 11 PM.' }, { n: '03', t: 'Pay securely', d: 'Online, at the studio, or with a package credit.' }, { n: '04', t: 'Start your shoot', d: 'Walk in, sit down, and hit record.' }],
       stages: [{ stage: 'Stage 01', t: 'Strategy Development', d: 'We help you sharpen your concept and turn it into a show worth tuning into.', img: IM.shelves },
@@ -824,7 +854,7 @@ export default class Logic extends DCLogic {
       sessTabs: sessTabs, sessSvcs: sessSvcs, hasSessSvcs: sessSvcs.length > 0, sessEmpty: S.bookings.length > 0 && bookingList.length === 0, sessEmptyText: emptyText,
       creditList: creditList, hasCredits: creditList.length > 0, hasBookings: S.bookings.length > 0,
       // wizard
-      wz: { n: String(S.w), of: String(steps.length), title: titleMap[cur], backLabel: backMap[cur], kind: isBundle ? 'Buy a package' : 'Book a session', progCls: 'prog' + (isBundle ? ' p3' : '') },
+      wz: { n: String(S.w), of: String(steps.length), title: titleMap[cur], backLabel: backMap[cur], kind: isBundle ? 'Buy a package' : isCyc ? 'Book the cyclorama' : 'Book a session', progCls: 'prog' + (isBundle ? ' p3' : isCyc ? ' p5' : '') },
       progBars: progBars, wzNext: wzNext, wzBack: wzBack,
       nextBlocked: blockedMap[cur], nextLabel: nextLabel, nextShort: nextShort,
       setupList: setupList,

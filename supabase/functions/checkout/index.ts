@@ -6,7 +6,7 @@ import { adminClient } from '../_shared/admin.ts';
 import { sendBookingEmails } from '../_shared/notify.ts';
 import { ALLOWED_ORIGINS, ALLOW_CASH, PAYMOB_API, PAYMOB_CARD_INTEGRATION_ID, PAYMOB_PUBLIC_KEY } from '../_shared/config.ts';
 
-const SERVICE_NAMES: Record<string, string> = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit' };
+const SERVICE_NAMES: Record<string, string> = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit', photo: 'Cyclorama photo shoot' };
 const FRIENDLY: Record<string, string> = {
   slot_taken: 'Sorry, that time was just booked. Please pick another time.',
   closed_friday: 'The studio is closed on Fridays.',
@@ -21,6 +21,8 @@ const FRIENDLY: Record<string, string> = {
   wrong_service: 'Your package is for a different service. Pick that service to use it.',
   not_your_package: 'Sign in with the email you bought the package with, and use that email in your booking.',
   session_expired: 'Your sign-in has expired. Please sign in again at My account, then book.',
+  invalid_hours: 'Please choose a shorter booking.',
+  invalid_extras: 'These extras are not available for this room.',
 };
 
 function cors(origin: string | null) {

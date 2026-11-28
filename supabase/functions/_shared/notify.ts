@@ -8,10 +8,10 @@ import nodemailer from 'npm:nodemailer@6.9.16';
 import { adminClient } from './admin.ts';
 import { BOOKINGS_INBOX, SENDER, SITE_URL } from './config.ts';
 
-const SERVICES: Record<string, string> = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit' };
+const SERVICES: Record<string, string> = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit', photo: 'Photo shoot' };
 const PACKS: Record<number, string> = { 3: 'Pilot', 5: 'Series', 10: 'Season', 20: 'Full Season' };
 const validDays = (n: number) => (n >= 20 ? 180 : 90);
-const SETUPS: Record<string, string> = { s1: 'Setup 1', s2: 'Setup 2', s3: 'Setup 3', s4: 'Setup 4', s5: 'Setup 5', s6: 'Setup 6', s7: 'Setup 7' };
+const SETUPS: Record<string, string> = { s1: 'Setup 1', s2: 'Setup 2', s3: 'Setup 3', s4: 'Setup 4', s5: 'Setup 5', s6: 'Setup 6', s7: 'Setup 7', cyc: 'Cyclorama' };
 
 const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 const money = (n: number) => n.toLocaleString('en-US') + ' EGP';
