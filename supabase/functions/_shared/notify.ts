@@ -7,6 +7,7 @@
 import nodemailer from 'npm:nodemailer@6.9.16';
 import { adminClient } from './admin.ts';
 import { BOOKINGS_INBOX, SENDER, SITE_URL } from './config.ts';
+import { sendWhatsAppBooking, sendWhatsAppOperator, waConfigured } from './whatsapp.ts';
 
 const SERVICES: Record<string, string> = { rec: 'Recording Only', mix: 'Recording + Live Edit', pro: 'Recording + Pro Edit', photo: 'Photo shoot' };
 const PACKS: Record<number, string> = { 3: 'Pilot', 5: 'Series', 10: 'Season', 20: 'Full Season' };
@@ -89,8 +90,29 @@ export async function sendBookingEmails(ref: string, kind: 'new' | 'rescheduled'
       { to: BOOKINGS_INBOX, replyTo: r.email, subject: `${test}${moved ? 'Rescheduled' : 'New ' + (b ? 'booking' : 'package')}: ${r.first_name} ${r.last_name} · ${subjectWhat}`.trim(), html: staffHtml },
     ]);
     console.log('Booking emails sent', ref);
+    if (b && waConfigured()) await sendBookingWhatsApps(b, moved);
   } catch (e) {
     console.error('Booking email failed', ref, String(e));
+  }
+}
+
+// WhatsApp: the customer (if they ticked "Send my booking updates on WhatsApp") and every studio operator.
+// deno-lint-ignore no-explicit-any
+async function sendBookingWhatsApps(b: any, moved: boolean) {
+  try {
+    const date = cairo(b.starts_at, { weekday: 'long', day: 'numeric', month: 'long' });
+    const time = `${hour(b.starts_at)} to ${hour(b.ends_at)}`;
+    const service = SERVICES[b.service] ?? b.service, room = SETUPS[b.setup_id] ?? b.setup_id;
+    const test = b.is_test ? ' (test)' : '';
+    const jobs: Promise<boolean>[] = [];
+    if (b.whatsapp_ok && b.phone) jobs.push(sendWhatsAppBooking(b.phone, moved, { name: b.first_name, date, time, service, room, ref: b.ref }));
+    const { data: ops } = await adminClient().from('staff').select('whatsapp').eq('is_operator', true).in('status', ['invited', 'active']).not('whatsapp', 'is', null);
+    const people = `${b.people} on camera` + (b.guests ? `, ${b.guests} guest${b.guests === 1 ? '' : 's'}` : '');
+    for (const o of ops ?? []) jobs.push(sendWhatsAppOperator(o.whatsapp, { label: (moved ? 'Moved booking' : 'New booking') + test, date, time, service, room,
+      client: `${b.first_name} ${b.last_name}`.trim(), people, ref: b.ref }));
+    await Promise.all(jobs);
+  } catch (e) {
+    console.error('Booking WhatsApp failed', b.ref, String(e));
   }
 }
 

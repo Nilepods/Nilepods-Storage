@@ -1011,6 +1011,19 @@ export default function View(v) {
                           {"Owner"}
                         </span>
                       </>) : null}
+                      {m.canOp ? (<>
+                        <div style={{ flexBasis: "100%", display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center", paddingLeft: "54px" }}>
+                          {m.hasOpTag ? (<>
+                            <span className="muted" style={{ fontSize: "13px", marginRight: "4px" }}>
+                              {m.opTag}
+                            </span>
+                          </>) : null}
+                          <input className="inp" type="tel" style={{ width: "190px", minHeight: "38px", padding: "8px 12px", fontSize: "13px" }} value={m.opNum} onChange={m.onOpNum} aria-label={m.opAria} placeholder="WhatsApp 010 1234 5678" />
+                          <button className="btn-ghost" onClick={m.saveOp} style={{ minHeight: "38px", fontSize: "13px" }}>
+                            {m.opBtn}
+                          </button>
+                        </div>
+                      </>) : null}
                     </div>
                   </Fragment>))}
                 </div>

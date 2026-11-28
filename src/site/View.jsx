@@ -1171,6 +1171,56 @@ export default function View(v) {
                   </button>
                 </div>
               </div>
+              {v.otp.show ? (<>
+                <div className="card mpad" style={{ padding: "28px 32px", marginBottom: "32px", display: "flex", flexDirection: "column", gap: "14px", maxWidth: "520px", borderColor: "rgba(226,184,114,.4)" }}>
+                  <p className="lbl" style={{ margin: "0" }}>
+                    {"Confirm your WhatsApp number"}
+                  </p>
+                  <p style={{ margin: "0", fontSize: "14px", lineHeight: "1.6", color: "#CFC5B5" }}>
+                    {"We send your booking details and the studio location on WhatsApp. Confirm your number with a 6-digit code."}
+                  </p>
+                  {v.otp.askPhone ? (<>
+                    <div className="field">
+                      <label htmlFor="o-phone">
+                        {"WhatsApp number"}
+                      </label>
+                      <input id="o-phone" className="inp" type="tel" value={v.otp.phone} onChange={v.otp.onPhone} autoComplete="tel" placeholder="010 1234 5678" />
+                    </div>
+                    <button className="btn-gold" disabled={v.otp.sendBlocked} onClick={v.otp.send} style={{ alignSelf: "flex-start" }}>
+                      {v.otp.sendLabel}
+                    </button>
+                  </>) : null}
+                  {v.otp.askCode ? (<>
+                    <p style={{ margin: "0", fontSize: "14px", color: "#A89C8B" }}>
+                      {"We sent a code to "}{v.otp.sentTo}{" on WhatsApp."}
+                    </p>
+                    <div className="field">
+                      <label htmlFor="o-code">
+                        {"Code"}
+                      </label>
+                      <input id="o-code" className="inp" inputMode="numeric" autoComplete="one-time-code" maxLength="6" value={v.otp.code} onChange={v.otp.onCode} placeholder="6-digit code" />
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center" }}>
+                      <button className="btn-gold" disabled={v.otp.verifyBlocked} onClick={v.otp.verify}>
+                        {v.otp.verifyLabel}
+                      </button>
+                      <button className="link" onClick={v.otp.restart}>
+                        {"Change number or resend"}
+                      </button>
+                    </div>
+                  </>) : null}
+                  {v.otp.hasErr ? (<>
+                    <p role="alert" style={{ margin: "0", fontSize: "14px", color: "#F0A08A" }}>
+                      {v.otp.err}
+                    </p>
+                  </>) : null}
+                </div>
+              </>) : null}
+              {v.otp.done ? (<>
+                <p style={{ margin: "-20px 0 28px", fontSize: "14px", color: "#9FD8AE" }}>
+                  {"WhatsApp number confirmed: "}{v.otp.verified}
+                </p>
+              </>) : null}
               {v.showPwPanel ? (<>
                 <div className="card mpad" style={{ padding: "28px 32px", marginBottom: "32px", display: "flex", flexDirection: "column", gap: "14px", maxWidth: "520px" }}>
                   <p className="lbl" style={{ margin: "0" }}>

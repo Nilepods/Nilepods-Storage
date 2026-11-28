@@ -11,7 +11,7 @@ const ROLE_DB = { 'Owner': 'owner', 'Manager': 'manager', 'Front desk': 'front_d
 const STATUS_UI = { invited: 'Invited', active: 'Active', paused: 'Paused' };
 const ERRORS = {
   owner_only: 'Only the owner can do that.', not_allowed: 'Your role cannot do that.', not_staff: 'You are not on the team.',
-  already_on_team: 'That email is already on the team.', cannot_change_owner: 'The owner cannot be changed here.',
+  already_on_team: 'That email is already on the team.', invalid_phone: 'Enter a WhatsApp number, for example 010 1234 5678.', cannot_change_owner: 'The owner cannot be changed here.',
 };
 const errText = (e) => ERRORS[e && e.message] || 'Something went wrong. Please try again.';
 
@@ -349,7 +349,18 @@ export default class Logic extends DCLogic {
         editable: !isOwner && isOwnerMe, locked: isOwner, roleAria: 'Role for ' + m2.name, toggleLabel: m2.status === 'paused' ? 'Restore access' : 'Pause access',
         setRole: function (e) { self.rpc('staff_change', { p_email: m2.email, p_role: ROLE_DB[e.target.value] }, m2.name + ' is now ' + e.target.value); },
         toggle: function () { var to = m2.status === 'paused' ? 'active' : 'paused'; self.rpc('staff_change', { p_email: m2.email, p_status: to }, to === 'active' ? 'Access restored for ' + m2.name : 'Access paused for ' + m2.name); },
-        remove: function () { self.rpc('staff_change', { p_email: m2.email, p_remove: true }, m2.name + ' can no longer sign in'); } };
+        remove: function () { self.rpc('staff_change', { p_email: m2.email, p_remove: true }, m2.name + ' can no longer sign in'); },
+        // Studio operator: gets a WhatsApp for every new or moved booking.
+        canOp: me.role === 'Owner' || me.role === 'Manager', isOp: !!m2.is_operator,
+        opTag: m2.is_operator ? 'Operator · WhatsApp +' + m2.whatsapp : m2.whatsapp ? 'WhatsApp +' + m2.whatsapp : '', hasOpTag: !!(m2.is_operator || m2.whatsapp),
+        opNum: (S.opNum || {})[m2.email] != null ? S.opNum[m2.email] : (m2.whatsapp || ''), opAria: 'WhatsApp number for ' + m2.name,
+        onOpNum: function (e) { var o = Object.assign({}, self.state.opNum || {}); o[m2.email] = e.target.value; self.setState({ opNum: o }); },
+        opBtn: m2.is_operator ? 'Stop booking alerts' : 'Send booking alerts',
+        saveOp: function () {
+          var num = (self.state.opNum || {})[m2.email]; if (num == null) num = m2.whatsapp || '';
+          var on = !m2.is_operator;
+          self.rpc('staff_set_operator', { p_email: m2.email, p_whatsapp: num, p_is_operator: on }, on ? m2.name + ' will get booking alerts on WhatsApp' : m2.name + ' will no longer get booking alerts');
+        } };
     });
     var invEmail = S.invite.email.trim().toLowerCase();
     var invite = { email: S.invite.email, role: S.invite.role, blocked: !isOwnerMe || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(invEmail) || S.team.some(function (x) { return x.email === invEmail; }) };

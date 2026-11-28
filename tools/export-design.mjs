@@ -45,6 +45,7 @@ var startCheckout = function () { return Promise.resolve({ ref: 'NP-DEMO0001', t
 var getPaymentStatus = function () { return Promise.resolve({ status: 'confirmed' }); };
 var forwardPaymobResult = function () { return Promise.resolve(); };
 var rescheduleBooking = function () { return Promise.resolve({ ok: true }); };
+var phoneOtp = function (b) { return Promise.resolve({ ok: true, phone: '201012345678' }); };
 var sendSignInLink = function () { return Promise.resolve(); };
 var watchSession = function () { return function () {}; };
 var recordSignIn = function () {};

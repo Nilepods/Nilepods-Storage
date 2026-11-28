@@ -101,3 +101,21 @@ export async function getPaymentStatus(ref) {
 export function isoDate(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
+
+// WhatsApp phone check for the signed-in customer: { action: 'send', phone } or { action: 'verify', code }.
+export async function phoneOtp(body, accessToken) {
+  if (!FUNCTIONS_URL || !accessToken) throw new Error('Please sign in again and retry.');
+  let res;
+  try {
+    res = await fetch(FUNCTIONS_URL + '/phone-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY, Authorization: 'Bearer ' + accessToken },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new Error('Could not reach the server. Check your connection and try again.');
+  }
+  const out = await res.json().catch(() => ({}));
+  if (!res.ok || !out.ok) throw new Error(out.error || 'Something went wrong. Please try again.');
+  return out;
+}

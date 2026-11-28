@@ -384,6 +384,13 @@ button.trow:hover{background:#17140F}
 <button class="btn-danger" onClick="{{ m.remove }}" style="min-height: 40px; font-size: 13px">Remove</button>
 </sc-if>
 <sc-if value="{{ m.locked }}" hint-placeholder-val="{{ false }}"><span class="pill p-in">Owner</span></sc-if>
+<sc-if value="{{ m.canOp }}" hint-placeholder-val="{{ true }}">
+<div style="flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-left: 54px">
+<sc-if value="{{ m.hasOpTag }}" hint-placeholder-val="{{ false }}"><span class="muted" style="font-size: 13px; margin-right: 4px">{{ m.opTag }}</span></sc-if>
+<input class="inp" type="tel" style="width: 190px; min-height: 38px; padding: 8px 12px; font-size: 13px" value="{{ m.opNum }}" onChange="{{ m.onOpNum }}" aria-label="{{ m.opAria }}" placeholder="WhatsApp 010 1234 5678">
+<button class="btn-ghost" onClick="{{ m.saveOp }}" style="min-height: 38px; font-size: 13px">{{ m.opBtn }}</button>
+</div>
+</sc-if>
 </div>
 </sc-for>
 </div>

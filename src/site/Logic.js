@@ -1,6 +1,6 @@
 // State and behaviour for this page. Converted from design/Main.dc.html; safe to edit.
 import DCLogic from '../lib/DCLogic.jsx';
-import { loadBusySlots, startCheckout, getPaymentStatus, isoDate, forwardPaymobResult, rescheduleBooking } from '../lib/booking.js';
+import { loadBusySlots, startCheckout, getPaymentStatus, isoDate, forwardPaymobResult, rescheduleBooking, phoneOtp } from '../lib/booking.js';
 import { sendSignInLink, watchSession, recordSignIn, signOut as authSignOut, signInWithPassword, signUpWithPassword, sendPasswordReset, setPassword, saveProfile } from '../lib/auth.js';
 import { supabase } from '../lib/supabase.js';
 
@@ -27,6 +27,8 @@ const AUDITION_RULES = [
   ['Our content guidelines', 'No hate speech, harassment, illegal content or paid promotion. We can stop a recording or decline to publish an episode that breaks the guidelines.'],
   ['One pilot, on our schedule', 'Pilots are recorded only on pilot days (Sundays and Tuesdays, 3 to 4 PM). If you miss your slot, we may give it to another show.'],
 ];
+// WhatsApp number check on My account. Turn on once the WhatsApp templates are approved by Meta.
+const WHATSAPP_OTP_ON = false;
 const PAGES = ['home', 'packages', 'pkgDetail', 'studios', 'cyclorama', 'audio', 'auditions', 'contact', 'tour', 'account', 'legal', 'book', 'confirm'];
 
 // Address for a page, e.g. /?p=packages, /?p=legal&doc=terms, /?p=pkgDetail&tier=mix&n=3
@@ -109,7 +111,9 @@ export default class Logic extends DCLogic {
     var md = (session.user.user_metadata) || {}, I0 = this.state.info;
     var info = { first: I0.first || md.first || '', last: I0.last || md.last || '', email: email,
       phone: I0.phone || md.phone || '', wa: I0.wa || !!md.wa, pw: '' };
-    this.setState({ signedIn: true, acctEmail: email, signInNote: '', acctPw: '', info: info });
+    var am = session.user.app_metadata || {};
+    this.setState({ signedIn: true, acctEmail: email, signInNote: '', acctPw: '', info: info, phoneVerified: am.phone_verified || '',
+      otpPhone: this.state.otpPhone || info.phone || '' });
     if (this._recorded !== email) { this._recorded = email; recordSignIn().catch(function (e) { console.warn('sign-in not recorded', e); }); }
     this.loadMyBookings();
   }
@@ -849,6 +853,29 @@ export default class Logic extends DCLogic {
       tourBlocked: !(S.tf.name.trim() && S.tf.phone.replace(/\D/g, '').length >= 8 && S.tDate && S.tSlot != null),
       tcal: tcal, tour: tour,
       sendTour: function () { self.setState({ tourSent: true }); self.scrollTop(); },
+      otp: (function () {
+        var call = function (body, ok) {
+          self.setState({ otpBusy: true, otpErr: '' });
+          supabase.auth.getSession().then(function (r) { return phoneOtp(body, r.data.session && r.data.session.access_token); })
+            .then(function (res) { self.setState({ otpBusy: false }); ok(res); })
+            .catch(function (e) { self.setState({ otpBusy: false, otpErr: e.message }); });
+        };
+        var digits = String(S.otpPhone || '').replace(/\D/g, '');
+        return { show: WHATSAPP_OTP_ON && S.signedIn && !S.phoneVerified, done: WHATSAPP_OTP_ON && S.signedIn && !!S.phoneVerified, verified: '+' + S.phoneVerified,
+          askPhone: !S.otpSentTo, askCode: !!S.otpSentTo, phone: S.otpPhone || '', code: S.otpCode || '', sentTo: S.otpSentTo ? '+' + S.otpSentTo : '',
+          hasErr: !!S.otpErr, err: S.otpErr || '',
+          sendBlocked: S.otpBusy || digits.length < 8, sendLabel: S.otpBusy ? 'Sending...' : 'Send code on WhatsApp',
+          verifyBlocked: S.otpBusy || String(S.otpCode || '').replace(/\D/g, '').length !== 6, verifyLabel: S.otpBusy ? 'Checking...' : 'Confirm',
+          onPhone: function (e) { self.setState({ otpPhone: e.target.value }); },
+          onCode: function (e) { self.setState({ otpCode: e.target.value }); },
+          restart: function () { self.setState({ otpSentTo: '', otpCode: '', otpErr: '' }); },
+          send: function () { call({ action: 'send', phone: S.otpPhone }, function (res) { self.setState({ otpSentTo: res.phone, otpCode: '' }); }); },
+          verify: function () {
+            call({ action: 'verify', code: S.otpCode }, function (res) {
+              self.setState({ phoneVerified: res.phone, otpSentTo: '', otpCode: '' }); supabase.auth.refreshSession(); self.showToast('WhatsApp number confirmed');
+            });
+          } };
+      })(),
       signedIn: S.signedIn, signedOut: !S.signedIn, acctEmail: S.acctEmail,
       acctInitial: ((S.info && S.info.first) || S.acctEmail || '?').trim().charAt(0).toUpperCase(),
       acctAria: 'My account (signed in' + (S.acctEmail ? ' as ' + S.acctEmail : '') + ')',

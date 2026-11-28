@@ -761,6 +761,23 @@ details[open] .plus{transform:rotate(45deg)}
 <div><p class="eyebrow">My account</p><h1 class="h2">My bookings</h1><p style="margin: 10px 0 0; font-size: 14px; color: #A89C8B">Signed in as {{ acctEmail }}</p></div>
 <div style="display: flex; flex-wrap: wrap; gap: 12px"><button class="btn-gold" onClick="{{ bookNow }}">New booking</button><button class="btn-ghost" onClick="{{ togglePwPanel }}">{{ pwPanelLabel }}</button><button class="btn-ghost" onClick="{{ signOut }}">Sign out</button></div>
 </div>
+<sc-if value="{{ otp.show }}" hint-placeholder-val="{{ false }}">
+<div class="card mpad" style="padding: 28px 32px; margin-bottom: 32px; display: flex; flex-direction: column; gap: 14px; max-width: 520px; border-color: rgba(226,184,114,.4)">
+<p class="lbl" style="margin: 0">Confirm your WhatsApp number</p>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #CFC5B5">We send your booking details and the studio location on WhatsApp. Confirm your number with a 6-digit code.</p>
+<sc-if value="{{ otp.askPhone }}" hint-placeholder-val="{{ true }}">
+<div class="field"><label for="o-phone">WhatsApp number</label><input id="o-phone" class="inp" type="tel" value="{{ otp.phone }}" onChange="{{ otp.onPhone }}" autoComplete="tel" placeholder="010 1234 5678"></div>
+<button class="btn-gold" disabled="{{ otp.sendBlocked }}" onClick="{{ otp.send }}" style="align-self: flex-start">{{ otp.sendLabel }}</button>
+</sc-if>
+<sc-if value="{{ otp.askCode }}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0; font-size: 14px; color: #A89C8B">We sent a code to {{ otp.sentTo }} on WhatsApp.</p>
+<div class="field"><label for="o-code">Code</label><input id="o-code" class="inp" inputMode="numeric" autoComplete="one-time-code" maxLength="6" value="{{ otp.code }}" onChange="{{ otp.onCode }}" placeholder="6-digit code"></div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center"><button class="btn-gold" disabled="{{ otp.verifyBlocked }}" onClick="{{ otp.verify }}">{{ otp.verifyLabel }}</button><button class="link" onClick="{{ otp.restart }}">Change number or resend</button></div>
+</sc-if>
+<sc-if value="{{ otp.hasErr }}" hint-placeholder-val="{{ false }}"><p role="alert" style="margin: 0; font-size: 14px; color: #F0A08A">{{ otp.err }}</p></sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ otp.done }}" hint-placeholder-val="{{ false }}"><p style="margin: -20px 0 28px; font-size: 14px; color: #9FD8AE">WhatsApp number confirmed: {{ otp.verified }}</p></sc-if>
 <sc-if value="{{ showPwPanel }}" hint-placeholder-val="{{ false }}">
 <div class="card mpad" style="padding: 28px 32px; margin-bottom: 32px; display: flex; flex-direction: column; gap: 14px; max-width: 520px">
 <p class="lbl" style="margin: 0">{{ pwPanelTitle }}</p>
