@@ -615,64 +615,217 @@ export default function View(v) {
           </div>
         </section>
       </>) : null}
-      {v.is.services ? (<>
+      {v.is.auditions ? (<>
         <section className="page-hero ph-shelves">
           <div className="wrap">
             <p className="eyebrow">
-              {"Services"}
+              {"Auditions"}
             </p>
             <h1 className="h2" style={{ fontSize: "clamp(40px, 5vw, 68px)" }}>
-              {"Three-stage production"}
+              {"Your first episode, on us"}
             </h1>
-            <p className="lead" style={{ marginTop: "18px", maxWidth: "600px", color: "#DCD3C4" }}>
-              {"Consulting, studios and post-production — every stage of your show, or just the one you need."}
+            <p className="lead" style={{ marginTop: "18px", maxWidth: "640px", color: "#DCD3C4" }}>
+              {"Got a podcast idea but not the budget to rent a studio yet? Apply for a free pilot. If we pick your show, you record one episode with three hosts in our studio, and we publish it on the Nilepods YouTube channel."}
             </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", marginTop: "28px" }}>
+              <button className="btn-gold" onClick={v.aud.toForm}>
+                {"Apply for a free pilot"}
+              </button>
+              <button className="btn-ghost" onClick={v.aud.toRules}>
+                {"Read the rules"}
+              </button>
+            </div>
           </div>
         </section>
-        <section className="sec" style={{ paddingTop: "40px" }}>
-          <div className="wrap" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            {(v.stages || []).map((s, s_i11) => (<Fragment key={s_i11}>
-              <div className="card" style={{ display: "flex", flexWrap: "wrap", overflow: "hidden" }}>
-                <div style={{ flex: "1 1 280px", minHeight: "220px", position: "relative" }}>
-                  <img src={s.img} alt="" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover" }} />
+        <section className="sec" style={{ paddingTop: "20px" }}>
+          <div className="wrap">
+            <div style={{ marginBottom: "30px" }}>
+              <p className="eyebrow">
+                {"How it works"}
+              </p>
+              <h2 className="h2">
+                {"From idea to episode"}
+              </h2>
+            </div>
+            <div className="aud-steps">
+              <div className="card static cyc-step">
+                <p className="ttl cyc-n">
+                  {"01"}
+                </p>
+                <h3>
+                  {"Apply"}
+                </h3>
+                <p>
+                  {"Tell us about your show and your three hosts, and agree to the pilot rules."}
+                </p>
+              </div>
+              <div className="card static cyc-step">
+                <p className="ttl cyc-n">
+                  {"02"}
+                </p>
+                <h3>
+                  {"We review"}
+                </h3>
+                <p>
+                  {"Our team reads every application and gets in touch with the shows we like."}
+                </p>
+              </div>
+              <div className="card static cyc-step">
+                <p className="ttl cyc-n">
+                  {"03"}
+                </p>
+                <h3>
+                  {"Pilot day"}
+                </h3>
+                <p>
+                  {"Accepted shows record on our pilot day: "}{v.aud.slot}{"."}
+                </p>
+              </div>
+              <div className="card static cyc-step">
+                <p className="ttl cyc-n">
+                  {"04"}
+                </p>
+                <h3>
+                  {"Goes live"}
+                </h3>
+                <p>
+                  {"We edit and publish your episode on the Nilepods YouTube channel."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="sec" id="aud-rules" style={{ paddingTop: "20px" }}>
+          <div className="wrap">
+            <div style={{ marginBottom: "30px" }}>
+              <p className="eyebrow">
+                {"The rules"}
+              </p>
+              <h2 className="h2">
+                {"Before you apply"}
+              </h2>
+              <p className="lead" style={{ marginTop: "12px", maxWidth: "640px" }}>
+                {"The pilot is free because the episode belongs to the Nilepods channel. Please read these carefully: you agree to all of them when you apply."}
+              </p>
+            </div>
+            <div className="aud-rules">
+              {(v.aud.rules || []).map((r, r_i11) => (<Fragment key={r_i11}>
+                <div className="card static aud-rule">
+                  <b>
+                    {r.n}
+                  </b>
+                  <div>
+                    <h3>
+                      {r.t}
+                    </h3>
+                    <p>
+                      {r.d}
+                    </p>
+                  </div>
                 </div>
-                <div className="mpad" style={{ flex: "999 1 420px", padding: "36px", display: "flex", flexDirection: "column", gap: "12px", justifyContent: "center" }}>
-                  <p className="lbl" style={{ margin: "0" }}>
-                    {s.stage}
+              </Fragment>))}
+            </div>
+          </div>
+        </section>
+        <section className="sec" id="aud-form" style={{ paddingTop: "20px" }}>
+          <div className="wrap" style={{ maxWidth: "860px" }}>
+            <div className="card mpad" style={{ padding: "36px" }}>
+              {v.aud.sent ? (<>
+                <div style={{ display: "flex", flexDirection: "column", gap: "14px", alignItems: "flex-start" }}>
+                  <p className="eyebrow" style={{ margin: "0" }}>
+                    {"Application sent"}
                   </p>
                   <h2 className="ttl" style={{ margin: "0", fontSize: "30px", color: "#FFFFFF" }}>
-                    {s.t}
+                    {"Thanks, we have your pitch"}
                   </h2>
                   <p className="lead">
-                    {s.d}
+                    {"Our team reviews applications every week. If your show is picked, we'll call or email you to plan your pilot day."}
                   </p>
+                  <button className="btn-ghost" onClick={v.nav.home}>
+                    {"Back to home"}
+                  </button>
                 </div>
-              </div>
-            </Fragment>))}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "8px" }}>
-              <span style={{ fontSize: "14px", color: "#DCD3C4", padding: "10px 18px", borderRadius: "999px", border: "1px solid rgba(241,234,223,0.15)" }}>
-                {"Video content"}
-              </span>
-              <span style={{ fontSize: "14px", color: "#DCD3C4", padding: "10px 18px", borderRadius: "999px", border: "1px solid rgba(241,234,223,0.15)" }}>
-                {"Podcasts"}
-              </span>
-              <span style={{ fontSize: "14px", color: "#DCD3C4", padding: "10px 18px", borderRadius: "999px", border: "1px solid rgba(241,234,223,0.15)" }}>
-                {"Masterclasses"}
-              </span>
-              <span style={{ fontSize: "14px", color: "#DCD3C4", padding: "10px 18px", borderRadius: "999px", border: "1px solid rgba(241,234,223,0.15)" }}>
-                {"Viral videos"}
-              </span>
-              <span style={{ fontSize: "14px", color: "#DCD3C4", padding: "10px 18px", borderRadius: "999px", border: "1px solid rgba(241,234,223,0.15)" }}>
-                {"YouTube videos"}
-              </span>
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", marginTop: "16px" }}>
-              <button className="btn-gold" onClick={v.nav.contact}>
-                {"Pitch us your idea"}
-              </button>
-              <button className="btn-ghost" onClick={v.bookNow}>
-                {"Book Session"}
-              </button>
+              </>) : null}
+              {v.aud.form ? (<>
+                <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                  <div>
+                    <p className="eyebrow" style={{ margin: "0 0 6px" }}>
+                      {"Apply"}
+                    </p>
+                    <h2 className="ttl" style={{ margin: "0", fontSize: "30px", color: "#FFFFFF" }}>
+                      {"Pitch your show"}
+                    </h2>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="a-show">
+                      {"Show name"}
+                    </label>
+                    <input id="a-show" className="inp" value={v.af.show} onChange={v.onA.show} placeholder="What's your podcast called?" />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="a-idea">
+                      {"The idea"}
+                    </label>
+                    <textarea id="a-idea" className="inp" value={v.af.idea} onChange={v.onA.idea} placeholder="What is the show about, and what would the first episode cover?" />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="a-aud">
+                      {"Who is it for? (optional)"}
+                    </label>
+                    <input id="a-aud" className="inp" value={v.af.audience} onChange={v.onA.audience} placeholder="Your audience" />
+                  </div>
+                  <div className="field">
+                    <label>
+                      {"The three hosts"}
+                    </label>
+                    <div className="aud-hosts">
+                      <input className="inp" aria-label="Host 1" value={v.af.h1} onChange={v.onA.h1} placeholder="Host 1" />
+                      <input className="inp" aria-label="Host 2" value={v.af.h2} onChange={v.onA.h2} placeholder="Host 2" />
+                      <input className="inp" aria-label="Host 3" value={v.af.h3} onChange={v.onA.h3} placeholder="Host 3" />
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "18px" }}>
+                    <div className="field">
+                      <label htmlFor="a-name">
+                        {"Your name"}
+                      </label>
+                      <input id="a-name" className="inp" value={v.af.name} onChange={v.onA.name} placeholder="Main contact" />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="a-phone">
+                        {"Phone"}
+                      </label>
+                      <input id="a-phone" className="inp" type="tel" value={v.af.phone} onChange={v.onA.phone} placeholder="01x xxxx xxxx" />
+                    </div>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="a-email">
+                      {"Email"}
+                    </label>
+                    <input id="a-email" className="inp" type="email" value={v.af.email} onChange={v.onA.email} placeholder="you@example.com" />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="a-links">
+                      {"Links (optional)"}
+                    </label>
+                    <input id="a-links" className="inp" value={v.af.links} onChange={v.onA.links} placeholder="Instagram, TikTok, a sample clip..." />
+                  </div>
+                  <label className="chkbox">
+                    <input type="checkbox" checked={v.af.agreed} onChange={v.aud.toggleAgree} />
+                    <span>
+                      {"I have read the pilot rules and agree to them on behalf of all three hosts."}
+                    </span>
+                  </label>
+                  {v.aud.hasErr ? (<>
+                    <p className="aud-err">
+                      {v.aud.err}
+                    </p>
+                  </>) : null}
+                  <button className="btn-gold btn-lg" disabled={v.aud.blocked} onClick={v.aud.send} style={{ alignSelf: "flex-start" }}>
+                    {v.aud.sendLabel}
+                  </button>
+                </div>
+              </>) : null}
             </div>
           </div>
         </section>

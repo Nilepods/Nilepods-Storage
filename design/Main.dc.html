@@ -185,6 +185,15 @@ details[open] .plus{transform:rotate(45deg)}
 }
 .prog.p3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .prog.p5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.aud-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.aud-rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.aud-rule{display:flex;gap:14px;align-items:flex-start;padding:22px}
+.aud-rule b{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:rgba(226,184,114,.14);color:#E2B872;display:flex;align-items:center;justify-content:center;font-size:13px}
+.aud-rule h3{margin:0 0 4px;font-size:16px;font-weight:600;color:#FFFFFF}
+.aud-rule p{margin:0;font-size:14px;line-height:1.6;color:#A89C8B}
+.aud-hosts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.aud-err{margin:0;font-size:14px;color:#F0A08A}
+@media (max-width:900px){.aud-steps{grid-template-columns:1fr 1fr}.aud-rules,.aud-hosts{grid-template-columns:1fr}}
 .cyc-stage{position:relative;width:100%;aspect-ratio:16/10;border-radius:24px;overflow:hidden;background:#1A1712;border:1px solid rgba(241,234,223,.1);box-shadow:0 40px 90px -40px rgba(0,0,0,.85)}
 .cyc-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .cyc-tag{position:absolute;top:18px;left:18px;margin:0;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(14,12,10,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:#F1EADF}
@@ -613,28 +622,53 @@ details[open] .plus{transform:rotate(45deg)}
 </div></section>
 </sc-if>
 
-<!-- ============ SERVICES ============ -->
-<sc-if value="{{ is.services }}" hint-placeholder-val="{{ false }}">
-<section class="page-hero ph-shelves"><div class="wrap"><p class="eyebrow">Services</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Three-stage production</h1><p class="lead" style="margin-top: 18px; max-width: 600px; color: #DCD3C4">Consulting, studios and post-production — every stage of your show, or just the one you need.</p></div></section>
-<section class="sec" style="padding-top: 40px"><div class="wrap" style="display: flex; flex-direction: column; gap: 20px">
-<sc-for list="{{ stages }}" as="s" hint-placeholder-count="3">
-<div class="card" style="display: flex; flex-wrap: wrap; overflow: hidden">
-<div style="flex: 1 1 280px; min-height: 220px; position: relative"><img src="{{ s.img }}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></div>
-<div class="mpad" style="flex: 999 1 420px; padding: 36px; display: flex; flex-direction: column; gap: 12px; justify-content: center">
-<p class="lbl" style="margin: 0">{{ s.stage }}</p>
-<h2 class="ttl" style="margin: 0; font-size: 30px; color: #FFFFFF">{{ s.t }}</h2>
-<p class="lead">{{ s.d }}</p>
+<!-- ============ AUDITIONS (free pilot episodes) ============ -->
+<sc-if value="{{ is.auditions }}" hint-placeholder-val="{{ false }}">
+<section class="page-hero ph-shelves"><div class="wrap"><p class="eyebrow">Auditions</p><h1 class="h2" style="font-size: clamp(40px, 5vw, 68px)">Your first episode, on us</h1><p class="lead" style="margin-top: 18px; max-width: 640px; color: #DCD3C4">Got a podcast idea but not the budget to rent a studio yet? Apply for a free pilot. If we pick your show, you record one episode with three hosts in our studio, and we publish it on the Nilepods YouTube channel.</p><div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px"><button class="btn-gold" onClick="{{ aud.toForm }}">Apply for a free pilot</button><button class="btn-ghost" onClick="{{ aud.toRules }}">Read the rules</button></div></div></section>
+
+<section class="sec" style="padding-top: 20px"><div class="wrap">
+<div style="margin-bottom: 30px"><p class="eyebrow">How it works</p><h2 class="h2">From idea to episode</h2></div>
+<div class="aud-steps">
+<div class="card static cyc-step"><p class="ttl cyc-n">01</p><h3>Apply</h3><p>Tell us about your show and your three hosts, and agree to the pilot rules.</p></div>
+<div class="card static cyc-step"><p class="ttl cyc-n">02</p><h3>We review</h3><p>Our team reads every application and gets in touch with the shows we like.</p></div>
+<div class="card static cyc-step"><p class="ttl cyc-n">03</p><h3>Pilot day</h3><p>Accepted shows record on our pilot day: {{ aud.slot }}.</p></div>
+<div class="card static cyc-step"><p class="ttl cyc-n">04</p><h3>Goes live</h3><p>We edit and publish your episode on the Nilepods YouTube channel.</p></div>
 </div>
-</div>
+</div></section>
+
+<section class="sec" id="aud-rules" style="padding-top: 20px"><div class="wrap">
+<div style="margin-bottom: 30px"><p class="eyebrow">The rules</p><h2 class="h2">Before you apply</h2><p class="lead" style="margin-top: 12px; max-width: 640px">The pilot is free because the episode belongs to the Nilepods channel. Please read these carefully: you agree to all of them when you apply.</p></div>
+<div class="aud-rules">
+<sc-for list="{{ aud.rules }}" as="r" hint-placeholder-count="6">
+<div class="card static aud-rule"><b>{{ r.n }}</b><div><h3>{{ r.t }}</h3><p>{{ r.d }}</p></div></div>
 </sc-for>
-<div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px">
-<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">Video content</span>
-<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">Podcasts</span>
-<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">Masterclasses</span>
-<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">Viral videos</span>
-<span style="font-size: 14px; color: #DCD3C4; padding: 10px 18px; border-radius: 999px; border: 1px solid rgba(241,234,223,0.15)">YouTube videos</span>
 </div>
-<div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 16px"><button class="btn-gold" onClick="{{ nav.contact }}">Pitch us your idea</button><button class="btn-ghost" onClick="{{ bookNow }}">Book Session</button></div>
+</div></section>
+
+<section class="sec" id="aud-form" style="padding-top: 20px"><div class="wrap" style="max-width: 860px">
+<div class="card mpad" style="padding: 36px">
+<sc-if value="{{ aud.sent }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 14px; align-items: flex-start"><p class="eyebrow" style="margin: 0">Application sent</p><h2 class="ttl" style="margin: 0; font-size: 30px; color: #FFFFFF">Thanks, we have your pitch</h2><p class="lead">Our team reviews applications every week. If your show is picked, we'll call or email you to plan your pilot day.</p><button class="btn-ghost" onClick="{{ nav.home }}">Back to home</button></div>
+</sc-if>
+<sc-if value="{{ aud.form }}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div><p class="eyebrow" style="margin: 0 0 6px">Apply</p><h2 class="ttl" style="margin: 0; font-size: 30px; color: #FFFFFF">Pitch your show</h2></div>
+<div class="field"><label for="a-show">Show name</label><input id="a-show" class="inp" value="{{ af.show }}" onChange="{{ onA.show }}" placeholder="What's your podcast called?"></div>
+<div class="field"><label for="a-idea">The idea</label><textarea id="a-idea" class="inp" value="{{ af.idea }}" onChange="{{ onA.idea }}" placeholder="What is the show about, and what would the first episode cover?"></textarea></div>
+<div class="field"><label for="a-aud">Who is it for? (optional)</label><input id="a-aud" class="inp" value="{{ af.audience }}" onChange="{{ onA.audience }}" placeholder="Your audience"></div>
+<div class="field"><label>The three hosts</label><div class="aud-hosts"><input class="inp" aria-label="Host 1" value="{{ af.h1 }}" onChange="{{ onA.h1 }}" placeholder="Host 1"><input class="inp" aria-label="Host 2" value="{{ af.h2 }}" onChange="{{ onA.h2 }}" placeholder="Host 2"><input class="inp" aria-label="Host 3" value="{{ af.h3 }}" onChange="{{ onA.h3 }}" placeholder="Host 3"></div></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px">
+<div class="field"><label for="a-name">Your name</label><input id="a-name" class="inp" value="{{ af.name }}" onChange="{{ onA.name }}" placeholder="Main contact"></div>
+<div class="field"><label for="a-phone">Phone</label><input id="a-phone" class="inp" type="tel" value="{{ af.phone }}" onChange="{{ onA.phone }}" placeholder="01x xxxx xxxx"></div>
+</div>
+<div class="field"><label for="a-email">Email</label><input id="a-email" class="inp" type="email" value="{{ af.email }}" onChange="{{ onA.email }}" placeholder="you@example.com"></div>
+<div class="field"><label for="a-links">Links (optional)</label><input id="a-links" class="inp" value="{{ af.links }}" onChange="{{ onA.links }}" placeholder="Instagram, TikTok, a sample clip..."></div>
+<label class="chkbox"><input type="checkbox" checked="{{ af.agreed }}" onChange="{{ aud.toggleAgree }}"><span>I have read the pilot rules and agree to them on behalf of all three hosts.</span></label>
+<sc-if value="{{ aud.hasErr }}" hint-placeholder-val="{{ false }}"><p class="aud-err">{{ aud.err }}</p></sc-if>
+<button class="btn-gold btn-lg" disabled="{{ aud.blocked }}" onClick="{{ aud.send }}" style="align-self: flex-start">{{ aud.sendLabel }}</button>
+</div>
+</sc-if>
+</div>
 </div></section>
 </sc-if>
 

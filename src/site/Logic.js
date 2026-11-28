@@ -17,7 +17,17 @@ const STATUS_LABELS = {
 };
 
 // Wizard fields kept while the customer is on Paymob's page, so a failed payment can be retried.
-const PAGES = ['home', 'packages', 'pkgDetail', 'studios', 'cyclorama', 'audio', 'services', 'contact', 'tour', 'account', 'legal', 'book', 'confirm'];
+// Free pilot ("Auditions"): the weekly recording slot and the rules applicants agree to. Edit freely.
+const AUDITION_SLOT = 'one set day and hour each week, which we confirm when your show is accepted';
+const AUDITION_RULES = [
+  ['Exactly three hosts', 'Every pilot is a podcast with three people on camera, no more and no less. All three must come on pilot day.'],
+  ['Published on our channel', 'Your episode is edited and published on the Nilepods YouTube channel. We decide the title, thumbnail and release date.'],
+  ['Nilepods owns the footage', 'All footage and the published episode belong to Nilepods. You do not get the raw files or the right to publish the episode elsewhere.'],
+  ['Sharing on your own socials', 'You may share clips and the episode link on your own social media for promotion, following the guidelines and brand outline we give you.'],
+  ['Our content guidelines', 'No hate speech, harassment, illegal content or paid promotion. We can stop a recording or decline to publish an episode that breaks the guidelines.'],
+  ['One pilot, on our schedule', 'Pilots are recorded only on our pilot day and hour. If you miss your slot, we may give it to another show.'],
+];
+const PAGES = ['home', 'packages', 'pkgDetail', 'studios', 'cyclorama', 'audio', 'auditions', 'contact', 'tour', 'account', 'legal', 'book', 'confirm'];
 
 // Address for a page, e.g. /?p=packages, /?p=legal&doc=terms, /?p=pkgDetail&tier=mix&n=3
 function pageUrl(S) {
@@ -53,6 +63,7 @@ export default class Logic extends DCLogic {
       method: 'card', card: { holder: '', num: '', exp: '', cvc: '' }, agreed: false, paying: false, useCredit: true,
       bookings: [], credits: [], last: null, signedIn: false, acctEmail: '', menu: false, toast: '',
       legal: 'privacy', cf: { name: '', phone: '', email: '', msg: '' }, contactSent: false,
+      af: { show: '', idea: '', audience: '', h1: '', h2: '', h3: '', name: '', phone: '', email: '', links: '', agreed: false }, audSent: false, audBusy: false, audErr: '',
       tf: { name: '', phone: '', note: '' }, tourSent: false, tDate: null, tOff: 0, tSlot: null,
       busy: {}, sessTab: 'upcoming', sessSvc: 'all', moveRef: null, moveDate: '', moveStart: null, moveBusy: false, signInBusy: false, signInNote: '', acctPw: '', newPw: '', showPwPanel: false, pwReset: false
     };
@@ -380,7 +391,7 @@ export default class Logic extends DCLogic {
     // ----- navigation -----
     var goTo = function (sc, anchor) { return function (e) { if (e && e.preventDefault) e.preventDefault(); self.go(sc, null, anchor); }; };
     var bookNow = function () { self.startSession(); };
-    var navDefs = [['Packages', 'packages'], ['Studios', 'studios'], ['Cyclorama', 'cyclorama'], ['Services', 'services'], ['Contact Us', 'contact']];
+    var navDefs = [['Packages', 'packages'], ['Studios', 'studios'], ['Cyclorama', 'cyclorama'], ['Auditions', 'auditions'], ['Contact Us', 'contact']];
     var navItems = navDefs.map(function (n) {
       var active = S.screen === n[1] || (n[1] === 'packages' && S.screen === 'pkgDetail');
       return { label: n[0], go: goTo(n[1]), cls: 'navlink' + (active ? ' active' : ''), mcls: 'mlink' + (active ? ' active' : '') };
@@ -651,7 +662,29 @@ export default class Logic extends DCLogic {
     var last = S.last ? Object.assign({}, S.last, { cells: cellsFor(S.last.start || 0, S.last.end || 0), isBundle: S.last.kind === 'bundle', isSession: S.last.kind === 'session', acctCls: S.last.kind === 'bundle' ? 'btn-gold' : 'btn-ghost' }) :
       { email: '', ref: '', headline: '', kicker: '', big: '', sub: '', totalLabel: '', payState: '', payCls: '', rows: [], note: '', cells: cellsFor(0, 0), isBundle: false, isSession: true, acctCls: 'btn-ghost' };
     var mk = function (g) { return function (f) { return function (e) { self.setF(g, f, e.target.value); }; }; };
-    var fC = mk('cf'), fT = mk('tf'), fI = mk('info');
+    var fC = mk('cf'), fT = mk('tf'), fI = mk('info'), fA = mk('af');
+    // ----- auditions: free pilot episodes (applications go to the audition_applications table) -----
+    var AF = S.af;
+    var audOk = AF.show.trim().length >= 2 && AF.idea.trim().length >= 20 && AF.h1.trim() && AF.h2.trim() && AF.h3.trim()
+      && AF.name.trim().length >= 2 && AF.phone.replace(/\D/g, '').length >= 8 && /.+@.+\..+/.test(AF.email.trim()) && AF.agreed;
+    var aud = {
+      slot: AUDITION_SLOT,
+      rules: AUDITION_RULES.map(function (r, i) { return { n: String(i + 1), t: r[0], d: r[1] }; }),
+      sent: S.audSent, form: !S.audSent, hasErr: !!S.audErr, err: S.audErr,
+      blocked: !audOk || S.audBusy, sendLabel: S.audBusy ? 'Sending...' : 'Send application',
+      toForm: function () { self.scrollTop('aud-form'); }, toRules: function () { self.scrollTop('aud-rules'); },
+      toggleAgree: function () { self.setState({ af: Object.assign({}, self.state.af, { agreed: !self.state.af.agreed }) }); },
+      send: function () {
+        if (!audOk || self.state.audBusy) return;
+        if (!supabase) { self.setState({ audSent: true }); return; }
+        self.setState({ audBusy: true, audErr: '' });
+        supabase.from('audition_applications').insert({ show_name: AF.show.trim(), idea: AF.idea.trim(), audience: AF.audience.trim() || null,
+          contact_name: AF.name.trim(), email: AF.email.trim(), phone: AF.phone.trim(), hosts: [AF.h1.trim(), AF.h2.trim(), AF.h3.trim()],
+          links: AF.links.trim() || null, agreed_rules: true }).then(function (r) {
+          if (r.error) { console.warn(r.error); self.setState({ audBusy: false, audErr: 'We could not send your application. Please check your details and try again.' }); return; }
+          self.setState({ audBusy: false, audSent: true }); self.scrollTop('aud-form');
+        });
+      } };
     var fmtNum = function (v) { return v.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 '); };
     var fmtExp = function (v) { var d = v.replace(/\D/g, '').slice(0, 4); return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d; };
     var legalTitles = { privacy: 'Privacy Policy', terms: 'Terms & Conditions', refund: 'Refund & Cancellation' };
@@ -768,10 +801,10 @@ export default class Logic extends DCLogic {
       },
       carPrev: function () { self.carTo(S.carIdx - 1); }, carNext: function () { self.carTo(S.carIdx + 1); }, carDots: carDots,
       is: { home: S.screen === 'home', studios: S.screen === 'studios', cyclorama: S.screen === 'cyclorama', audio: S.screen === 'audio',
-        services: S.screen === 'services', contact: S.screen === 'contact', tour: S.screen === 'tour', account: S.screen === 'account',
+        auditions: S.screen === 'auditions', contact: S.screen === 'contact', tour: S.screen === 'tour', account: S.screen === 'account',
         legal: S.screen === 'legal', book: S.screen === 'book', confirm: S.screen === 'confirm', packages: S.screen === 'packages', pkgDetail: S.screen === 'pkgDetail' },
       st: st,
-      nav: { home: goTo('home'), packages: goTo('packages'), studios: goTo('studios'), services: goTo('services'),
+      nav: { home: goTo('home'), packages: goTo('packages'), studios: goTo('studios'), auditions: goTo('auditions'), services: goTo('auditions'),
         contact: goTo('contact'), tour: goTo('tour'), account: goTo('account') },
       legal: { privacy: function () { self.go('legal', { legal: 'privacy' }); }, terms: function (e) { if (e) e.preventDefault(); self.go('legal', { legal: 'terms' }); }, refund: function (e) { if (e) e.preventDefault(); self.go('legal', { legal: 'refund' }); } },
       legalTitle: legalTitles[S.legal],
@@ -806,6 +839,7 @@ export default class Logic extends DCLogic {
         countLabel: self.packLabel(S.bCount), valid: String(self.validFor(S.bCount)), per: self.money(BP.per) + ' per session',
         hasSave: BP.saved > 0, saved: self.money(BP.saved) } : { tier: '', svc: '', img: IM.hero, inc: [], counts: [], countLabel: '', per: '', hasSave: false, saved: '' },
       // contact / tour / account
+      aud: aud, af: AF, onA: { show: fA('show'), idea: fA('idea'), audience: fA('audience'), h1: fA('h1'), h2: fA('h2'), h3: fA('h3'), name: fA('name'), phone: fA('phone'), email: fA('email'), links: fA('links') },
       cf: S.cf, onC: { name: fC('name'), phone: fC('phone'), email: fC('email'), msg: fC('msg') },
       contactSent: S.contactSent, contactForm: !S.contactSent,
       contactBlocked: !(S.cf.name.trim() && (S.cf.phone.trim() || S.cf.email.trim()) && S.cf.msg.trim()),

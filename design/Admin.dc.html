@@ -122,6 +122,8 @@ button.trow:hover{background:#17140F}
 .grid2{grid-template-columns:1fr}
 }
 .gtag{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:rgba(226,184,114,.14);color:#E2B872;font-size:12px;font-weight:600;vertical-align:1px}
+.btn-ghost.on{border-color:#E2B872;color:#E2B872}
+.aud-new{background:rgba(226,184,114,.16);color:#E2B872}.aud-contacted{background:rgba(140,170,220,.16);color:#AFC6EE}.aud-accepted{background:rgba(120,190,140,.16);color:#9FD8AE}.aud-declined{background:rgba(241,234,223,.08);color:#A89C8B}
 </style>
 </helmet>
 <div class="ad" ref="{{ setRoot }}">
@@ -318,6 +320,27 @@ button.trow:hover{background:#17140F}
 </sc-if>
 
 <!-- ======== TOURS ======== -->
+<sc-if value="{{ is.auditions }}" hint-placeholder-val="{{ false }}">
+<div class="ph">
+<div><p class="lbl">Auditions</p><h1 class="ttl" style="margin: 6px 0 0; font-size: 32px; color: #FFFFFF">Free pilot applications</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A89C8B">Shows that applied for a free pilot episode. Call or email them, then accept or decline.</p></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px"><sc-for list="{{ auditions.tabs }}" as="t" hint-placeholder-count="4"><button class="{{ t.cls }}" onClick="{{ t.go }}" style="min-height: 36px">{{ t.label }}</button></sc-for></div>
+<sc-if value="{{ auditions.none }}" hint-placeholder-val="{{ false }}"><div class="panel" style="padding: 40px; text-align: center"><p style="margin: 0; font-size: 15px; color: #8C8172">No applications here yet.</p></div></sc-if>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<sc-for list="{{ auditions.list }}" as="a" hint-placeholder-count="2">
+<div class="panel" style="padding: 22px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center"><div><p class="ttl" style="margin: 0; font-size: 22px; color: #FFFFFF">{{ a.show }}</p><p class="muted" style="margin: 4px 0 0">Applied {{ a.when }}</p></div><span class="{{ a.pill }}">{{ a.status }}</span></div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #DCD3C4; white-space: pre-wrap">{{ a.idea }}</p>
+<sc-if value="{{ a.hasAudience }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 13px; color: #A89C8B">Audience: {{ a.audience }}</p></sc-if>
+<p style="margin: 0; font-size: 13px; color: #A89C8B">Hosts: <span style="color: #FFFFFF">{{ a.hosts }}</span></p>
+<p style="margin: 0; font-size: 13px; color: #A89C8B">Contact: <span style="color: #FFFFFF">{{ a.contact }}</span> · <a href="{{ a.tel }}" style="color: #E2B872">{{ a.phone }}</a> · <a href="{{ a.mail }}" style="color: #E2B872">{{ a.email }}</a></p>
+<sc-if value="{{ a.hasLinks }}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 13px; color: #A89C8B; word-break: break-word">Links: {{ a.links }}</p></sc-if>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px"><button class="btn-ghost" onClick="{{ a.contacted }}" style="min-height: 36px">Mark contacted</button><button class="btn-gold" onClick="{{ a.accept }}" style="min-height: 36px">Accept</button><button class="btn-ghost" onClick="{{ a.decline }}" style="min-height: 36px">Decline</button></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
 <sc-if value="{{ is.tours }}" hint-placeholder-val="{{ false }}">
 <div class="ph">
 <div><p class="lbl">Tours</p><h1 class="ttl" style="margin: 6px 0 0; font-size: 32px; color: #FFFFFF">Tour availability</h1><p style="margin: 6px 0 0; font-size: 14px; color: #A89C8B">Tap a slot to open or block it. Booked slots can't be blocked.</p></div>

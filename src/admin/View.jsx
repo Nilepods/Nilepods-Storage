@@ -764,6 +764,98 @@ export default function View(v) {
                 </Fragment>))}
               </div>
             </>) : null}
+            {v.is.auditions ? (<>
+              <div className="ph">
+                <div>
+                  <p className="lbl">
+                    {"Auditions"}
+                  </p>
+                  <h1 className="ttl" style={{ margin: "6px 0 0", fontSize: "32px", color: "#FFFFFF" }}>
+                    {"Free pilot applications"}
+                  </h1>
+                  <p style={{ margin: "6px 0 0", fontSize: "14px", color: "#A89C8B" }}>
+                    {"Shows that applied for a free pilot episode. Call or email them, then accept or decline."}
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "18px" }}>
+                {(v.auditions.tabs || []).map((t, t_i57) => (<Fragment key={t_i57}>
+                  <button className={t.cls} onClick={t.go} style={{ minHeight: "36px" }}>
+                    {t.label}
+                  </button>
+                </Fragment>))}
+              </div>
+              {v.auditions.none ? (<>
+                <div className="panel" style={{ padding: "40px", textAlign: "center" }}>
+                  <p style={{ margin: "0", fontSize: "15px", color: "#8C8172" }}>
+                    {"No applications here yet."}
+                  </p>
+                </div>
+              </>) : null}
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                {(v.auditions.list || []).map((a, a_i58) => (<Fragment key={a_i58}>
+                  <div className="panel" style={{ padding: "22px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "10px", alignItems: "center" }}>
+                      <div>
+                        <p className="ttl" style={{ margin: "0", fontSize: "22px", color: "#FFFFFF" }}>
+                          {a.show}
+                        </p>
+                        <p className="muted" style={{ margin: "4px 0 0" }}>
+                          {"Applied "}{a.when}
+                        </p>
+                      </div>
+                      <span className={a.pill}>
+                        {a.status}
+                      </span>
+                    </div>
+                    <p style={{ margin: "0", fontSize: "14px", lineHeight: "1.6", color: "#DCD3C4", whiteSpace: "pre-wrap" }}>
+                      {a.idea}
+                    </p>
+                    {a.hasAudience ? (<>
+                      <p style={{ margin: "0", fontSize: "13px", color: "#A89C8B" }}>
+                        {"Audience: "}{a.audience}
+                      </p>
+                    </>) : null}
+                    <p style={{ margin: "0", fontSize: "13px", color: "#A89C8B" }}>
+                      {"Hosts: "}
+                      <span style={{ color: "#FFFFFF" }}>
+                        {a.hosts}
+                      </span>
+                    </p>
+                    <p style={{ margin: "0", fontSize: "13px", color: "#A89C8B" }}>
+                      {"Contact: "}
+                      <span style={{ color: "#FFFFFF" }}>
+                        {a.contact}
+                      </span>
+                      {" · "}
+                      <a href={a.tel} style={{ color: "#E2B872" }}>
+                        {a.phone}
+                      </a>
+                      {" · "}
+                      <a href={a.mail} style={{ color: "#E2B872" }}>
+                        {a.email}
+                      </a>
+                    </p>
+                    {a.hasLinks ? (<>
+                      <p style={{ margin: "0", fontSize: "13px", color: "#A89C8B", wordBreak: "break-word" }}>
+                        {"Links: "}{a.links}
+                      </p>
+                    </>) : null}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "4px" }}>
+                      <button className="btn-ghost" onClick={a.contacted} style={{ minHeight: "36px" }}>
+                        {"Mark contacted"}
+                      </button>
+                      <button className="btn-gold" onClick={a.accept} style={{ minHeight: "36px" }}>
+                        {"Accept"}
+                      </button>
+                      <button className="btn-ghost" onClick={a.decline} style={{ minHeight: "36px" }}>
+                        {"Decline"}
+                      </button>
+                    </div>
+                  </div>
+                </Fragment>))}
+              </div>
+            </>) : null}
             {v.is.tours ? (<>
               <div className="ph">
                 <div>
@@ -817,7 +909,7 @@ export default function View(v) {
                       </div>
                     </div>
                     <div className="tslots">
-                      {(v.tour.slots || []).map((s, s_i57) => (<Fragment key={s_i57}>
+                      {(v.tour.slots || []).map((s, s_i59) => (<Fragment key={s_i59}>
                         <button className={s.cls} onClick={s.toggle} disabled={s.booked} aria-label={s.aria}>
                           {s.label}
                           <small>
@@ -835,7 +927,7 @@ export default function View(v) {
                       {"Tours booked this day"}
                     </p>
                     <div className="list" style={{ marginTop: "8px" }}>
-                      {(v.tour.booked || []).map((b, b_i58) => (<Fragment key={b_i58}>
+                      {(v.tour.booked || []).map((b, b_i60) => (<Fragment key={b_i60}>
                         <div className="li">
                           <span className="time">
                             {b.time}
@@ -879,7 +971,7 @@ export default function View(v) {
               </div>
               <div className="grid2" style={{ marginTop: "0" }}>
                 <div className="panel" style={{ padding: "8px 22px" }}>
-                  {(v.teamRows || []).map((m, m_i59) => (<Fragment key={m_i59}>
+                  {(v.teamRows || []).map((m, m_i61) => (<Fragment key={m_i61}>
                     <div className="li" style={{ flexWrap: "wrap" }}>
                       <span style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#2A241C", color: "#E2B872", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "600", fontSize: "14px", flexShrink: "0" }} aria-hidden="true">
                         {m.initials}
@@ -991,7 +1083,7 @@ export default function View(v) {
                         {"No sign-ins yet."}
                       </p>
                     </>) : null}
-                    {(v.logins || []).map((lg, lg_i60) => (<Fragment key={lg_i60}>
+                    {(v.logins || []).map((lg, lg_i62) => (<Fragment key={lg_i62}>
                       <div className="row">
                         <span className="k">
                           {lg.who}
@@ -1174,7 +1266,7 @@ export default function View(v) {
                         {"Start time"}
                       </label>
                       <select id="mv-hour" className="inp" value={v.mv.hour} onChange={v.mv.onHour}>
-                        {(v.mv.hours || []).map((h, h_i61) => (<Fragment key={h_i61}>
+                        {(v.mv.hours || []).map((h, h_i63) => (<Fragment key={h_i63}>
                           <option value={h.v}>
                             {h.label}
                           </option>

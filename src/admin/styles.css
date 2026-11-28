@@ -110,3 +110,5 @@ button.trow:hover{background:#17140F}
 .grid2{grid-template-columns:1fr}
 }
 .gtag{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:rgba(226,184,114,.14);color:#E2B872;font-size:12px;font-weight:600;vertical-align:1px}
+.btn-ghost.on{border-color:#E2B872;color:#E2B872}
+.aud-new{background:rgba(226,184,114,.16);color:#E2B872}.aud-contacted{background:rgba(140,170,220,.16);color:#AFC6EE}.aud-accepted{background:rgba(120,190,140,.16);color:#9FD8AE}.aud-declined{background:rgba(241,234,223,.08);color:#A89C8B}

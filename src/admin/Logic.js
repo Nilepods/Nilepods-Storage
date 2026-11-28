@@ -52,7 +52,7 @@ export default class Logic extends DCLogic {
         self.setState({ authed: false, email: '', loginErr: "You're signed in as " + email + " (a customer account), which isn't on the team. To open the admin, sign in below with a team email, or ask the owner to add you." });
         return;
       }
-      var first = ['overview', 'schedule', 'bookings', 'packages', 'payments', 'tours', 'team'].filter(function (t) { return self.canSee(ROLE_UI[who.role], t); })[0];
+      var first = ['overview', 'schedule', 'bookings', 'packages', 'payments', 'tours', 'auditions', 'team'].filter(function (t) { return self.canSee(ROLE_UI[who.role], t); })[0];
       self.setState({ authed: true, loginErr: '', linkSent: '', me: { name: who.name, email: who.email, role: ROLE_UI[who.role] }, tab: first });
       self.loadAll();
     }).catch(function () { self.setState({ loginErr: 'Could not check your access. Please try again.' }); });
@@ -71,12 +71,13 @@ export default class Logic extends DCLogic {
       role === 'Owner' ? supabase.from('bookings').select('ref', { count: 'exact', head: true }).eq('is_test', true) : Promise.resolve({ count: 0 }),
       role === 'Owner' ? supabase.from('package_orders').select('ref', { count: 'exact', head: true }).eq('is_test', true) : Promise.resolve({ count: 0 }),
       money ? supabase.rpc('staff_packages') : Promise.resolve({ data: [] }),
+      supabase.from('audition_applications').select('*').order('created_at', { ascending: false }).limit(200),
     ];
     return Promise.all(q).then(function (r) {
       var err = r.filter(function (x) { return x && x.error; })[0];
       if (err) { console.warn(err.error); self.showToast('Some data could not be loaded.'); }
       self.setState({ rows: r[0].data || [], team: r[1].data || [], orders: r[2].data || [], signIns: r[3].data || [],
-        testCount: (r[4].count || 0) + (r[5].count || 0), pkgs: r[6].data || [], loaded: true });
+        testCount: (r[4].count || 0) + (r[5].count || 0), pkgs: r[6].data || [], auditions: r[7].data || [], loaded: true });
     });
   }
   services() { return { rec: { name: 'Recording Only', short: 'Recording', price: 1150 }, mix: { name: 'Recording + Live Edit', short: 'Live Edit', price: 1450 }, pro: { name: 'Recording + Pro Edit', short: 'Pro Edit', price: 1950 }, photo: { name: 'Photo shoot (cyclorama)', short: 'Photo shoot', price: 1000 } }; }
@@ -132,7 +133,7 @@ export default class Logic extends DCLogic {
   canSee(role, tab) {
     if (role === 'Owner') return true;
     if (role === 'Manager') return tab !== 'team';
-    return ['schedule', 'bookings', 'tours'].indexOf(tab) >= 0;
+    return ['schedule', 'bookings', 'tours', 'auditions'].indexOf(tab) >= 0;
   }
   rpc(name, args, okMsg) {
     var self = this;
@@ -191,6 +192,7 @@ export default class Logic extends DCLogic {
       ['packages', 'Packages', 'M4 7l8-4 8 4v10l-8 4-8-4zM4 7l8 4 8-4M12 11v10'],
       ['payments', 'Payments', 'M3 7h18v10H3zM3 11h18M7 15h3'],
       ['tours', 'Tours', 'M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21zM12 7v3l2 1'],
+      ['auditions', 'Auditions', 'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3'],
       ['team', 'Team & access', 'M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM22 19v-1a4 4 0 0 0-3-3.9M16 4.1a3 3 0 0 1 0 5.8']
     ];
     var tabs = tabDefs.filter(function (t) { return self.canSee(me.role, t[0]); }).map(function (t) {
@@ -288,6 +290,35 @@ export default class Logic extends DCLogic {
       a.download = 'nilepods-payments-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click(); URL.revokeObjectURL(a.href);
       self.showToast('Downloaded ' + txns.length + ' transactions');
     };
+    // ---- auditions: free pilot applications from the website ----
+    var AUD_UI = { 'new': 'New', contacted: 'Contacted', accepted: 'Accepted', declined: 'Declined' };
+    var aFilter = S.audFilter || 'open';
+    var allApps = (S.auditions || []);
+    var setAud = function (id, st) {
+      return function () {
+        supabase.rpc('staff_update_audition', { p_id: id, p_status: st }).then(function (r) {
+          if (r.error) { self.showToast(errText(r.error)); return; }
+          self.setState({ auditions: self.state.auditions.map(function (x) { return x.id === id ? Object.assign({}, x, { status: st }) : x; }) });
+          self.showToast('Marked as ' + AUD_UI[st].toLowerCase() + '.');
+        });
+      };
+    };
+    var audApps = allApps.filter(function (a) { return aFilter === 'all' ? true : aFilter === 'open' ? (a.status === 'new' || a.status === 'contacted') : a.status === aFilter; })
+      .map(function (a) {
+        return { show: a.show_name, idea: a.idea, audience: a.audience || '', hasAudience: !!a.audience, hosts: (a.hosts || []).join(' · '),
+          contact: a.contact_name, phone: a.phone, email: a.email, mail: 'mailto:' + a.email, tel: 'tel:' + a.phone.replace(/[^\d+]/g, ''),
+          links: a.links || '', hasLinks: !!a.links,
+          when: new Date(a.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+          status: AUD_UI[a.status], pill: 'gtag aud-' + a.status,
+          contacted: setAud(a.id, 'contacted'), accept: setAud(a.id, 'accepted'), decline: setAud(a.id, 'declined') };
+      });
+    var audTabs = [['open', 'To review'], ['accepted', 'Accepted'], ['declined', 'Declined'], ['all', 'All']].map(function (t) {
+      var n = allApps.filter(function (a) { return t[0] === 'all' ? true : t[0] === 'open' ? (a.status === 'new' || a.status === 'contacted') : a.status === t[0]; }).length;
+      return { label: t[1] + ' (' + n + ')', cls: 'btn-ghost' + (aFilter === t[0] ? ' on' : ''), go: function () { self.setState({ audFilter: t[0] }); } };
+    });
+    var auditions = { list: audApps, none: audApps.length === 0, tabs: audTabs,
+      newCount: allApps.filter(function (a) { return a.status === 'new'; }).length };
+
     // ---- tours (not stored online yet: blocking here only lasts for this visit) ----
     var td = new Date(D.today); td.setDate(D.today.getDate() + S.tourOff);
     var tKey = this.key(td), tClosed = td.getDay() === 5, blocked = S.tourBlocks[tKey] || [];
@@ -466,7 +497,7 @@ export default class Logic extends DCLogic {
       signOut: function () { authSignOut().then(function () { self._checked = null; self.setState({ authed: false, sel: null, me: null, linkSent: '', showPwPanel: false }); }); },
       me: { name: me.name, role: me.role, initials: me.name ? initials(me.name) : '', first: nameFirst },
       mv: mv, pk: pk,
-      tabs: tabs, is: { overview: tab === 'overview', schedule: tab === 'schedule', bookings: tab === 'bookings', packages: tab === 'packages', payments: tab === 'payments', tours: tab === 'tours', team: tab === 'team' },
+      tabs: tabs, is: { overview: tab === 'overview', schedule: tab === 'schedule', bookings: tab === 'bookings', packages: tab === 'packages', payments: tab === 'payments', tours: tab === 'tours', auditions: tab === 'auditions', team: tab === 'team' },
       todayLong: this.dayName(D.today, true), ranges: ranges, rangeLabel: rangeLabel, k: k,
       dataNote: !S.loaded ? 'loading…' : testInData ? 'live data, includes test bookings' : 'live data',
       chart: chart, chartTotal: self.money(chartSum), chartAria: 'Money in per day for the last 14 days, ' + self.money(chartSum) + ' in total',
@@ -478,7 +509,7 @@ export default class Logic extends DCLogic {
       rows: list.map(view), noRows: list.length === 0, listCount: list.length + (list.length === 1 ? ' booking' : ' bookings'),
       clearFilters: function () { self.setState({ q: '', fStatus: 'all' }); },
       payTotals: payTotals, txns: txns, exportCsv: exportCsv,
-      tour: tour, teamRows: teamRows, invite: invite,
+      auditions: auditions, tour: tour, teamRows: teamRows, invite: invite,
       onInvEmail: function (e) { self.setState({ invite: { email: e.target.value, role: S.invite.role } }); },
       onInvRole: function (e) { self.setState({ invite: { email: S.invite.email, role: e.target.value } }); },
       sendInvite: function () {
