@@ -72,7 +72,7 @@ export async function sendBookingEmails(ref: string, kind: 'new' | 'rescheduled'
       subjectWhat = `${cairo(b.starts_at, { weekday: 'short', day: 'numeric', month: 'short' })}, ${hour(b.starts_at)}`;
       intro = kind === 'rescheduled' ? `Hi ${esc(b.first_name)}, your session has been moved to the new time below. See you at the studio.`
         : `Hi ${esc(b.first_name)}, your session is booked. We can't wait to see you at the studio.`;
-      footnote = (cash && !paid ? 'Please pay at the studio on the day. ' : '') + 'Please arrive 10 minutes early. Need a different time? Sign in at My account to move your session (up to 48 hours before it starts). To cancel, reply to this email.';
+      footnote = (cash && !paid ? 'Please pay at the studio on the day. ' : '') + '<strong style="color:#FFFFFF;">Please arrive 30 minutes before your session</strong> so we can set you up and start on time. No food or drinks inside the studio rooms. <br><br><strong style="color:#FFFFFF;">Finding us:</strong> we are in the basement. Look for the small metal door on the side of the building with the &ldquo;438 Basement&rdquo; sign next to it. <a href="https://maps.app.goo.gl/Z8xQ5h1krpfMB35R9" style="color:#E2B872;">Open the studio location in Google Maps</a>.<br><br>Need a different time? Sign in at My account to move your session (up to 48 hours before it starts). To cancel, reply to this email.';
     } else {
       rows = [['Order', esc(o.ref)], ['Package', esc(`${PACKS[o.sessions] ? PACKS[o.sessions] + ' · ' : ''}${SERVICES[o.service] ?? o.service} · ${o.sessions} sessions`)], ['Valid for', `${validDays(o.sessions)} days`], ['Total', payLine]];
       subjectWhat = `${PACKS[o.sessions] ?? o.sessions + '-session'} package`;

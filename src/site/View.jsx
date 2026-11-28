@@ -570,7 +570,7 @@ export default function View(v) {
                   {"Shoot"}
                 </h3>
                 <p>
-                  {"The cyc is lit and ready when you arrive."}
+                  {"Arrive 30 minutes early. The cyc is lit and ready for you."}
                 </p>
               </div>
             </div>

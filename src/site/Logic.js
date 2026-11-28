@@ -571,7 +571,7 @@ export default class Logic extends DCLogic {
         draft = { kind: 'session', email: email, headline: "You're booked!", kicker: isCyc ? 'Your cyclorama session' : 'Your session', big: b.dateLabel, sub: b.timeLabel + ' · ' + hoursText,
           totalLabel: self.money(total), start: b.start, end: b.end, booking: b,
           rows: isCyc ? [{ k: 'Service', v: P.name }, { k: 'Studio', v: 'Cyclorama' }, { k: 'Duration', v: hoursText }, { k: 'Name', v: name }, { k: 'Payment', v: payLabelRow }] : [{ k: 'Service', v: P.name }, { k: 'Setup', v: b.setupLabel }, { k: 'People on camera', v: String(S.people) }, { k: 'Guests coming along', v: S.guests ? String(S.guests) : 'None' }, { k: 'Extras', v: extrasNames.length ? extrasNames.join(', ') : 'None' }, { k: 'Name', v: name }, { k: 'Payment', v: payLabelRow }],
-          note: 'Your hours are locked in ' + b.setupLabel + '. Please arrive 10 minutes early.' };
+          note: 'Your hours are locked in ' + b.setupLabel + '. Please arrive 30 minutes before your session so we can set you up and start on time. We are in the basement: look for the small metal door on the side of the building with the "438 Basement" sign.' };
       }
       if (acct === 'created' || acct === 'unconfirmed') draft.note = 'We sent a confirmation email to ' + email + '. Tap the link in it to activate your account, then sign in with your email and password to see your bookings. ' + draft.note;
       var tokenP = usingCredit && supabase ? supabase.auth.getSession().then(function (r) { return r.data.session && r.data.session.access_token; }) : Promise.resolve(null);
@@ -831,7 +831,8 @@ export default class Logic extends DCLogic {
       faqs: [{ q: 'What is Nilepods and how can it help me?', a: 'Nilepods is a set of ready-to-record studios with everything you need to shoot, record, edit and distribute your content — from podcasts to masterclasses.' },
         { q: 'What makes Nilepods unique?', a: 'Our equipment is automated, so shooting is simple and fast — and your edit is ready soon after you finish recording.' },
         { q: 'Do packages save me money?', a: 'Yes. Pilot (3 sessions) saves 5%, Series (5) saves 10%, Season (10) saves 15% and Full Season (20) saves 20%. Book each session whenever you like within ' + validDays + ' days, or 180 days for Full Season.' },
-        { q: 'How can I book a studio?', a: 'Book online in a few minutes — pick a service, a setup and your hours between 3 and 11 PM, then pay online, at the studio, or with a package credit.' }],
+        { q: 'How can I book a studio?', a: 'Book online in a few minutes — pick a service, a setup and your hours between 3 and 11 PM, then pay online, at the studio, or with a package credit.' },
+        { q: 'When should I arrive, and how do I find you?', a: 'Please arrive 30 minutes before your session, so we can set you up and start on time. The studio is in the basement: look for the small metal door on the side of the building with the "438 Basement" sign next to it. No food or drinks inside the studio rooms, please.' }],
       // catalog
       catalog: catalog, fCount: fCount,
       saveChips: counts.map(function (n) { return self.packName(n) + ' · ' + n + ' sessions · save ' + Math.round(D[n] * 100) + '%'; }),

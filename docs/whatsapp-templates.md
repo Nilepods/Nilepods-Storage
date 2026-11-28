@@ -8,24 +8,32 @@ Sent to the customer when a session is booked (only if they ticked "Send my book
 
 Body:
 ```
-Hi {{1}}, your Nilepods session is booked!
+Hi {{1}}, your Nilepods session is booked! 🎙
 
 📅 {{2}}
 🕒 {{3}}
-🎙 {{4}} · {{5}}
-Booking ref: {{6}}
+🎧 {{4}} · {{5}}
+Ref: {{6}}
 
-Before you come:
-[STUDIO RULES GO HERE]
+A few things to know:
+• Please arrive 30 minutes before your session so we can get you set up. Sessions start and end on time.
+• No food or drinks inside the studio rooms.
+• Only the guests on your booking can come in.
+• Phones on silent while recording, please.
+• Please treat the equipment with care; damage is charged.
+• Need a different time? Move your session from My account up to 48 hours before.
 
-Please arrive 10 minutes early. See you at the studio!
+📍 Finding us
+We're in the basement. Look for the small metal door on the side of the building with the "438 Basement" sign next to it. Tap "Open studio location" below for directions. Can't find us? Just reply here and we'll guide you.
+
+See you soon!
 ```
-Button: **Visit website** → URL (static) → `[GOOGLE MAPS LINK]`, button text "Open studio location".
+Button: type **Visit website** → URL (static) → `https://maps.app.goo.gl/Z8xQ5h1krpfMB35R9`, button text "Open studio location".
 
 Sample values: Ahmed · Tuesday 2 December · 7 PM to 9 PM · Recording Only · Setup 3 · NP-1A2B3C4D
 
 ## 2. `booking_moved` — category **Utility**
-Same as above, but the first line is: `Hi {{1}}, your Nilepods session has been moved to a new time.`
+Same body and button as above, but the first line is: `Hi {{1}}, your Nilepods session has been moved to a new time. 🎙`
 
 ## 3. `operator_booking` — category **Utility**
 Sent to every team member marked as operator in Admin → Team & access.
